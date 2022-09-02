@@ -1,0 +1,176 @@
+"""
+azcam console app for ITL detchar systems
+
+Command line options:
+  -configure /data/LVM/config_LVM.py
+  -system LVM
+"""
+
+
+import os
+import sys
+import threading
+from runpy import run_path
+
+import azcam
+import azcam.console
+import azcam.shortcuts
+import azcam.tools.console_tools
+import azcam_testers
+import azcam_scripts
+from azcam_ds9.ds9display import Ds9Display
+from azcam_focus.focus import Focus
+from azcam_observe.observe import Observe
+
+from azcam_itl import itlutils
+from azcam_itl.scripts import load_scripts
+import azcam_itl.shortcuts
+
+# parse command line arguments
+try:
+    i = sys.argv.index("-system")
+    azcam.db.systemname = sys.argv[i + 1]
+except ValueError:
+    azcam.db.systemname = "menu"
+try:
+    i = sys.argv.index("-datafolder")
+    datafolder = sys.argv[i + 1]
+except ValueError:
+    datafolder = None
+try:
+    i = sys.argv.index("-configure")
+    configuration = sys.argv[i + 1]  # may overwrite systemname
+except ValueError:
+    configuration = None
+
+# menu to select system
+menu_options = {
+    "VIRUS": "VIRUS",
+    # "LSST": "LSST",
+    "DESI": "DESI",
+    "prober": "prober",
+    # "prober2001": "prober2001",
+    # "electronbench": "electronbench",
+    # "quantumbench": "quantumbench",
+    "LVM": "LVM",
+    # "ZWO ASI294 CMOS camera": "ASI294",
+    "OSU4k": "OSU4k",
+    "ITL4k": "ITL4k",
+}
+
+# configuration
+if configuration is not None:
+    run_path(configuration)
+
+if azcam.db.systemname == "menu":
+    azcam.db.systemname = azcam.utils.show_menu(menu_options)
+
+azcam.db.systemfolder = azcam.utils.fix_path(os.path.dirname(__file__))
+
+if datafolder is None:
+    droot = os.environ.get("AZCAM_DATAROOT")
+    if droot is None:
+        droot = "/data"
+    azcam.db.datafolder = os.path.join(droot, azcam.db.systemname)
+else:
+    azcam.db.datafolder = datafolder
+azcam.db.datafolder = azcam.utils.fix_path(azcam.db.datafolder)
+
+parfile = os.path.join(
+    azcam.db.datafolder, "parameters", f"parameters_console_{azcam.db.systemname}.ini"
+)
+
+# logging
+logfile = os.path.join(azcam.db.datafolder, "logs", "console.log")
+azcam.db.logger.start_logging(logfile=logfile)
+azcam.log(f"Configuring console for {azcam.db.systemname}")
+
+# display
+display = Ds9Display()
+dthread = threading.Thread(target=display.initialize, args=[])
+dthread.start()  # thread just for speed
+
+# console tools
+from azcam.tools import create_console_tools
+
+create_console_tools()
+
+# focus
+focus = Focus()
+focus.focus_component = "instrument"
+focus.focus_type = "step"
+
+# observe
+observe = Observe()
+
+# testers
+azcam_testers.load()
+
+# scripts
+azcam_scripts.load()
+load_scripts()
+
+# try to connect to azcamserver
+connected = azcam.db.tools["server"].connect()  # default host and port
+if connected:
+    azcam.log("Connected to azcamserver")
+else:
+    azcam.log("Not connected to azcamserver")
+
+# system-specific
+if azcam.db.systemname == "VIRUS":
+    from azcam_itl.detchars.detchar_VIRUS import detchar
+    import azcam_arc.console_arc
+
+    if azcam.db.wd is None:
+        azcam.db.wd = "/data/VIRUS"
+
+elif azcam.db.systemname == "DESI":
+    from azcam_itl.detchars.detchar_DESI import detchar
+    import azcam_arc.console_arc
+
+    if azcam.db.wd is None:
+        azcam.db.wd = "/data/DESI"
+
+elif azcam.db.systemname == "prober2001":
+    from azcam_itl.detchars.detchar_prober2001 import detchar
+    import azcam_arc.console_arc
+
+elif azcam.db.systemname == "LVM":
+    if 0:  # azcam.db.LVM_itl4k:
+        from azcam_itl.detchars.detchar_ITL4k import detchar
+
+        azcam.db.wd = "/data/ITL4k"
+    else:
+        from azcam_itl.detchars.detchar_LVM import detchar
+    import azcam_archon.console_archon
+
+    if azcam.db.wd is None:
+        azcam.db.wd = "/data/LVM"
+
+elif azcam.db.systemname == "ASI294":
+    from azcam_itl.detchars.detchar_ASI294 import detchar
+
+    if azcam.db.wd is None:
+        azcam.db.wd = "/data/ZWO/ASI294"
+
+elif azcam.db.systemname == "OSU4k":
+    from azcam_itl.detchars.detchar_OSU4k import detchar
+    import azcam_archon.console_archon
+
+    if azcam.db.wd is None:
+        azcam.db.wd = "/data/OSU4k"
+
+elif azcam.db.systemname == "ITL4k":
+    from azcam_itl.detchars.detchar_ITL4k import detchar
+    import azcam_archon.console_archon
+
+    if azcam.db.wd is None:
+        azcam.db.wd = "/data/ITL4k"
+
+if azcam.db.wd is None:
+    azcam.db.wd = azcam.db.datafolder
+
+# par file
+azcam.db.tools["parameters"].read_parfile(parfile)
+azcam.db.tools["parameters"].update_pars(0, "azcamconsole")
