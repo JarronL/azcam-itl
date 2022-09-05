@@ -2,18 +2,12 @@
 start_logger.py
 """
 
+import os
 import socketserver
 
-from azcam.logging_server_tcp import LoggingStreamHandler
+wt = "wt --title AzCamLogger"
+poetry = "poetry run"
+shell = f"python -m support.bin.itl_logger"
 
-
-def start_logger(port: int = 2404):
-
-    # set window title
-    # ctypes.windll.kernel32.SetConsoleTitleW("azcamlogger")
-    print(f"Logging server running on port {port}")
-    logging_server = socketserver.TCPServer(("localhost", port), LoggingStreamHandler)
-    logging_server.serve_forever()
-
-
-start_logger()
+cl = f"{wt} {poetry} {shell}"
+os.system(cl)

@@ -1,15 +1,21 @@
 """
-Start azcamserver and azcamconsole in different Windows panes.
+Start azcamserver and logger in different Windows Terminal tabs.
 """
 
 import os
 import sys
 
-python1 = f"-p AzCamServer --tabColor #000099 ipython --profile azcamserver --TerminalInteractiveShell.term_title_format=AzCam -i -m azcam_itl.server"
-python2 = f"-p AzCamServer python -m start_logger.py"
+wt = "wt -w azcam --title AzCamServer"
+poetry = "poetry run"
+shell1 = f"ipython  --profile azcamserver -i -m azcam_itl.server"
+shell2 = f"ipython  -m start_logger.py"
 
 arguments = sys.argv[1:] if len(sys.argv) > 1 else [""]
-args = " ".join(arguments)
+if len(sys.argv) > 1:
+    args = " -- " + " ".join(arguments)
+else:
+    #args = " -system LVM"  # example
+    args = ""
 
-cl = f"wt -- {args}; split-pane -V {python2} -- {args}"
+cl = f"{wt} {poetry} {shell1} -- -- {args}; split-pane -V  --tabColor #990000 --title AzCam {poetry} {shell2}"
 os.system(cl)

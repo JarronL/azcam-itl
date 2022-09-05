@@ -1,19 +1,19 @@
 """
-Start azcamserver in Windows Terminal.
+Start azcamserver in Windows Terminal using poetry.
+Arguments example: " -system LVM"
 """
 
 import os
 import sys
 
-wt = "wt -w azcam -p AzCamServer --title AzCamServer"
-#ipython = f"ipython --profile azcamserver --TerminalInteractiveShell.term_title_format=Azcam -i -m azcam_itl.server"
-ipython = f"ipython --profile azcamserver -i -m azcam_itl.server"
+wt = "wt --tabColor #009900"
+poetry = "poetry run"
+shell = f"ipython --profile azcamserver -i -m azcam_itl.server"
 
-arguments = sys.argv[1:] if len(sys.argv) > 1 else [""]
 if len(sys.argv) > 1:
-    args = " -- " + " ".join(arguments)
+    args = " -- -- " + " ".join(sys.argv[1:])
 else:
     args = ""
 
-cl = f"{wt} {ipython}{args}"
+cl = f"{wt} {poetry} {shell} {args}"
 os.system(cl)
