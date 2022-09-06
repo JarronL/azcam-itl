@@ -373,14 +373,13 @@ develop = false
 
 [package.dependencies]
 azcam = {git = "https://github.com/mplesser/azcam.git"}
-azcam-fastapi = {git = "https://github.com/mplesser/azcam-fastapi.git"}
 fastapi = "*"
 
 [package.source]
 type = "git"
 url = "https://github.com/mplesser/azcam-webtools.git"
 reference = "HEAD"
-resolved_reference = "e8ba4e8c956b891454521545394f5a411ddd6c1a"
+resolved_reference = "5411bc9a48744a826b7b700998f60df697d0f41b"
 
 [[package]]
 name = "backcall"
