@@ -22,6 +22,8 @@ pyvisa = "*"
 mysql-connector-python = "*"
 opencv-python = "*"
 scikit-image = "*"
+
+azcam = { git = "https://github.com/mplesser/azcam.git"}
 azcam-monitor = { git = "https://github.com/mplesser/azcam-monitor.git"}
 azcam-fastapi = { git = "https://github.com/mplesser/azcam-fastapi.git"}
 azcam-arc = { git = "https://github.com/mplesser/azcam-arc.git"}

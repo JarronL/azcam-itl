@@ -17,5 +17,5 @@ else:
     #args = " -system LVM"  # example
     args = ""
 
-cl = f"{wt} {poetry} {shell1} -- -- {args}; split-pane -V  --title AzCam {poetry} {shell2} -- -- {args}"
+cl = f"{wt} --title AzCamServer --tabColor #990000 {poetry} {shell1} -- -- {args}; split-pane -V --title AzCamConsole --tabColor #000099 {poetry} {shell2} -- -- {args}"
 os.system(cl)
