@@ -8,7 +8,6 @@ readme = "README.md"
 keywords=["ccd", "imaging", "astronomy", "sensors"]
 repository = "https://github.com/mplesser/azcam-itl/"
 documentation = "https://mplesser.github.io/azcam/"
-include = ["status/**/*"]
 
 [tool.poetry.dependencies]
 python = "^3.9,<3.11"
@@ -23,22 +22,22 @@ mysql-connector-python = "*"
 opencv-python = "*"
 scikit-image = "*"
 
-azcam = { git = "https://github.com/mplesser/azcam.git"}
-azcam-monitor = { git = "https://github.com/mplesser/azcam-monitor.git"}
-azcam-fastapi = { git = "https://github.com/mplesser/azcam-fastapi.git"}
-azcam-arc = { git = "https://github.com/mplesser/azcam-arc.git"}
-azcam-archon = { git = "https://github.com/mplesser/azcam-archon.git"}
-azcam-ascom = { git = "https://github.com/mplesser/azcam-ascom.git"}
-azcam-cryocon = { git = "https://github.com/mplesser/azcam-cryocon.git"}
-azcam-ds9 = { git = "https://github.com/mplesser/azcam-ds9.git"}
-azcam-expstatus = { git = "https://github.com/mplesser/azcam-expstatus.git"}
-azcam-focus = { git = "https://github.com/mplesser/azcam-focus.git"}
-azcam-imageserver = { git = "https://github.com/mplesser/azcam-imageserver.git"}
-azcam-mag = { git = "https://github.com/mplesser/azcam-mag.git"}
-azcam-observe = { git = "https://github.com/mplesser/azcam-observe.git"}
-azcam-scripts = { git = "https://github.com/mplesser/azcam-scripts.git"}
-azcam-testers = { git = "https://github.com/mplesser/azcam-testers.git"}
-azcam-webtools = { git = "https://github.com/mplesser/azcam-webtools.git"}
+azcam = "*"
+azcam-monitor = "*"
+azcam-fastapi = "*"
+azcam-arc = "*"
+azcam-archon = "*"
+azcam-ascom = "*"
+azcam-cryocon = "*"
+azcam-ds9 = "*"
+azcam-expstatus = "*"
+azcam-focus = "*"
+azcam-imageserver = "*"
+azcam-mag = "*"
+azcam-observe = "*"
+azcam-scripts = "*"
+azcam-testers = "*"
+azcam-webtools = "*"
 
 [tool.poetry.dev-dependencies]
 
