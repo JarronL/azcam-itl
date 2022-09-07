@@ -1,7 +1,0 @@
-numpy
-ipython
-matplotlib
-pyserial
-pyvisa
-pywin32
-azcam
