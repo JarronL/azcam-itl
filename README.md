@@ -4,11 +4,11 @@
 
 ## Installation
 
-Download the code (usually into the *azcam* root folder such as `c:\azcam`) and install via  poetry.
+Download the code (usually into the *azcam* root folder such as `c:\azcam`) and install.
 
 ```shell
 cd /azcam
 git clone https://github.com/mplesser/azcam-itl
 cd azcam-itl
-poetry install
+pip install .
 ```

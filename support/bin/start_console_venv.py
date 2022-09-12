@@ -1,5 +1,5 @@
 """
-Start azcamconsole with poetry.
+Start azcamconsole in virtual environment.
 
 Arguments example:
   " -system LVM"

@@ -3,7 +3,7 @@ Start azcamconsole in Windows Terminal.
 
 Arguments example:
   " -system LVM"
-To run under poetry virtual environment, from working directory /azcam/azcam-itl/support/bin, do:
+To run under a virtual environment, from working directory /azcam/azcam-itl/support/bin, do:
   "poetry run start_console.py"
 """
 
