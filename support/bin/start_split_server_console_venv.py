@@ -1,21 +1,23 @@
 """
-Start azcamserver and azcamconsole in different Windows Terminal tabs.
+Start azcamserver and azcamconsole in split Windows Terminal.
 """
 
 import os
 import sys
-
-wt = "wt -w azcam"
-poetry = "poetry run"
-shell1 = f"ipython  --profile azcamserver -i -m azcam_itl.server"
-shell2 = f"ipython --profile azcamconsole -i -m azcam_itl.console"
+import time
 
 arguments = sys.argv[1:] if len(sys.argv) > 1 else [""]
-if len(sys.argv) > 1:
-    args = " -- " + " ".join(arguments)
-else:
-    #args = " -system LVM"  # example
-    args = ""
+args = " ".join(arguments)
 
-cl = f"{wt} --title AzCamServer --tabColor #990000 {poetry} {shell1} -- -- {args}; split-pane -V --title AzCamConsole --tabColor #000099 {poetry} {shell2} -- -- {args}"
+shell1 = f"\\azcam\\azcam-itl\\support\\bin\\start_server_venv1.bat"
+shell2 = f"\\azcam\\azcam-itl\\support\\bin\\start_console_venv1.bat"
+
+python = f"wt -w azcam -p AzCamServer --title AzCamServer --tabColor #990000"
+cl = f"{python} {shell1} -- {args}"
+os.system(cl)
+
+time.sleep(1)
+
+python = f"wt -w azcam split-pane -V -p AzCamConsole --title AzCamConsole --tabColor #000099"
+cl = f"{python} {shell2} -- {args}"
 os.system(cl)

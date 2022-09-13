@@ -3,8 +3,6 @@ Start azcamserver in Windows Terminal.
 
 Arguments example:
   " -system LVM"
-To run under a virtual environment, from working directory /azcam/azcam-itl/support/bin, do:
-  "poetry run start_server.py"
 """
 
 import os

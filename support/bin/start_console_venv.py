@@ -1,5 +1,5 @@
 """
-Start azcamconsole in virtual environment.
+Start azcamserver in Windows Terminal using azcam virtual environment.
 
 Arguments example:
   " -system LVM"
@@ -8,12 +8,12 @@ Arguments example:
 import os
 import sys
 
-if len(sys.argv) > 1:
-    args = " -- " + " ".join(sys.argv[1:])
-else:
-    #args = "-system LVM"
-    args = ""
+arguments = sys.argv[1:] if len(sys.argv) > 1 else [""]
+args = " ".join(arguments)
 
-cl = f"poetry run start_console -- {args}"
+wt = "wt -w azcam --title AzCamConsole --tabColor #000099"
+shell = f"\\azcam\\azcam-itl\\support\\bin\\start_console_venv1.bat"
+
+cl = f"{wt} {shell} -- {args}"
 os.system(cl)
 

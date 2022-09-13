@@ -1,8 +1,5 @@
 """
 azcam_itl logger
-
-To run under a virtual environment, from working directory /azcam/azcam-itl/support/bin, do:
-  "poetry run start_ITL_logger.py"
 """
 
 

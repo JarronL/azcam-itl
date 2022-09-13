@@ -1,21 +1,19 @@
 """
-Start azcamserver and logger in different Windows Terminal tabs.
+Start azcamserver and logger in split Windows Terminal.
 """
 
 import os
 import sys
 
 wt = "wt -w azcam --title AzCamServer --tabColor #990000 "
-poetry = "poetry run"
-shell1 = f"ipython --profile azcamserver -i -m azcam_itl.server"
-shell2 = f"python -m start_ITL_logger.py"
 
-arguments = sys.argv[1:] if len(sys.argv) > 1 else [""]
+shell1 = f"\\azcam\\azcam-itl\\support\\bin\\start_server_venv1.bat"
+shell2 = f"python \\azcam\\azcam-itl\\support\\bin\\start_ITL_logger.py"
+
 if len(sys.argv) > 1:
-    args = " -- " + " ".join(arguments)
+    args = " -- " + " ".join(sys.argv[1:])
 else:
-    #args = " -system LVM"  # example
     args = ""
 
-cl = f"{wt} {poetry} {shell1} -- -- {args}; split-pane -V --title AzCam --tabColor #009900 {poetry} {shell2}"
+cl = f"{wt} {shell1} -- {args}; split-pane -V --title AzCamLogger --tabColor #009900 {shell2}"
 os.system(cl)
