@@ -110,9 +110,10 @@ importlib.import_module(f"azcam_itl.configs.config_server_{azcam.db.systemname}"
 if 1:
     webserver = WebServer()
     webserver.port = 2403
-    webserver.logcommands = 1
+    webserver.logcommands = 0
     webserver.return_json = 0
     webserver.index = os.path.join(azcam.db.datafolder, "index_ITL.html")
+    webserver.message = f"for host {azcam.db.hostname}"
     webserver.datafolder = azcam.db.datafolder
     webserver.start()
 
