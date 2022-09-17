@@ -3,7 +3,6 @@ azcam_itl logger
 """
 
 
-import os
 import socketserver
 from azcam.logging_server_tcp import LoggingStreamHandler
 
