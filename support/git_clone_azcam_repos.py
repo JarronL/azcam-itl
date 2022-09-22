@@ -35,20 +35,22 @@ packages = [
     "azcam-osu4k",
     "azcam-pepsi",
 ]
-github_root = "https://github.com/mplesser/"
+github_root = "http://github.com/mplesser/"
 
 for repo in packages:
-    r = os.path.join(".",os.path.abspath(repo))
-    if os.path.exists(r):
-        print(f"{r} already exists")
-    else:
-        print(f"{r} will be cloned")
+    #r = os.path.join(".",os.path.abspath(repo))
+    #if os.path.exists(r):
+    #    print(f"{r} already exists")
+    #else:
+    #    print(f"{r} will be cloned")
 
     if 1:
         try:
-            p = subprocess.Popen(f"git clone {github_root}{repo}.git", shell=False)
+            s = f"git clone {github_root}{repo}.git"
+            print(s)
+            p = subprocess.Popen(s, shell=True)
             p.wait()
         except Exception as e:
             print(e)
 
-input("Press Enter to continue...")
+# input("Press Enter to continue...")
