@@ -3,9 +3,9 @@
 import os
 import sys
 import time
-import winsound
 
 import azcam
+from azcam.utils import beep
 
 
 def grade_ac_prober_file(filename, Grader=""):
@@ -148,12 +148,12 @@ def grade_ac_prober_file(filename, Grader=""):
                     elif c == "s":
                         print(azcam.db.tools["display"].SaveImage(snapfile))
                     elif c == "p":
-                        winsound.Beep(FreqYES, DurYES)
+                        beep(FreqYES, DurYES)
                         open(passfile, "w")
                         NEXT = 1
                         break
                     elif c == "f":
-                        winsound.Beep(FreqNO, DurNO)
+                        beep(FreqNO, DurNO)
                         open(failfile, "w")
                         NEXT = 1
                         break
@@ -170,18 +170,18 @@ def grade_ac_prober_file(filename, Grader=""):
         if NEXT:
             continue
         elif not QUIT:
-            winsound.Beep(FreqATTN, DurATTN)
+            beep(FreqATTN, DurATTN)
             while 1:
                 print()
                 print("Last chance! Enter p, f, or d [PASS, FAIL, DEFER]? ", end=" ")
                 print()
                 c = azcam.utils.check_keyboard(1).lower()
                 if c == "p":
-                    winsound.Beep(FreqYES, DurYES)
+                    beep(FreqYES, DurYES)
                     open(passfile, "w")
                     break
                 elif c == "f":
-                    winsound.Beep(FreqNO, DurNO)
+                    beep(FreqNO, DurNO)
                     open(failfile, "w")
                     break
                 elif c == "d":
