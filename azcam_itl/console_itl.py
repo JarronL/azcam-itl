@@ -6,7 +6,6 @@ Command line options:
   -system LVM
 """
 
-
 import os
 import sys
 import threading
@@ -16,11 +15,14 @@ import azcam
 import azcam.console
 import azcam.shortcuts
 import azcam.tools.console_tools
+
 import azcam_testers
 import azcam_scripts
 from azcam_ds9.ds9display import Ds9Display
-from azcam_focus.focus import Focus
-from azcam_observe.observe import Observe
+
+# from azcam_focus.focus import Focus
+# from azcam_observe.observe import Observe
+
 
 from azcam_itl import itlutils
 from azcam_itl.scripts import load_scripts
@@ -70,8 +72,14 @@ azcam.db.systemfolder = azcam.utils.fix_path(os.path.dirname(__file__))
 if datafolder is None:
     droot = os.environ.get("AZCAM_DATAROOT")
     if droot is None:
-        droot = "/data"
-    azcam.db.datafolder = os.path.join(droot, azcam.db.systemname)
+        droot = os.environ.get("HOMEPATH")
+        if droot is None:
+            droot = os.environ.get("HOME")
+            if droot is None:
+                droot = "/data"
+        azcam.db.datafolder = os.path.join(droot, "data", azcam.db.systemname)
+    else:
+        azcam.db.datafolder = os.path.join(droot, azcam.db.systemname)
 else:
     azcam.db.datafolder = datafolder
 azcam.db.datafolder = azcam.utils.fix_path(azcam.db.datafolder)
@@ -94,14 +102,6 @@ dthread.start()  # thread just for speed
 from azcam.tools import create_console_tools
 
 create_console_tools()
-
-# focus
-focus = Focus()
-focus.focus_component = "instrument"
-focus.focus_type = "step"
-
-# observe
-observe = Observe()
 
 # testers
 azcam_testers.load()
