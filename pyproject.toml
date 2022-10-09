@@ -16,7 +16,7 @@ dependencies = [
     "pyserial",
     "pyvisa",
     "mysql-connector-python",
-    "opencv-python",
+    "opencv-python-headless",
     "scikit-image",
     "azcam",
     "azcam-monitor",

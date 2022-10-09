@@ -1,7 +1,9 @@
 import pyvisa
 
 """
-Install PYVISA from NI and pip install pyvisa
+Installation:
+ Install NI-VISA from NI AND
+ pip install pyvisa
 """
 
 
