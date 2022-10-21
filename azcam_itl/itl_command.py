@@ -1,8 +1,8 @@
 """
 Startup command for azcam-itl
 Usage:
-  python itl.py -console
-  python itl.py -server -normal
+  python itl_command.py -console
+  python itl_command.py -server -normal
 
 For installations, this is the "itl" command.
 """
@@ -13,6 +13,9 @@ import sys
 def main():
 
     args=sys.argv[1:]
+
+    PACKAGE = "azcam_itl"
+    STARTMOD = "itl_start"
 
     if "-console" in args:
         tabColor = "#000099"
@@ -26,14 +29,14 @@ def main():
 
     if os.name == "posix":
         cmds = [
-            ". ~/azcam/venvs/azcam/bin/activate ; python3 -m azcam_itl.itl_start",
+            f". ~/azcam/venvs/azcam/bin/activate ; python3 -m {PACKAGE}.{STARTMOD}",
             f"{' '.join(args)}",
         ]    
     else:
         cmds = [
             f"wt -w azcam --suppressApplicationTitle=True --title {tabTitle} --tabColor {tabColor}",
             "cmd /k",
-            "\"/azcam/venvs/azcam/Scripts/activate.bat & python -m azcam_itl.itl_start\"",
+            "\"/azcam/venvs/azcam/Scripts/activate.bat & python -m {PACKAGE}.{STARTMOD}\"",
             f"{' '.join(args)}",
         ]    
     command = " ".join(cmds)
