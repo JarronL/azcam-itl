@@ -2,7 +2,7 @@
 Startup command for azcam-itl
 Usage:
   python itl_command.py -console
-  python itl_command.py -server -normal
+  python itl_command.py -server -system xxx
 
 For installations, this is the "itl" command.
 """
@@ -36,7 +36,7 @@ def main():
         cmds = [
             f"wt -w azcam --suppressApplicationTitle=True --title {tabTitle} --tabColor {tabColor}",
             "cmd /k",
-            "\"/azcam/venvs/azcam/Scripts/activate.bat & python -m {PACKAGE}.{STARTMOD}\"",
+            f"\"/azcam/venvs/azcam/Scripts/activate.bat & python -m {PACKAGE}.{STARTMOD}\"",
             f"{' '.join(args)}",
         ]    
     command = " ".join(cmds)
