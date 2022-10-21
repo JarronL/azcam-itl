@@ -18,6 +18,9 @@ if "-server" in args:
     CONSOLE = False
     SERVER = True
 
+if os.name != "posix":
+    os.environ["AZCAM_DATAROOT"] = "/data"
+
 if os.name == "posix":
     if SERVER:
         command = f"ipython --profile azcamserver -i -c \"import azcam_itl.server ; from azcam.cli import *\" -- {' '.join(args)}"

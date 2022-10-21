@@ -26,14 +26,14 @@ def main():
 
     if os.name == "posix":
         cmds = [
-            ". ~/azcam/venvs/azcam/bin/activate ; python3 -m azcam_itl.azcamitl",
+            ". ~/azcam/venvs/azcam/bin/activate ; python3 -m azcam_itl.itl_start",
             f"{' '.join(args)}",
         ]    
     else:
         cmds = [
             f"wt -w azcam --suppressApplicationTitle=True --title {tabTitle} --tabColor {tabColor}",
             "cmd /k",
-            "\"/azcam/venvs/azcam/Scripts/activate.bat & python -m azcam_itl.azcamitl\"",
+            "\"/azcam/venvs/azcam/Scripts/activate.bat & python -m azcam_itl.itl_start\"",
             f"{' '.join(args)}",
         ]    
     command = " ".join(cmds)

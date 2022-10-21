@@ -1,6 +1,6 @@
 [project]
 name = "azcam-itl"
-version = "22.2.1"
+version = "22.2.3"
 description = "Azcam extension for ITL systems"
 license = {file ="LICENSE"}
 readme = "README.md"
