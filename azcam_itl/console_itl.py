@@ -77,12 +77,11 @@ if datafolder is None:
             droot = os.environ.get("HOME")
             if droot is None:
                 droot = "/data"
-        azcam.db.datafolder = os.path.join(droot, "data", azcam.db.systemname)
+        azcam.db.datafolder = os.path.join(os.path.realpath(droot), "data", azcam.db.systemname)
     else:
-        azcam.db.datafolder = os.path.join(droot, azcam.db.systemname)
+        azcam.db.datafolder = os.path.join(os.path.realpath(droot), azcam.db.systemname)
 else:
-    azcam.db.datafolder = datafolder
-azcam.db.datafolder = azcam.utils.fix_path(azcam.db.datafolder)
+    azcam.db.datafolder = os.path.realpath(datafolder)
 
 parfile = os.path.join(
     azcam.db.datafolder, "parameters", f"parameters_console_{azcam.db.systemname}.ini"

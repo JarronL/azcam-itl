@@ -40,7 +40,7 @@ Documentation = "https://mplesser.github.io/azcam/"
 Repository = "https://github.com/mplesser/azcam-itl/"
 
 [project.scripts]
-itl = "azcam_itl.itl:main"
+itl = "azcam_itl.itl_command:main"
 
 [build-system]
 requires = ["flit_core >=3.2,<4"]
