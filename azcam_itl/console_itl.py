@@ -47,16 +47,10 @@ except ValueError:
 
 # menu to select system
 menu_options = {
-    "VIRUS": "VIRUS",
-    # "LSST": "LSST",
     "DESI": "DESI",
-    "prober": "prober",
-    # "prober2001": "prober2001",
-    # "electronbench": "electronbench",
-    # "quantumbench": "quantumbench",
     "LVM": "LVM",
-    # "ZWO ASI294 CMOS camera": "ASI294",
-    "OSU4k": "OSU4k",
+    "ZWO ASI2600MM CMOS camera": "ASI2600MM",
+    # "OSU4k": "OSU4k",
     "ITL4k": "ITL4k",
 }
 
@@ -117,23 +111,12 @@ else:
     azcam.log("Not connected to azcamserver")
 
 # system-specific
-if azcam.db.systemname == "VIRUS":
-    from azcam_itl.detchars.detchar_VIRUS import detchar
-    import azcam_arc.console_arc
-
-    if azcam.db.wd is None:
-        azcam.db.wd = "/data/VIRUS"
-
-elif azcam.db.systemname == "DESI":
+if azcam.db.systemname == "DESI":
     from azcam_itl.detchars.detchar_DESI import detchar
     import azcam_arc.console_arc
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/DESI"
-
-elif azcam.db.systemname == "prober2001":
-    from azcam_itl.detchars.detchar_prober2001 import detchar
-    import azcam_arc.console_arc
 
 elif azcam.db.systemname == "LVM":
     if 0:  # azcam.db.LVM_itl4k:
@@ -152,6 +135,12 @@ elif azcam.db.systemname == "ASI294":
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/ZWO/ASI294"
+
+elif azcam.db.systemname == "ASI2600MM":
+    from azcam_itl.detchars.detchar_ASI2600MM import detchar
+
+    if azcam.db.wd is None:
+        azcam.db.wd = "/data/ASI2600MM"
 
 elif azcam.db.systemname == "OSU4k":
     from azcam_itl.detchars.detchar_OSU4k import detchar

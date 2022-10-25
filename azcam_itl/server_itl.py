@@ -45,19 +45,17 @@ except ValueError:
 
 # optionally select system with menu
 menu_options = {
-    "VIRUS": "VIRUS",
     "DESI": "DESI",
     # "Magellan Guider": "magguider",
     # "SO Guider": "soguider",
-    "prober": "prober",
-    # "electronbench": "electronbench",
-    # "quantumbench": "quantumbench",
     "QHY174 CMOS camera": "QHY174",
     "LVM": "LVM",
-    # "ZWO ASI294 CMOS camera": "ASI294",
-    "OSU4k": "OSU4k",
+    "ZWO ASI2600MM CMOS camera": "ASI2600MM",
+    # "OSU4k": "OSU4k",
     "ITL6k": "ITL6k",
     "90prime4k": "90prime4k",
+    "QB": "QB",
+    "EB": "EB",
 }
 
 # determine configuration
@@ -112,7 +110,7 @@ importlib.import_module(f"azcam_itl.configs.config_server_{azcam.db.systemname}"
 # ****************************************************************
 # web server
 # ****************************************************************
-if 1:
+if 0:
     webserver = WebServer()
     webserver.port = 2403
     webserver.logcommands = 0
