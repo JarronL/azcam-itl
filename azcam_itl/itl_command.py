@@ -10,9 +10,10 @@ For installations, this is the "itl" command.
 import os
 import sys
 
+
 def main():
 
-    args=sys.argv[1:]
+    args = sys.argv[1:]
 
     PACKAGE = "azcam_itl"
     STARTMOD = "itl_start"
@@ -31,16 +32,17 @@ def main():
         cmds = [
             f". ~/azcam/venvs/azcam/bin/activate ; python3 -m {PACKAGE}.{STARTMOD}",
             f"{' '.join(args)}",
-        ]    
+        ]
     else:
         cmds = [
             f"wt -w azcam --suppressApplicationTitle=True --title {tabTitle} --tabColor {tabColor}",
             "cmd /k",
-            "\"/azcam/venvs/azcam/Scripts/activate.bat & python -m {PACKAGE}.{STARTMOD}\"",
+            f'"/azcam/venvs/azcam/Scripts/activate.bat & python -m {PACKAGE}.{STARTMOD}"',
             f"{' '.join(args)}",
-        ]    
+        ]
     command = " ".join(cmds)
     os.system(command)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -66,25 +66,25 @@ class InstrumentQB(Instrument):
         except Exception as e:
             azcam.log(f"Shutter controller error - {e}")
 
-        try:
-            self.k6512 = EM6512("GPIB0::22::INSTR")
-        except Exception as e:
-            azcam.log(f"Keithley 6512 error - {e}")
+        # try:
+        #     self.k6512 = EM6512("GPIB0::22::INSTR")
+        # except Exception as e:
+        #     azcam.log(f"Keithley 6512 error - {e}")
 
-        try:
-            self.k6514 = self.rm.open_resource("COM9")
-        except Exception as e:
-            azcam.log(f"Keithley 6514 error - {e}")
+        # try:
+        #     self.k6514 = self.rm.open_resource("COM9")
+        # except Exception as e:
+        #     azcam.log(f"Keithley 6514 error - {e}")
 
-        try:
-            self.pressure = pressure_mks900.PressureController("COM7")
-        except Exception as e:
-            azcam.log(f"Pressure PDR900 error - {e}")
+        # try:
+        #     self.pressure = pressure_mks900.PressureController("COM7")
+        # except Exception as e:
+        #     azcam.log(f"Pressure PDR900 error - {e}")
 
-        try:
-            self.init_powermeter()
-        except Exception as e:
-            azcam.log(f"could not initialize powermeter: {e}")
+        # try:
+        #     self.init_powermeter()
+        # except Exception as e:
+        #     azcam.log(f"could not initialize powermeter: {e}")
 
         try:
             self.init_mono()

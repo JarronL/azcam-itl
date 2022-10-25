@@ -442,6 +442,19 @@ detector_asi294 = {
     "jpg_order": [1],
 }
 
+x1 = 6248
+y1 = 4176
+detector_asi2600MM = {
+    "name": "ASI2600MM",
+    "description": "ZWO ASI294MM Pro CMOS camera",
+    "ref_pixel": [x1 / 2, y1 / 2],
+    "format": [x1, 0, 0, 0, y1, 0, 0, 0, 0],
+    "focalplane": [1, 1, 1, 1, "0"],
+    "roi": [1, x1, 1, y1, 1, 1],
+    "ext_position": [[1, 1]],
+    "jpg_order": [1],
+}
+
 
 detector_sta4850 = {
     "name": "STA4850",

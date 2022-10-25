@@ -9,7 +9,26 @@ import azcam
 import azcam.sockets
 
 
-def qe_powermeter_calibrate(wavelengths):
+def qe_powermeter_calibrate(
+    wavelengths=[
+        360,
+        400,
+        450,
+        500,
+        550,
+        600,
+        650,
+        700,
+        750,
+        800,
+        850,
+        900,
+        950,
+        980,
+        1000,
+    ]
+):
+
     """
     Obtains values for multiple wavelengths by selecting wavelength and obtaining readings
     from power meter.

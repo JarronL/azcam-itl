@@ -67,18 +67,14 @@ class ASI294DetChar(DetChar):
 
         self.start_temperature = -110.0
 
-        self.timingfiles = [
-            os.path.join(azcam.db.datafolder, "VIRUS", "dspcode", "dsptiming", "VIRUS_config0.lod"),
-            # os.path.join(azcam.db.datafolder, "VIRUS", "dspcode", "dsptiming", "VIRUS_config1.lod"),
-            # os.path.join(azcam.db.datafolder, "VIRUS", "dspcode", "dsptiming_virus2", "VIRUS_config1.lod"),
-        ]
+        self.timingfiles = []
 
     def acquire(self, SN="prompt"):
         """
         Acquire detector characterization data.
         """
 
-        print("Starting VIRUS acquisition sequence")
+        print("Starting acquisition sequence")
         print("")
 
         if not self.is_setup:
@@ -205,11 +201,6 @@ class ASI294DetChar(DetChar):
 
             finally:
                 azcam.utils.restore_imagepars(impars, currentfolder)
-
-        # send email notice
-        finishedtime = datetime.datetime.strftime(datetime.datetime.now(), "%H:%M:%S")
-        message = "Script finished today at: %s" % (finishedtime)
-        itlutils.mailto("mlesser@email.arizona.edu", "VIRUS acquire script finished", message)
 
         print("acquire sequence finished")
 
@@ -365,7 +356,7 @@ class ASI294DetChar(DetChar):
 
         folder = azcam.utils.curdir()
         self.report_folder = folder
-        report_name = f"VIRUS_report_SN{self.itl_sn}.pdf"
+        report_name = f"ASI294_report_SN{self.itl_sn}.pdf"
 
         print("")
         print("Generating SN%s Report" % self.itl_sn)
@@ -402,23 +393,23 @@ class ASI294DetChar(DetChar):
 
         lines = []
 
-        lines.append("# VIRUS Detector Characterization Report")
+        lines.append("# ITL Detector Characterization Report")
         lines.append("")
         lines.append("|    |    |")
         lines.append("|:---|:---|")
         lines.append("|**Identification**||")
-        lines.append(f"|Customer       |Univ. of Texas|")
-        lines.append(f"|ITL System     |VIRUS|")
+        lines.append(f"|Customer       |UArizona|")
+        lines.append(f"|ITL System     |ASI294|")
         lines.append(f"|ITL ID         |{self.itl_id}|")
         lines.append(f"|ITL SN         |{int(self.itl_sn)}|")
-        lines.append(f"|Type           |STA3600B|")
+        lines.append(f"|Type           |ASI294|")
         lines.append(f"|Lot            |{self.lot}|")
         lines.append(f"|Wafer          |{int(self.wafer):02d}|")
         lines.append(f"|Die            |{int(self.die)}|")
         lines.append(f"|Report Date    |{self.report_date}|")
         lines.append(f"|Author         |{self.filename2}|")
         lines.append(f"|**Operating Conditions**||")
-        lines.append(f"|System         |ITL5|")
+        lines.append(f"|System         |ZWO|")
         lines.append(f"|**Results**||")
         lines.append(f"|Comment        |{self.report_comment}|")
         lines.append("")
@@ -493,7 +484,7 @@ class ASI294DetChar(DetChar):
         azcam.utils.curdir(folder)
         matches = []
         for root, dirnames, filenames in os.walk(folder):
-            for filename in fnmatch.filter(filenames, "VIRUS_Report_*.pdf"):
+            for filename in fnmatch.filter(filenames, "ASI294_Report_*.pdf"):
                 matches.append(os.path.join(root, filename))
 
         for t in matches:
@@ -591,14 +582,14 @@ class ASI294DetChar(DetChar):
                 self.itl_id = "000"
 
         # sponsor/report info
-        self.customer = "Univ. Texas"
-        self.system = "VIRUS"
-        qe.plot_title = "STA3600 Quantum Efficiency"
+        self.customer = "UArizona"
+        self.system = "ASI294"
+        qe.plot_title = "ASI294 Quantum Efficiency"
         self.summary_report_file = f"SummaryReport_SN{self.itl_sn}"
-        self.report_file = f"VIRUS_Report_SN{self.itl_sn}.pdf"
+        self.report_file = f"ASI294{self.itl_sn}.pdf"
 
         # dewar info
-        self.dewar = "ITL5"  # VIRUS dewar
+        self.dewar = "ASI294"
 
         if operator.lower() == "mpl":
             self.filename2 = "Michael Lesser"
@@ -608,7 +599,7 @@ class ASI294DetChar(DetChar):
             self.filename2 = "UNKNOWN"
         print("")
 
-        self.device_type = "STA3600"
+        self.device_type = "ASI294"
 
         self.is_setup = 1
 
@@ -667,43 +658,6 @@ class ASI294DetChar(DetChar):
         self.remote_upload_folder = idstring
 
         return archivefile
-
-    def upload(self):
-        """
-        Upload a file to VIRUS cloud.
-        """
-
-        host = "corral.tacc.utexas.edu"
-        port = 22
-
-        ftp = ftplib.FTP_TLS()
-        ftp.connect(host, port)
-        print(ftp.getwelcome())
-        print("Logging in using keyring")
-        pw = keyring.get_password("corral.tacc.utexas.edu", "mplesser")
-        ftp.login("ITL", pw)
-        print("FTP login OK")
-
-        # move to remote folder
-        ftp.cwd("VIRUS2")
-        s = ftp.pwd()
-        print("Current FTP folder is", s)
-        ftp.cwd(self.remote_upload_folder)
-        s = ftp.pwd()
-        print("Current FTP folder is", s)
-        s = ftp.nlst()
-        print("Current FTP folder contents:", s)
-
-        file1_name = os.path.join(self.remote_upload_folder, f"{self.remote_upload_folder}.zip")
-
-        print("Transfering %s" % file1_name)
-        with open(file1_name, "rb") as file1:
-            ftp.storbinary("STOR %s" % os.path.basename(file1_name), file1)
-        print("Finished")
-
-        ftp.quit()
-
-        return
 
 
 # create instance
