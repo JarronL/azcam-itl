@@ -2,7 +2,7 @@
 Startup command for azcam-itl
 Usage:
   python itl_command.py -console
-  python itl_command.py -server -normal
+  python itl_command.py -server -system xxx
 
 For installations, this is the "itl" command.
 """
