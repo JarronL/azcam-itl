@@ -56,6 +56,7 @@ menu_options = {
     "90prime4k": "90prime4k",
     "QB": "QB",
     "EB": "EB",
+    "None": "NoSystem",
 }
 
 # determine configuration
@@ -101,7 +102,10 @@ azcam.log(f"Configuring {azcam.db.systemname}")
 
 # define command server
 cmdserver = CommandServer()
-cmdserver.port = 2402
+if azcam.db.systemname != "NoSystem":
+    cmdserver.port = 2402
+else:
+    cmdserver.port = 2492
 cmdserver.logcommands = 0
 
 # load system-specific code
@@ -146,3 +150,6 @@ azcam.db.tools["parameters"].update_pars(0, "azcamserver")
 # start command server
 azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
 cmdserver.start()
+
+
+# debug

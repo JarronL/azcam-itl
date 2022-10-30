@@ -23,7 +23,6 @@ class ASI2600MMDetChar(DetChar):
         self.imsnap_scale = 1.0
 
         self.filename2 = ""
-        self.itl_sn = -1
         self.itl_id = ""
 
         self.system = ""
@@ -51,17 +50,13 @@ class ASI2600MMDetChar(DetChar):
             "linearity",
             "qe",
             "dark",
-            "defects",
-            "fe55",
         ]
         self.report_files = {
-            "dark": "dark/dark",
-            "defects": "defects/darkdefects",
-            "fe55": "fe55/fe55",
             "gain": "gain/gain",
+            "prnu": "prnu/prnu",
+            "dark": "dark/dark",
             "linearity": "ptc/linearity",
             "ptc": "ptc/ptc",
-            "prnu": "prnu/prnu",
             "qe": "qe/qe",
         }
 
@@ -69,7 +64,7 @@ class ASI2600MMDetChar(DetChar):
 
         self.timingfiles = []
 
-    def acquire(self, SN="prompt"):
+    def acquire(self):
         """
         Acquire detector characterization data.
         """
@@ -79,7 +74,6 @@ class ASI2600MMDetChar(DetChar):
 
         if not self.is_setup:
             self.setup()
-        sn = "sn" + str(self.itl_sn)
 
         (gain, bias, detcal, superflat, ptc, qe, dark, defects, dark,) = azcam.utils.get_tools(
             [
@@ -90,7 +84,6 @@ class ASI2600MMDetChar(DetChar):
                 "ptc",
                 "qe",
                 "dark",
-                "defects",
                 "dark",
             ]
         )
@@ -113,7 +106,7 @@ class ASI2600MMDetChar(DetChar):
                 else:
                     time.sleep(10)
 
-        print("Testing device %s" % sn)
+        print("Testing...")
 
         # *************************************************************************
         # save current image parameters
@@ -124,9 +117,10 @@ class ASI2600MMDetChar(DetChar):
         # *************************************************************************
         # read most recent detcal info
         # *************************************************************************
-        detcal.read_datafile(detcal.data_file)
-        detcal.mean_electrons = {int(k): v for k, v in detcal.mean_electrons.items()}
-        detcal.mean_counts = {int(k): v for k, v in detcal.mean_counts.items()}
+        if 0:
+            detcal.read_datafile(detcal.data_file)
+            detcal.mean_electrons = {int(k): v for k, v in detcal.mean_electrons.items()}
+            detcal.mean_counts = {int(k): v for k, v in detcal.mean_counts.items()}
 
         # *************************************************************************
         # Create and move to a report folder
@@ -162,7 +156,7 @@ class ASI2600MMDetChar(DetChar):
         # gain.find()
         gain.acquire()
 
-        # Prnu images
+        # PRNU images
         azcam.db.tools["prnu"].acquire()
 
         # superflat sequence
@@ -192,28 +186,14 @@ class ASI2600MMDetChar(DetChar):
         print("Begin analysis of dataset")
         rootfolder = azcam.utils.curdir()
 
-        (
-            exposure,
-            gain,
-            bias,
-            detcal,
-            superflat,
-            ptc,
-            qe,
-            dark,
-            fe55,
-            defects,
-        ) = azcam.utils.get_tools(
+        (gain, bias, superflat, ptc, qe, dark, defects,) = azcam.utils.get_tools(
             [
-                "exposure",
                 "gain",
                 "bias",
-                "detcal",
                 "superflat",
                 "ptc",
                 "qe",
                 "dark",
-                "fe55",
                 "defects",
             ]
         )
@@ -325,10 +305,10 @@ class ASI2600MMDetChar(DetChar):
 
         folder = azcam.utils.curdir()
         self.report_folder = folder
-        report_name = f"ZWO_report_{self.itl_sn}.pdf"
+        report_name = f"ZWO_ASI2600MM_report_{self.itl_id}.pdf"
 
         print("")
-        print("Generating %s Report" % self.itl_sn)
+        print("Generating %s Report" % self.itl_id)
         print("")
 
         # *********************************************
@@ -360,6 +340,9 @@ class ASI2600MMDetChar(DetChar):
         if len(self.report_comment) == 0:
             self.report_comment = azcam.utils.prompt("Enter report comment")
 
+        # get current date
+        self.report_date = datetime.datetime.now().strftime("%b-%d-%Y")
+
         lines = []
 
         lines.append("# ITL Detector Characterization Report")
@@ -368,15 +351,12 @@ class ASI2600MMDetChar(DetChar):
         lines.append("|:---|:---|")
         lines.append("|**Identification**||")
         lines.append(f"|Customer       |UArizona|")
-        lines.append(f"|ITL System     |ZWO|")
+        lines.append(f"|ITL System     |ZWO ASI2600MM|")
         lines.append(f"|ITL ID         |{self.itl_id}|")
-        lines.append(f"|ITL SN         |{int(self.itl_sn)}|")
         lines.append(f"|Type           |ASI2600MM-Pro|")
         lines.append(f"|Report Date    |{self.report_date}|")
         lines.append(f"|Author         |{self.filename2}|")
-        lines.append(f"|**Operating Conditions**||")
-        lines.append(f"|System         |ZWO|")
-        lines.append(f"|**Results**||")
+        lines.append(f"|System         |ZWO ASI2600MM|")
         lines.append(f"|Comment        |{self.report_comment}|")
         lines.append("")
 
@@ -410,7 +390,6 @@ class ASI2600MMDetChar(DetChar):
         """
         Find all qe.0004 flat field files from current folder tree and copy them to
         the folder two levels up (run from report) with new name.
-        Rather dumb, needs 5 digit SN for now...
         """
 
         folder = azcam.utils.curdir()
@@ -441,7 +420,6 @@ class ASI2600MMDetChar(DetChar):
         """
         Find all qe.0004 flat field files from current folder tree and copy them to
         the folder two levels up (run from report) with new name.
-        Rather dumb, needs 5 digit SN for now...
         """
 
         folder = azcam.utils.curdir()
@@ -466,65 +444,21 @@ class ASI2600MMDetChar(DetChar):
     def setup(self):
 
         s = azcam.utils.curdir()
-        try:
-            x = s.index("/sn")
-            if x > 0:
-                sn = s[x + 3 : x + 8]
-            else:
-                sn = 0
-        except ValueError:
-            sn = 0
-        itlsn = azcam.utils.prompt("Enter sensor serial number (integer)", sn)
-        self.itl_sn = int(itlsn)
+        itlid = azcam.utils.prompt("Enter sensor ID")
+        self.itl_id = itlid
 
         operator = azcam.utils.prompt("Enter you initals", "mpl")
 
         # ****************************************************************
         # Identification
         # ****************************************************************
-        if self.itl_sn == 0 or self.itl_sn == -1:
-            print("WARNING! Unspecified detector serial number")
-            self.itl_sn = 0
-            self.itl_id = "0"
-        else:
-            # get ID number in format NNN (package ID)
-            try:
-                dbinfo = itlutils.get_itldb_info(self.itl_sn)
-                self.lot = dbinfo[1]
-                self.device_type = dbinfo[2]
-                self.wafer = dbinfo[3]
-                self.die = dbinfo[4]
-                self.itl_id = dbinfo[5]
-            except Exception as e:
-                azcam.log(e)
-                self.lot = 0
-                self.device_type = "unknown"
-                self.wafer = 0
-                self.die = 0
-                self.itl_id = "unknown"
-
-        # device serial number
-        self.itl_sn = int(itlsn)
-        if self.itl_sn == 0 or self.itl_sn == -1:
-            print("WARNING! Unspecified detector serial number")
-            self.itl_sn = 0
-            self.itl_id = "0"
-        else:
-            # get ID number in format NNN (package ID)
-            try:
-                dbinfo = itlutils.get_itldb_info(self.itl_sn)
-                self.itl_id = "%s".strip() % dbinfo[5]
-            except Exception:
-                azcam.log("did not get database info")
-                self.itl_sn = 0
-                self.itl_id = "000"
 
         # sponsor/report info
         self.customer = "UArizona"
         self.system = "ZWO"
         qe.plot_title = "ASI2600MM Quantum Efficiency"
-        self.summary_report_file = f"SummaryReport_SN{self.itl_sn}"
-        self.report_file = f"ZWO_Report_{self.itl_sn}.pdf"
+        self.summary_report_file = f"SummaryReport_{self.itl_id}"
+        self.report_file = f"ZWO_Report_{self.itl_id}.pdf"
 
         # dewar info
         self.dewar = "ZWO"
@@ -581,21 +515,21 @@ detchar = ASI2600MMDetChar()
 azcam.utils.set_image_roi([[500, 600, 500, 600]])
 
 et = {
-    300: 10.0,
-    350: 5.0,
-    400: 1.0,
-    450: 1.0,
-    500: 1.0,
+    300: 25.0,
+    350: 25.0,
+    400: 5.0,
+    450: 5.0,
+    500: 5.0,
     550: 5.0,
-    600: 20.0,
-    650: 20.0,
-    700: 20.0,
-    750: 20.0,
-    800: 30.0,
-    850: 30.0,
-    900: 40.0,
-    950: 100.0,
-    1000: 200.0,
+    600: 5.0,
+    650: 5.0,
+    700: 5.0,
+    750: 5.0,
+    800: 5.0,
+    850: 5.0,
+    900: 5.0,
+    950: 5.0,
+    1000: 5.0,
 }
 
 
@@ -613,7 +547,7 @@ detcal.wavelengths = [
     800,
 ]
 detcal.exposure_times = {}
-detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi294.txt")
+detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_ASI2600MM.txt")
 detcal.mean_count_goal = 35000
 detcal.range_factor = 1.2
 
@@ -624,73 +558,41 @@ bias.number_flushes = 2
 # gain
 gain.number_pairs = 1
 gain.exposure_time = 3.0
-gain.wavelength = 400
-gain.video_processor_gain = []
+gain.wavelength = 500
 
 # dark
-dark.number_images_acquire = 3
-dark.exposure_time = 10.0
+dark.number_images_acquire = 5
+dark.exposure_time = 60.0
 dark.dark_fraction = -1  # no spec on individual pixels
-# dark.mean_dark_spec = 3.0 / 600.0  # blue e/pixel/sec
-# dark.mean_dark_spec = 6.0 / 600.0  # red
-# dark.use_edge_mask = 1
-# dark.bright_pixel_reject = 0.05  # e/pix/sec clip
 dark.overscan_correct = 0  # flag to overscan correct images
 dark.zero_correct = 1  # flag to correct with bias residuals
 dark.fit_order = 0
+dark.report_dark_per_hour = 0
 
 # superflats
-superflat.exposure_levels = [30000]  # electrons
+superflat.exposure_times = [10]
 superflat.wavelength = 400
-superflat.number_images_acquire = [3]
+superflat.number_images_acquire = [10]
+superflat.overscan_correct = 0
+superflat.zero_correct = 1
 
 # ptc
-ptc.wavelength = 400
+ptc.wavelength = 500
 # ptc.gain_range = [0.75, 1.5]
 ptc.overscan_correct = 0
 ptc.fit_line = True
 ptc.fit_min = 1000
 ptc.fit_max = 60000
-# ptc.exposure_levels = []
+ptc.exposure_levels = []
 ptc.exposure_times = []
-# ptc.max_exposures = 40
-# ptc.number_images_acquire = 40
-ptc.exposure_levels = [
-    500,
-    1000,
-    1500,
-    2000,
-    2500,
-    3000,
-    3500,
-    4000,
-    4500,
-    5000,
-    5500,
-    6000,
-    6500,
-    7000,
-    8000,
-    9000,
-    10000,
-    15000,
-    20000,
-    25000,
-    30000,
-    35000,
-    40000,
-    45000,
-    50000,
-    55000,
-    60000,
-    65000,
-]
+ptc.max_exposures = 75
+ptc.number_images_acquire = 75
 
 # linearity
-linearity.wavelength = 400
-linearity.use_ptc_data = 0
+linearity.wavelength = 500
+linearity.use_ptc_data = 1
 linearity.linearity_fit_min = 1000.0
-linearity.linearity_fit_max = 10000.0
+linearity.linearity_fit_max = 50000.0
 linearity.max_residual_linearity = 0.01
 linearity.plot_specifications = 1
 linearity.plot_limits = [-4.0, +4.0]
@@ -701,11 +603,11 @@ linearity.max_exposure = 5
 linearity.use_weights = 0
 
 # QE
-qe.cal_scale = 0.962  # 27apr21 measured
+qe.cal_scale = 1.107
 qe.global_scale = 1.0
-qe.pixel_area = 0.002315 ** 2
-qe.diode_cal_folder = "/data/ZWO"
-qe.flux_cal_folder = "/data/ZWO"
+qe.pixel_area = 0.00376 ** 2
+qe.diode_cal_folder = "/data/ASI2600MM"
+qe.flux_cal_folder = "/data/ASI2600MM"
 qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]
 qe.plot_title = "ZWO ASI2600MM Quantum Efficiency"
 qe.qeroi = []
@@ -715,26 +617,13 @@ qe.flush_before_exposure = 0
 qe.grade_sensor = 0
 
 qe.create_reports = 1
-qe.scan_times = 0
-qe.exposure_scan_times = {400: [3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0]}
-# qe.wavelengths = [400]
-qe.plot_limits = []
-qe.exptime_offset = -0.13
-"""
+qe.exptime_offset = 0.00  # -0.13
 qe.wavelengths = [
-    350,
-    400,
-    450,
-    500,
-    550,
-    600,
-    650,
-    700,
-    750,
-    800,
-]
- """
-qe.wavelengths = [
+    300,
+    310,
+    320,
+    330,
+    340,
     350,
     360,
     370,
@@ -751,28 +640,22 @@ qe.wavelengths = [
     750,
     800,
     850,
+    900,
+    950,
+    1000,
 ]
 
-# qe.exposure_times = et
-"""qe.exposure_levels ={
-    350: 10000,
-    400: 10000,
-    450: 10000,
-    500: 10000,
-    550: 10000,
-    600: 10000,
-    650: 10000,
-    700: 10000,
-    750: 10000,
-    800: 10000,
-}
-"""
-qeet = 1.0
+qeet = 5.0
 qe.exposure_times = {
-    350: qeet,
-    360: qeet,
-    370: qeet,
-    380: qeet,
+    300: qeet * 10,
+    310: qeet * 10,
+    320: qeet * 10,
+    330: qeet * 10,
+    340: qeet * 10,
+    350: qeet * 5,
+    360: qeet * 5,
+    370: qeet * 2,
+    380: qeet * 2,
     390: qeet,
     400: qeet,
     420: qeet,
@@ -781,14 +664,17 @@ qe.exposure_times = {
     500: qeet,
     520: qeet,
     550: qeet,
-    570: qeet,
-    600: qeet,
-    620: qeet,
-    650: qeet,
-    700: qeet,
-    750: qeet,
-    800: qeet,
-    850: qeet,
+    570: qeet * 2,
+    600: qeet * 2,
+    620: qeet * 2,
+    650: qeet * 2,
+    700: qeet * 5,
+    750: qeet * 10,
+    800: qeet * 10,
+    850: qeet * 10,
+    900: qeet * 20,
+    950: qeet * 20,
+    1000: qeet * 20,
 }
 
 qe.window_trans = {
@@ -812,12 +698,22 @@ qe.window_trans = {
 
 # prnu
 prnu.allowable_deviation_from_mean = 0.1
-prnu.root_name = "prnu."
+prnu.root_name = "qe."
 prnu.use_edge_mask = 0
 prnu.overscan_correct = 0
 prnu.wavelengths = [
+    300,
+    310,
+    320,
+    330,
+    340,
     350,
+    360,
+    370,
+    380,
+    390,
     400,
+    420,
     450,
     500,
     550,
@@ -826,10 +722,44 @@ prnu.wavelengths = [
     700,
     750,
     800,
+    850,
+    900,
+    950,
+    1000,
 ]
-prnu.exposures = et
+prnu.exposures = {
+    300: qeet * 25,
+    310: qeet * 25,
+    320: qeet * 25,
+    330: qeet * 25,
+    340: qeet * 25,
+    350: qeet * 5,
+    360: qeet * 5,
+    370: qeet * 2,
+    380: qeet * 2,
+    390: qeet,
+    400: qeet,
+    420: qeet,
+    450: qeet,
+    470: qeet,
+    500: qeet,
+    520: qeet,
+    550: qeet,
+    570: qeet * 2,
+    600: qeet * 2,
+    620: qeet * 2,
+    650: qeet * 2,
+    700: qeet * 5,
+    750: qeet * 10,
+    800: qeet * 10,
+    850: qeet * 10,
+    900: qeet * 20,
+    950: qeet * 20,
+    1000: qeet * 20,
+}
 
 # defects
-defects.use_edge_mask = 0
+defects.use_edge_mask = 1
+defects.edge_size = 0
 defects.bright_pixel_reject = 0.5  # e/pix/sec
 defects.dark_pixel_reject = 0.80  # below mean
