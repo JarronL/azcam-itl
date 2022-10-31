@@ -39,9 +39,18 @@ except ValueError:
     datafolder = None
 try:
     i = sys.argv.index("-configure")
-    configuration = sys.argv[i + 1]  # may overwrite systemname
+    configuration = sys.argv[i + 1]
 except ValueError:
     configuration = None
+
+# ****************************************************************
+# configuration
+# ****************************************************************
+
+# optional config script
+if configuration is not None:
+    run_path(configuration)
+    systemname = azcam.db.systemname  # may overwrite systemname
 
 # optionally select system with menu
 menu_options = {
@@ -57,11 +66,6 @@ menu_options = {
     "QB": "QB",
     "EB": "EB",
 }
-
-# determine configuration
-if configuration is not None:
-    run_path(configuration)
-    systemname = azcam.db.systemname
 
 if systemname == "menu":
     azcam.db.systemname = azcam.utils.show_menu(menu_options)
@@ -88,7 +92,9 @@ else:
 azcam.db.servermode = azcam.db.systemname
 azcam.db.verbosity = 2
 
+# ****************************************************************
 # logging
+# ****************************************************************
 logfile = os.path.join(azcam.db.datafolder, "logs", "server.log")
 if check_for_remote_logger():
     azcam.db.logger.start_logging(logtype="23", logfile=logfile)
@@ -104,7 +110,9 @@ cmdserver = CommandServer()
 cmdserver.port = 2402
 cmdserver.logcommands = 0
 
+# ****************************************************************
 # load system-specific code
+# ****************************************************************
 importlib.import_module(f"azcam_itl.configs.config_server_{azcam.db.systemname}")
 
 # ****************************************************************
@@ -129,7 +137,9 @@ if 0:
 
     azcam.log("Started webserver applications")
 
+# ****************************************************************
 # parameter file
+# ****************************************************************
 parfile = os.path.join(
     azcam.db.datafolder, "parameters", f"parameters_server_{azcam.db.systemname}.ini"
 )
@@ -137,12 +147,7 @@ azcam.db.tools["parameters"].read_parfile(parfile)
 azcam.db.tools["parameters"].update_pars(0, "azcamserver")
 
 # ****************************************************************
-# azcammonitor
-# ****************************************************************
-# monitor = AzCamMonitorInterface()
-# monitor.proc_path = "/azcam/azcam-itl/bin/start_server_itl.bat"
-# monitor.register()
-
 # start command server
+# ****************************************************************
 azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
 cmdserver.start()
