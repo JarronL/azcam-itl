@@ -52,6 +52,7 @@ menu_options = {
     "ZWO ASI2600MM CMOS camera": "ASI2600MM",
     # "OSU4k": "OSU4k",
     "ITL4k": "ITL4k",
+    "None": "NoSystem",
 }
 
 # configuration
