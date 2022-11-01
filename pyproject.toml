@@ -18,7 +18,7 @@ dependencies = [
     "mysql-connector-python",
     "opencv-python-headless",
     "scikit-image",
-    "pywin32",
+    "pywin32; sys_platform == 'windows'",
     "azcam",
     "azcam-monitor",
     "azcam-fastapi",

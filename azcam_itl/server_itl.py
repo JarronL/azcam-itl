@@ -122,7 +122,7 @@ importlib.import_module(f"azcam_itl.configs.config_server_{azcam.db.systemname}"
 # ****************************************************************
 # web server
 # ****************************************************************
-if 0:
+if 1:
     webserver = WebServer()
     webserver.port = 2403
     webserver.logcommands = 0
