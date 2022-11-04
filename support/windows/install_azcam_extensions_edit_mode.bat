@@ -14,4 +14,3 @@ pip install -e ./azcam-observe
 pip install -e ./azcam-scripts
 pip install -e ./azcam-testers
 pip install -e ./azcam-webtools
-

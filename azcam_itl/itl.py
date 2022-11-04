@@ -25,8 +25,9 @@ def main():
         tabColor = "#990000"
         tabTitle = "azcamserver"
     else:
-        print("Usage error: -server or -console required")
-        return
+        # assume console mode
+        tabColor = "#000099"
+        tabTitle = "azcamconsole"
 
     if os.name == "posix":
         cmds = [
