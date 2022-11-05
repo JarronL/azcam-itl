@@ -11,7 +11,6 @@ import time
 
 import numpy
 import cv2
-import mysql.connector
 import smtplib
 from email import encoders
 from email.mime.base import MIMEBase
@@ -188,95 +187,6 @@ def mailto(to, subject, text, attachments=None):
     mailServer.close()
 
     return
-
-
-def get_itldb_info(SN=-1):
-    """
-    Returns info from ITL_Database from specified ITL serial number.
-    """
-
-    if SN == -1:
-        return [-1, "unknown", "unknown", "unknown", "unknown", "unknown"]
-
-    # set pw with keyring.set_password("itl_tracking", "lab", "some password")
-    pw = keyring.get_password("itl_tracking", "lab")
-    mydb = mysql.connector.connect(host="star3", user="lab", passwd=pw, database="tracking")
-    # azcam.log(mydb)
-    cursor = mydb.cursor()
-
-    if SN == -1:
-        SN = eval(input("Enter device serial number [nnnnn]: "))
-    SN = int(SN)
-
-    SQL = (
-        "SELECT lngSerialNumber,strLotRunName,strDeviceType,strWaferNumber,strDieName,strIDNumber,strDispositionComment FROM tblMaster WHERE lngSerialNumber LIKE %d;"
-        % SN
-    )
-    try:
-        cursor.execute(SQL)
-    except Exception as message:
-        azcam.log("ERROR could not read database")
-        azcam.log(SQL)
-        raise message
-
-    for row in cursor.fetchall():
-        lngSerialNumber = row[0]
-        strLotRunName = row[1]
-        strDeviceType = row[2]
-        strWaferNumber = row[3]
-        strDieName = row[4]
-        strIDNumber = row[5]
-        strDispositionComment = row[6]
-
-    cursor.close()
-
-    if strIDNumber is None:
-        strIDNumber = "000"
-
-    # show results
-    if 0:
-        azcam.log("Serial Number:\t%s" % lngSerialNumber)
-        azcam.log("Lot Run Name:\t%s" % strLotRunName)
-        azcam.log("Device Type:\t%s " % strDeviceType)
-        azcam.log("Wafer Number:\t%s" % strWaferNumber)
-        azcam.log("Die Name:\t%s" % strDieName)
-        azcam.log("Comment:\t%s" % strDispositionComment)
-        azcam.log("ID Number:\t%s" % strIDNumber)
-
-    return [
-        lngSerialNumber,
-        strLotRunName,
-        strDeviceType,
-        strWaferNumber,
-        strDieName,
-        strIDNumber,
-        strDispositionComment,
-    ]
-
-
-def update_itldb(serial_number, comment, process_step, location):
-    """
-    Update comment, process_step, and location for database entry.
-    """
-
-    # update
-    pw = keyring.get_password("itl_tracking", "lab")
-    mydb = mysql.connector.connect(host="star3", user="lab", passwd=pw, database="tracking")
-    # azcam.log(mydb)
-    mycursor = mydb.cursor()
-    sql = (
-        f'UPDATE tblMaster SET strDispositionComment = "{comment}", '
-        f'strProcessStep = "{process_step}", strLocation = "{location}" '
-        f"WHERE lngSerialNumber = {serial_number};"
-    )
-
-    mycursor.execute(sql)
-
-    mydb.commit()
-    mydb.close()
-
-    return
-
 
 def imsnap(scale: float = 1.0, fits_file: str = "last", snap_file: str = None) -> None:
     """

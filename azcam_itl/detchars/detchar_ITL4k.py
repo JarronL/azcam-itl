@@ -482,13 +482,11 @@ class ITL4kDetChar(DetChar):
             self.itl_id = "0"
         else:
             # get ID number in format NNN (package ID)
-            dbinfo = itlutils.get_itldb_info(self.itl_sn)
-            self.lot = dbinfo[1]
-            self.device_type = dbinfo[2]
-            self.wafer = dbinfo[3]
-            self.die = dbinfo[4]
-            id1 = dbinfo[5].replace(" ", "")
-            self.itl_id = id1
+            self.lot = azcam.utils.prompt("Enter lot")
+            self.device_type = azcam.utils.prompt("Enter device type")
+            self.wafer = azcam.utils.prompt("Enter wafer")
+            self.die = azcam.utils.prompt("Enter die")
+            self.itl_id = azcam.utils.prompt("Enter ITL ID")
 
         self.is_setup = 1
 
@@ -530,13 +528,11 @@ class ITL4kDetChar(DetChar):
             self.itl_sn = 0
             self.itl_id = "0"
         else:
-            # get ID number in format NNN (package ID)
-            dbinfo = itlutils.get_itldb_info(self.itl_sn)
-            self.lot = dbinfo[1]
-            self.device_type = dbinfo[2]
-            self.wafer = dbinfo[3]
-            self.die = dbinfo[4]
-            self.itl_id = dbinfo[5]
+            self.lot = azcam.utils.prompt("Enter lot")
+            self.device_type = azcam.utils.prompt("Enter device type")
+            self.wafer = azcam.utils.prompt("Enter wafer")
+            self.die = azcam.utils.prompt("Enter die")
+            self.itl_id = azcam.utils.prompt("Enter ITL ID")
 
         # configure azcamserver
         if azcam.db.tools["server"].connected:

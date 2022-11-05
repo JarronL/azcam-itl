@@ -347,12 +347,11 @@ class DesiDetCharClass(DetChar):
             self.itl_id = "0"
         else:
             # get ID number in format NNN (package ID)
-            dbinfo = itlutils.get_itldb_info(self.itl_sn)
-            self.lot = dbinfo[1]
-            self.device_type = dbinfo[2]
-            self.wafer = dbinfo[3]
-            self.die = dbinfo[4]
-            self.itl_id = dbinfo[5]
+            self.lot = azcam.utils.prompt("Enter lot")
+            self.device_type = azcam.utils.prompt("Enter device type")
+            self.wafer = azcam.utils.prompt("Enter wafer")
+            self.die = azcam.utils.prompt("Enter die")
+            self.itl_id = azcam.utils.prompt("Enter ITL ID")
 
         # sponsor/report info
         self.customer = "LBNL"

@@ -11,11 +11,6 @@ from azcam_ds9.ds9display import Ds9Display
 from azcam_itl.detectors import detector_sta0500
 from azcam_itl.instruments.instrument_bb import InstrumentBB
 
-if 0:
-    ans = azcam.utils.prompt("Characterization or Science (c or s)", "c")
-else:
-    ans = "c"
-
 # ****************************************************************
 # controller
 # ****************************************************************
