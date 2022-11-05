@@ -7,5 +7,3 @@ w32tm /config /manualpeerlist:"0.pool.ntp.org,0x1 tick.usno.navy.mil,0x1 time.wi
 net stop w32time
 net start w32time
 w32tm /resync /rediscover
-
-\
