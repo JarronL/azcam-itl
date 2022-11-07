@@ -19,6 +19,8 @@ import azcam.tools.console_tools
 import azcam_testers
 import azcam_scripts
 from azcam_ds9.ds9display import Ds9Display
+from azcam_focus.focus import Focus
+from azcam_observe.observe import Observe
 
 # from azcam_focus.focus import Focus
 # from azcam_observe.observe import Observe
@@ -102,6 +104,18 @@ azcam_testers.load()
 # scripts
 azcam_scripts.load()
 load_scripts()
+
+# ****************************************************************
+# observe script
+# ****************************************************************
+observe = Observe()
+
+# ****************************************************************
+# focus script
+# ****************************************************************
+focus = Focus()
+focus.focus_component = "instrument"
+focus.focus_type = "step"
 
 # try to connect to azcamserver
 connected = azcam.db.tools["server"].connect()  # default host and port

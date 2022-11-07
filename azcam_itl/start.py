@@ -9,7 +9,7 @@ import sys
 CONSOLE = False
 SERVER = True  # default
 
-args=sys.argv[1:]
+args = sys.argv[1:]
 
 if "-console" in args:
     CONSOLE = True
@@ -19,9 +19,9 @@ if "-server" in args:
     SERVER = True
 
 if os.name == "posix":
-    AZCAM_DATAROOT=f'{os.path.abspath("data")}'
-    os.environ['AZCAM_DATAROOT']=AZCAM_DATAROOT
-    print(f'AzCam data root is {AZCAM_DATAROOT}')
+    AZCAM_DATAROOT = f'{os.path.abspath("data")}'
+    os.environ["AZCAM_DATAROOT"] = AZCAM_DATAROOT
+    print(f"AzCam data root is {AZCAM_DATAROOT}")
 
     if SERVER:
         command = f"ipython --profile azcamserver -i -c \"import azcam_itl.server ; from azcam.cli import *\" -- {' '.join(args)}"
@@ -31,17 +31,18 @@ if os.name == "posix":
 
 else:
     if SERVER:
+        config_file = os.path.join(os.path.dirname(__file__), "ipython_config.py")
         cmds = [
-            "ipython --profile azcamserver -i -c" ,
-            "\"import azcam_itl.server ; from azcam.cli import *\"",
+            f"ipython --profile azcamserver --config={config_file} -i -c",
+            '"import azcam_itl.server ; from azcam.cli import *"',
             f" -- {' '.join(args)}",
         ]
     if CONSOLE:
         cmds = [
-            "ipython --profile azcamconsole -i -c" ,
-            "\"import azcam_itl.console ; from azcam.cli import *\"",
+            "ipython --profile azcamconsole -i -c",
+            '"import azcam_itl.console ; from azcam.cli import *"',
             f" -- {' '.join(args)}",
         ]
-    
+
     command = " ".join(cmds)
     os.system(command)
