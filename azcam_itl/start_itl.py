@@ -33,7 +33,8 @@ else:
     if SERVER:
         config_file = os.path.join(os.path.dirname(__file__), "ipython_config.py")
         cmds = [
-            f"ipython --profile azcamserver --config={config_file} -i -c",
+            f"ipython --profile azcamserver -i -c",
+            #f"ipython --profile azcamserver --config={config_file} -i -c",
             '"import azcam_itl.server ; from azcam.cli import *"',
             f" -- {' '.join(args)}",
         ]
@@ -46,3 +47,32 @@ else:
 
     command = " ".join(cmds)
     os.system(command)
+
+"""
+    if "-console" in args:
+        tabColor = "#000099"
+        tabTitle = "azcamconsole"
+    elif "-server" in args:
+        tabColor = "#990000"
+        tabTitle = "azcamserver"
+    else:
+        # assume console mode
+        tabColor = "#000099"
+        tabTitle = "azcamconsole"
+
+        if use_venv: 
+            cmds = [
+                f"wt -w azcam --suppressApplicationTitle=True --title {tabTitle} --tabColor {tabColor}",
+                "cmd /k",
+                f'"{activator} & python -m {startmod}"',
+                f"{' '.join(args)}",
+            ]
+        else:
+            cmds = [
+                f"wt -w azcam --suppressApplicationTitle=True --title {tabTitle} --tabColor {tabColor}",
+                "cmd /k",
+                f"python -m {startmod}",
+                f"{' '.join(args)}",
+            ]
+
+"""
