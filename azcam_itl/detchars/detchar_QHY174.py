@@ -815,8 +815,6 @@ qe.flush_before_exposure = 0
 qe.grade_sensor = 0
 
 qe.create_reports = 0
-qe.scan_times = 1
-qe.exposure_scan_times = {450: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0]}
 qe.plot_limits = []
 qe.wavelengths = [450]
 qe.exptime_offset = -0.03

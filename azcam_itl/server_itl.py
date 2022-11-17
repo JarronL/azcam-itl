@@ -42,6 +42,11 @@ try:
     configuration = sys.argv[i + 1]
 except ValueError:
     configuration = None
+try:
+    i = sys.argv.index("-cmdport")
+    cmdport = int(sys.argv[i + 1])
+except ValueError:
+    cmdport = 2402
 
 # ****************************************************************
 # configuration
@@ -107,10 +112,7 @@ azcam.log(f"Configuring {azcam.db.systemname}")
 
 # define command server
 cmdserver = CommandServer()
-if azcam.db.systemname != "NoSystem":
-    cmdserver.port = 2402
-else:
-    cmdserver.port = 2492
+cmdserver.port = cmdport
 cmdserver.logcommands = 0
 
 # ****************************************************************
