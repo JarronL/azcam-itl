@@ -1,9 +1,10 @@
 """
-azcam console app for ITL detchar systems
+azcam console script for ITL detchar systems
 
 Command line options:
-  -configure /data/LVM/config_LVM.py
   -system LVM
+  -configure /data/LVM/config_LVM.py
+  -datafolder path_to_datafolder
 """
 
 import os
@@ -108,7 +109,7 @@ load_scripts()
 # ****************************************************************
 # observe script
 # ****************************************************************
-#observe = Observe()
+# observe = Observe()
 
 # ****************************************************************
 # focus script

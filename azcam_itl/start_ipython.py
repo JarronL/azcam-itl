@@ -1,13 +1,17 @@
 """
-Common start script for azcam_itl
+Starts azcam_itl in new windows.
+
 Runs azamserver or azcamconsole in Ipython under Windows or Linux.
+
+Usage example:
+>> python -m azcam_itl.start_ipython -server -system DESI
 """
 
 import os
 import sys
 
 CONSOLE = False
-SERVER = True  # default
+SERVER = True
 
 args = sys.argv[1:]
 
@@ -34,18 +38,20 @@ else:
         config_file = os.path.join(os.path.dirname(__file__), "ipython_config.py")
         cmds = [
             f"ipython --profile azcamserver -i -c",
-            #f"ipython --profile azcamserver --config={config_file} -i -c",
+            # f"ipython --profile azcamserver --config={config_file} -i -c",
             '"import azcam_itl.server ; from azcam.cli import *"',
             f" -- {' '.join(args)}",
         ]
     if CONSOLE:
         cmds = [
             "ipython --profile azcamconsole -i -c",
-            '"import azcam_itl.console ; from azcam.cli import *"',
+            '"import azcam_itl.start"',
             f" -- {' '.join(args)}",
         ]
 
     command = " ".join(cmds)
+    print(command)
+    input()
     os.system(command)
 
 """

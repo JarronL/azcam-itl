@@ -2,8 +2,9 @@
 azcam server script for ITL systems.
 
 Command line options:
-  -configure /data/LVM/config_LVM.py
   -system LVM
+  -configure /data/LVM/config_LVM.py
+  -datafolder path_to_datafolder
 """
 
 import importlib
@@ -154,6 +155,3 @@ azcam.db.tools["parameters"].update_pars(0, "azcamserver")
 # ****************************************************************
 azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
 cmdserver.start()
-
-
-# debug
