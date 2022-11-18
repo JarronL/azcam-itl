@@ -37,8 +37,8 @@ else:
     if SERVER:
         config_file = os.path.join(os.path.dirname(__file__), "ipython_config.py")
         cmds = [
-            f"ipython --profile azcamserver -i -c",
-            # f"ipython --profile azcamserver --config={config_file} -i -c",
+            # f"ipython --profile azcamserver -i -c",
+            f"ipython --profile azcamserver --config={config_file} -i -c",
             '"import azcam_itl.server ; from azcam.cli import *"',
             f" -- {' '.join(args)}",
         ]

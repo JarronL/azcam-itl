@@ -6,9 +6,7 @@ from azcam.tools.system import System
 from azcam_ds9.ds9display import Ds9Display
 from azcam_archon.controller_archon import ControllerArchon
 from azcam_archon.exposure_archon import ExposureArchon
-from azcam_itl.detectors import (
-    detector_sta4850,
-)
+from azcam_itl.detectors import detector_sta4850, detector_sta4850_2amps_top
 from azcam_cryocon.tempcon_cryocon24 import TempConCryoCon24
 from azcam.tools.tempcon import TempCon
 
@@ -16,7 +14,7 @@ from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam_itl.instruments.instrument_eb import InstrumentEB
 from azcam.tools.instrument import Instrument
 
-INSTRUMENT = None  # None, EB, QB
+INSTRUMENT = "QB"  # None, EB, QB
 
 # ****************************************************************
 # instrument
@@ -60,6 +58,7 @@ elif INSTRUMENT == "QB":
     tempcon = TempConCryoCon24()
     tempcon.host = "10.0.0.44"  # QB
     tempcon.control_temperature = -100.0
+    tempcon.temperature_ids = [2, 0]  # custom
     tempcon.init_commands = [
         "input A:units C",
         "input B:units C",
@@ -75,20 +74,20 @@ elif INSTRUMENT == "QB":
 # ****************************************************************
 filetype = "MEF"
 exposure = ExposureArchon()
-exposure.fileconverter.set_detector_config(detector_sta4850)
+exposure.fileconverter.set_detector_config(detector_sta4850_2amps_top)
 exposure.filetype = exposure.filetypes[filetype]
 exposure.image.filetype = exposure.filetypes[filetype]
-exposure.add_extensions = 1
+exposure.add_extensions = 0
 
 # ****************************************************************
 # detector
 # ****************************************************************
-exposure.set_detpars(detector_sta4850)
+exposure.set_detpars(detector_sta4850_2amps_top)
 
 # ****************************************************************
 # system header
 # ****************************************************************
-template = os.path.join(azcam.db.datafolder, "templates", "fits_template_90prime_4k.txt")
+template = os.path.join(azcam.db.datafolder, "templates", "fits_template_90prime4k.txt")
 system = System("ITL3", template)
 
 # ****************************************************************

@@ -47,6 +47,11 @@ try:
     configuration = sys.argv[i + 1]  # may overwrite systemname
 except ValueError:
     configuration = None
+try:
+    i = sys.argv.index("-cmdport")
+    cmdport = int(sys.argv[i + 1])
+except ValueError:
+    cmdport = 2402
 
 # menu to select system
 menu_options = {
@@ -119,7 +124,7 @@ focus.focus_component = "instrument"
 focus.focus_type = "step"
 
 # try to connect to azcamserver
-connected = azcam.db.tools["server"].connect()  # default host and port
+connected = azcam.db.tools["server"].connect(port=cmdport)  # default host and port
 if connected:
     azcam.log("Connected to azcamserver")
 else:
@@ -144,6 +149,13 @@ elif azcam.db.systemname == "LVM":
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/LVM"
+
+elif azcam.db.systemname == "90prime4k":
+    from azcam_itl.detchars.detchar_90prime4k import detchar
+    import azcam_archon.console_archon
+
+    if azcam.db.wd is None:
+        azcam.db.wd = "/data/90prime4k"
 
 elif azcam.db.systemname == "ASI294":
     from azcam_itl.detchars.detchar_ASI294 import detchar
