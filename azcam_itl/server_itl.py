@@ -17,11 +17,11 @@ import azcam.server
 import azcam.shortcuts
 from azcam.tools.cmdserver import CommandServer
 from azcam.logger import check_for_remote_logger
+from azcam.tools.fastapi.fastapi_server import WebServer
+from azcam.tools.webtools.exptool.exptool import Exptool
+from azcam.tools.webtools.status.status import Status
 
 from azcam_monitor.monitorinterface import AzCamMonitorInterface
-from azcam_fastapi.fastapi_server import WebServer
-from azcam_webtools.exptool.exptool import Exptool
-from azcam_webtools.status.status import Status
 
 import azcam_itl.shortcuts
 

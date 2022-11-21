@@ -16,12 +16,11 @@ import azcam
 import azcam.console
 import azcam.shortcuts
 import azcam.tools.console_tools
-
-import azcam_testers
-import azcam_scripts
-from azcam_ds9.ds9display import Ds9Display
-from azcam_focus.focus import Focus
-from azcam_observe.observe import Observe
+import azcam.tools.testers
+import azcam.tools.scripts
+from azcam.tools.ds9.ds9display import Ds9Display
+from azcam.tools.focus.focus import Focus
+from azcam.tools.observe.observe import Observe
 
 # from azcam_focus.focus import Focus
 # from azcam_observe.observe import Observe
@@ -105,10 +104,10 @@ from azcam.tools import create_console_tools
 create_console_tools()
 
 # testers
-azcam_testers.load()
+azcam.tools.testers.load()
 
 # scripts
-azcam_scripts.load()
+azcam.tools.scripts.load()
 load_scripts()
 
 # ****************************************************************
@@ -152,7 +151,7 @@ elif azcam.db.systemname == "LVM":
 
 elif azcam.db.systemname == "90prime4k":
     from azcam_itl.detchars.detchar_90prime4k import detchar
-    import azcam_archon.console_archon
+    import azcam.tools.archon.console_archon
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/90prime4k"
@@ -171,14 +170,14 @@ elif azcam.db.systemname == "ASI2600MM":
 
 elif azcam.db.systemname == "OSU4k":
     from azcam_itl.detchars.detchar_OSU4k import detchar
-    import azcam_archon.console_archon
+    import azcam.tools.archon.console_archon
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/OSU4k"
 
 elif azcam.db.systemname == "ITL4k":
     from azcam_itl.detchars.detchar_ITL4k import detchar
-    import azcam_archon.console_archon
+    import azcam.tools.archon.console_archon
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/ITL4k"
