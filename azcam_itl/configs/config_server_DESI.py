@@ -2,11 +2,10 @@ import os
 
 import azcam
 from azcam.tools.system import System
-
-from azcam_arc.controller_arc import ControllerArc
-from azcam_arc.exposure_arc import ExposureArc
-from azcam_cryocon.tempcon_cryocon24 import TempConCryoCon24
-from azcam_ds9.ds9display import Ds9Display
+from azcam.tools.arc.controller_arc import ControllerArc
+from azcam.tools.arc.exposure_arc import ExposureArc
+from azcam.tools.cryocon.tempcon_cryocon24 import TempConCryoCon24
+from azcam.tools.ds9.ds9display import Ds9Display
 
 from azcam_itl.instruments.instrument_bb import InstrumentBB
 from azcam_itl.detectors import detector_sta4150_4amp, detector_sta4150_2amp_left

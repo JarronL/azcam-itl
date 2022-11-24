@@ -7,7 +7,6 @@ import threading
 
 import azcam
 from azcam.tools.instrument import Instrument
-
 from azcam_itl.instruments import pressure_vgc501
 from azcam_itl.instruments import pressure_mks900
 from azcam_itl.instruments import pressure_pkr361

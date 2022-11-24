@@ -2,9 +2,8 @@
 Instrument server application on ITL QuantumBench.
 """
 
-from azcam_itl.instruments.instrument_qb_server import InstrumentQBServer
-
 import azcam
+from azcam_itl.instruments.instrument_qb_server import InstrumentQBServer
 
 # ****************************************************************
 # instrument

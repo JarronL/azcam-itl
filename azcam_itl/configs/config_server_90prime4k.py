@@ -2,17 +2,16 @@ import os
 
 import azcam
 from azcam.tools.system import System
-
-from azcam_ds9.ds9display import Ds9Display
-from azcam_archon.controller_archon import ControllerArchon
-from azcam_archon.exposure_archon import ExposureArchon
-from azcam_itl.detectors import detector_sta4850, detector_sta4850_2amps_top
-from azcam_cryocon.tempcon_cryocon24 import TempConCryoCon24
+from azcam.tools.ds9.ds9display import Ds9Display
+from azcam.tools.archon.controller_archon import ControllerArchon
+from azcam.tools.archon.exposure_archon import ExposureArchon
+from azcam.tools.cryocon.tempcon_cryocon24 import TempConCryoCon24
 from azcam.tools.tempcon import TempCon
+from azcam.tools.instrument import Instrument
 
+from azcam_itl.detectors import detector_sta4850, detector_sta4850_2amps_top
 from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam_itl.instruments.instrument_eb import InstrumentEB
-from azcam.tools.instrument import Instrument
 
 INSTRUMENT = "QB"  # None, EB, QB
 

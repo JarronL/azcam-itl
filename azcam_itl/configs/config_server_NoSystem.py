@@ -2,9 +2,8 @@
 Instrument server application on ITL ElectronBench.
 """
 
-from azcam_itl.instruments.instrument_eb import InstrumentEB
-
 import azcam
+from azcam_itl.instruments.instrument_eb import InstrumentEB
 
 # ****************************************************************
 # instrument

@@ -6,9 +6,8 @@ import subprocess
 import time
 
 import azcam
-from astropy.io import fits as pyfits
+from azcam.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
-from azcam_testers.detchar import DetChar
 
 
 class PrimeFocus4kDetChar(DetChar):

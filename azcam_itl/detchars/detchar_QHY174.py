@@ -11,7 +11,7 @@ import time
 import keyring
 
 import azcam
-from azcam_testers.detchar import DetChar
+from azcam.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 

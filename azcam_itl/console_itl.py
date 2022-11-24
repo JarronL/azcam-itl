@@ -17,14 +17,14 @@ import azcam.console
 import azcam.shortcuts
 import azcam.tools.console_tools
 import azcam.tools.testers
-import azcam.tools.scripts
 from azcam.tools.ds9.ds9display import Ds9Display
 from azcam.tools.focus.focus import Focus
 from azcam.tools.observe.observe import Observe
 
-# from azcam_focus.focus import Focus
-# from azcam_observe.observe import Observe
+import azcam_scripts
 
+# from azcam.tools.focus.focus import Focus
+# from azcam.tools.observe.observe import Observe
 
 from azcam_itl import itlutils
 from azcam_itl.scripts import load_scripts
@@ -107,7 +107,7 @@ create_console_tools()
 azcam.tools.testers.load()
 
 # scripts
-azcam.tools.scripts.load()
+azcam_scripts.load()
 load_scripts()
 
 # ****************************************************************
@@ -132,7 +132,7 @@ else:
 # system-specific
 if azcam.db.systemname == "DESI":
     from azcam_itl.detchars.detchar_DESI import detchar
-    import azcam_arc.console_arc
+    import azcam.tools.arc.console_arc
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/DESI"
@@ -144,7 +144,7 @@ elif azcam.db.systemname == "LVM":
         azcam.db.wd = "/data/ITL4k"
     else:
         from azcam_itl.detchars.detchar_LVM import detchar
-    import azcam_archon.console_archon
+    import azcam.tools.archon.console_archon
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/LVM"

@@ -3,13 +3,13 @@ import sys
 
 import azcam
 from azcam.tools.instrument import Instrument
+from azcam.tools.mag.controller_mag import ControllerMag
+from azcam.tools.mag.exposure_mag import ExposureMag
+from azcam.tools.mag.tempcon_mag import TempConMag
+from azcam.tools.mag.udpinterface import UDPinterface
+from azcam.tools.imageserver.sendimage import SendImage
 
 from azcam_itl.detectors import detector_ccd57
-from azcam_mag.controller_mag import ControllerMag
-from azcam_mag.exposure_mag import ExposureMag
-from azcam_mag.tempcon_mag import TempConMag
-from azcam_mag.udpinterface import UDPinterface
-from azcam_imageserver.sendimage import SendImage
 
 try:
     i = sys.argv.index("-broadcast")

@@ -10,7 +10,6 @@ import azcam
 from azcam.tools.instrument import Instrument
 
 from azcam_itl.instruments import keithley_6482
-
 # import pressure_pkr361
 from azcam_itl.instruments import filters_bb
 from azcam_itl.instruments import newport_1936_R

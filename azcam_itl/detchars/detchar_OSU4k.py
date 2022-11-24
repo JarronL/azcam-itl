@@ -9,8 +9,8 @@ import time
 import shutil
 
 import azcam
+from azcam.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
-from azcam_testers.detchar import DetChar
 
 
 class Osu4kDetCharClass(DetChar):

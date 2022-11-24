@@ -2,19 +2,17 @@ import os
 import sys
 import time
 
-from azcam_itl.detectors import detector_asi2600MM
-from azcam_ascom.controller_ascom import ControllerASCOM
-from azcam_ascom.exposure_ascom import ExposureASCOM
-from azcam_ascom.tempcon_ascom import TempConASCOM
-
 import azcam
+from azcam.tools.ascom.controller_ascom import ControllerASCOM
+from azcam.tools.ascom.exposure_ascom import ExposureASCOM
+from azcam.tools.ascom.tempcon_ascom import TempConASCOM
 from azcam.tools.system import System
-
-# from azcam.tools.instrument import Instrument
-from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam.tools.tempcon import TempCon
-from azcam_ds9.ds9display import Ds9Display
-from azcam_imageserver.sendimage import SendImage
+from azcam.tools.ds9.ds9display import Ds9Display
+from azcam.tools.imageserver.sendimage import SendImage
+
+from azcam_itl.detectors import detector_asi2600MM
+from azcam_itl.instruments.instrument_qb import InstrumentQB
 
 # ****************************************************************
 # controller
