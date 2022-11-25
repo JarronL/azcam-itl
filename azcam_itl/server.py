@@ -23,11 +23,12 @@ from azcam.tools.webtools.status.status import Status
 
 from azcam_monitor.monitorinterface import AzCamMonitorInterface
 
-import azcam_itl.shortcuts
+import azcam_itl.shortcuts_itl
 
 # ****************************************************************
 # parse command line arguments
 # ****************************************************************
+print(sys.argv)
 try:
     i = sys.argv.index("-system")
     systemname = sys.argv[i + 1]
@@ -157,3 +158,6 @@ azcam.db.tools["parameters"].update_pars(0, "azcamserver")
 # ****************************************************************
 azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
 cmdserver.start()
+
+# cli commands
+from azcam.cli import *
