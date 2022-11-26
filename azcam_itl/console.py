@@ -29,7 +29,7 @@ import azcam_scripts
 
 from azcam_itl import itlutils
 from azcam_itl.scripts import load_scripts
-import azcam_itl.shortcuts
+import azcam_itl.shortcuts_itl
 
 # parse command line arguments
 try:
