@@ -10,6 +10,7 @@ Command line options:
 import importlib
 import os
 import sys
+import ctypes
 from runpy import run_path
 
 import azcam
@@ -28,7 +29,6 @@ import azcam_itl.shortcuts_itl
 # ****************************************************************
 # parse command line arguments
 # ****************************************************************
-print(sys.argv)
 try:
     i = sys.argv.index("-system")
     systemname = sys.argv[i + 1]
@@ -161,3 +161,9 @@ cmdserver.start()
 
 # cli commands
 from azcam.cli import *
+
+# try to change window title
+try:
+    ctypes.windll.kernel32.SetConsoleTitleW("azcamserver")
+except Exception:
+    pass

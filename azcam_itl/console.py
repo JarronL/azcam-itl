@@ -9,6 +9,7 @@ Command line options:
 
 import os
 import sys
+import ctypes
 import threading
 from runpy import run_path
 
@@ -191,3 +192,9 @@ azcam.db.tools["parameters"].update_pars(0, "azcamconsole")
 
 # cli commands
 from azcam.cli import *
+
+# try to change window title
+try:
+    ctypes.windll.kernel32.SetConsoleTitleW("azcamconsole")
+except Exception:
+    pass
