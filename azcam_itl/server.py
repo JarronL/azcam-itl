@@ -21,6 +21,7 @@ from azcam.logger import check_for_remote_logger
 from azcam.tools.fastapi.fastapi_server import WebServer
 from azcam.tools.webtools.exptool.exptool import Exptool
 from azcam.tools.webtools.status.status import Status
+import azcam.scripts
 
 from azcam_monitor.monitorinterface import AzCamMonitorInterface
 
@@ -121,6 +122,12 @@ cmdserver.logcommands = 0
 # load system-specific code
 # ****************************************************************
 importlib.import_module(f"azcam_itl.configs.config_server_{azcam.db.systemname}")
+
+# ****************************************************************
+# scripts
+# ****************************************************************
+azcam.log("Loading scripts")
+azcam.scripts.load("server")
 
 # ****************************************************************
 # web server

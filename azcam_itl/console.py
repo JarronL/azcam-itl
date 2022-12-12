@@ -18,18 +18,15 @@ import azcam.console
 import azcam.shortcuts
 import azcam.tools.console_tools
 import azcam.tools.testers
-from azcam.tools.ds9.ds9display import Ds9Display
-from azcam.tools.focus.focus import Focus
-from azcam.tools.observe.observe import Observe
+import azcam.scripts
+from azcam.tools.ds9display import Ds9Display
 
-import azcam_scripts
-
-# from azcam.tools.focus.focus import Focus
-# from azcam.tools.observe.observe import Observe
 
 from azcam_itl import itlutils
 from azcam_itl.scripts import load_scripts
 import azcam_itl.shortcuts_itl
+
+from azcam_observe.observe_cli.observe_cli import ObserveCli
 
 # parse command line arguments
 try:
@@ -104,24 +101,21 @@ from azcam.tools import create_console_tools
 
 create_console_tools()
 
+# ****************************************************************
 # testers
+# ****************************************************************
 azcam.tools.testers.load()
 
+# ****************************************************************
+# ObserveCli
+# ****************************************************************
+observe = ObserveCli()
+
+# ****************************************************************
 # scripts
-azcam_scripts.load()
-load_scripts()
-
 # ****************************************************************
-# observe script
-# ****************************************************************
-# observe = Observe()
-
-# ****************************************************************
-# focus script
-# ****************************************************************
-focus = Focus()
-focus.focus_component = "instrument"
-focus.focus_type = "step"
+azcam.log("Loading scripts")
+azcam.scripts.load("console")
 
 # try to connect to azcamserver
 connected = azcam.db.tools["server"].connect(port=cmdport)  # default host and port

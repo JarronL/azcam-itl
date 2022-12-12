@@ -8,7 +8,7 @@ from azcam.tools.ascom.exposure_ascom import ExposureASCOM
 from azcam.tools.ascom.tempcon_ascom import TempConASCOM
 from azcam.tools.instrument import Instrument
 from azcam.tools.tempcon import TempCon
-from azcam.tools.ds9.ds9display import Ds9Display
+from azcam.tools.ds9display import Ds9Display
 
 from azcam_itl.detectors import detector_qhy174
 from azcam_itl.instruments.instrument_qb import InstrumentQB

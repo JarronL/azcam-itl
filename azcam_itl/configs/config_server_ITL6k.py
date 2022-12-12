@@ -6,10 +6,10 @@ import os
 
 import azcam
 from azcam.tools.system import System
-from azcam.tools.ds9.ds9display import Ds9Display
+from azcam.tools.ds9display import Ds9Display
 from azcam.tools.archon.controller_archon import ControllerArchon
 from azcam.tools.archon.exposure_archon import ExposureArchon
-from azcam.tools.cryocon.tempcon_cryocon24 import TempConCryoCon24
+from azcam.tools.tempcon_cryocon24 import TempConCryoCon24
 from azcam.tools.tempcon import TempCon
 from azcam.tools.instrument import Instrument
 

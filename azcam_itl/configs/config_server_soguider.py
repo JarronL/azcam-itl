@@ -7,7 +7,7 @@ from azcam.tools.mag.controller_mag import ControllerMag
 from azcam.tools.mag.exposure_mag import ExposureMag
 from azcam.tools.mag.tempcon_mag import TempConMag
 from azcam.tools.mag.udpinterface import UDPinterface
-from azcam.tools.imageserver.sendimage import SendImage
+from azcam.tools.sendimage import SendImage
 
 from azcam_itl.detectors import detector_ccd57
 
