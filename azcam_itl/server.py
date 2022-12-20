@@ -18,7 +18,7 @@ import azcam.server
 import azcam.shortcuts
 from azcam.tools.cmdserver import CommandServer
 from azcam.logger import check_for_remote_logger
-from azcam.tools.fastapi.fastapi_server import WebServer
+from azcam.tools.webserver.fastapi_server import WebServer
 from azcam.tools.webtools.exptool.exptool import Exptool
 from azcam.tools.webtools.status.status import Status
 import azcam.scripts
@@ -137,13 +137,13 @@ if 1:
     webserver.port = 2403
     webserver.logcommands = 0
     webserver.return_json = 0
-    webserver.index = os.path.join(azcam.db.datafolder, "index_ITL.html")
+    webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
     webserver.message = f"for host {azcam.db.hostname}"
     webserver.datafolder = azcam.db.datafolder
     webserver.start()
 
     webstatus = Status()
-    webstatus.message = "for ITL systems"
+    webstatus.message = "Status for ITL systems"
     webstatus.initialize()
 
     exptool = Exptool()
