@@ -12,4 +12,4 @@ instrument = InstrumentQB()
 
 # instrument.initialize()
 
-azcam.db.tools["cmdserver"].logcommands = 1
+azcam.db.cmdserver.logcommands = 1

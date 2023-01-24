@@ -8,7 +8,7 @@ import time
 import azcam
 import azcam.server
 import pyvisa
-from azcam.tools.cmdserver import CommandServer
+from azcam.cmdserver import CommandServer
 
 
 class ElectronBenchFiltersServer(object):

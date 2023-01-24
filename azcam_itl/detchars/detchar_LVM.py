@@ -129,7 +129,7 @@ class LVMDetChar(DetChar):
         # *************************************************************************
         currentfolder, reportfolder = azcam.utils.make_file_folder("report", 1, 1)
         azcam.utils.curdir(reportfolder)
-        azcam.db.tools["parameters"].set_par("imagefolder", reportfolder)
+        azcam.db.parameters.set_par("imagefolder", reportfolder)
 
         # *************************************************************************
         # Acquire
@@ -215,7 +215,7 @@ class LVMDetChar(DetChar):
         currentfolder = azcam.utils.curdir()
 
         # uniform image sequence numbers
-        azcam.db.tools["parameters"].set_par("imagesequencenumber", 1)
+        azcam.db.parameters.set_par("imagesequencenumber", 1)
 
         # clear device after reset delay
         print("Delaying start for %.0f seconds (to settle)..." % self.start_delay)
@@ -533,19 +533,6 @@ class LVMDetChar(DetChar):
             self.wafer = azcam.utils.prompt("Enter wafer")
             self.die = azcam.utils.prompt("Enter die")
             self.itl_id = azcam.utils.prompt("Enter ITL ID")
-
-        # configure azcamserver
-        if azcam.db.tools["server"].connected:
-            azcam.db.tools["system"].set_keyword(
-                "DETID", self.itl_id, "'Detector ID number'", "str"
-            )
-            azcam.db.tools["system"].set_keyword(
-                "DETSN", self.itl_sn, "'Detector serial number'", "int"
-            )
-            azcam.db.tools["system"].set_keyword("SYSTEM", self.system, "'System Name'", "str")
-            azcam.db.tools["system"].set_keyword(
-                "DETTYPE", "%s" % self.device_type, "'Detector Type'", "str"
-            )
 
         self.is_setup = 1
 

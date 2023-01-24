@@ -133,7 +133,7 @@ class ASI2600MMDetChar(DetChar):
         # *************************************************************************
         # Acquire data
         # *************************************************************************
-        azcam.db.tools["parameters"].set_par(
+        azcam.db.parameters.set_par(
             "imagesequencenumber", 1
         )  # uniform image sequence numbers
 

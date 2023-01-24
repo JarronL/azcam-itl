@@ -142,7 +142,7 @@ class QHY174DetChar(DetChar):
 
         for timefile in self.timingfiles:
 
-            azcam.db.tools["parameters"].set_par("timingfile", timefile)
+            azcam.db.parameters.set_par("timingfile", timefile)
 
             # *************************************************************************
             # Create and move to a report folder
@@ -155,7 +155,7 @@ class QHY174DetChar(DetChar):
             # *************************************************************************
             # Acquire data
             # *************************************************************************
-            azcam.db.tools["parameters"].set_par(
+            azcam.db.parameters.set_par(
                 "imagesequencenumber", 1
             )  # uniform image sequence numbers
 

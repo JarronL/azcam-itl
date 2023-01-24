@@ -19,7 +19,7 @@ from email.mime.text import MIMEText
 import keyring
 
 import azcam
-import azcam.tools.image
+import azcam.image
 
 
 def cleanup_files(folder=None):
@@ -203,7 +203,7 @@ def imsnap(scale: float = 1.0, fits_file: str = "last", snap_file: str = None) -
     """
 
     if fits_file == "last":
-        fits_file = azcam.db.tools["parameters"].get_par("lastfilename")
+        fits_file = azcam.db.parameters.get_par("lastfilename")
 
     folder = os.path.dirname(fits_file)
     fname = os.path.basename(fits_file)
@@ -227,7 +227,7 @@ def imsnap(scale: float = 1.0, fits_file: str = "last", snap_file: str = None) -
         else:
             break
 
-    im1 = azcam.tools.image.Image(fits_file)
+    im1 = azcam.image.Image(fits_file)
     im1.assemble(1)  # buffer float32 by default
 
     data = im1.buffer

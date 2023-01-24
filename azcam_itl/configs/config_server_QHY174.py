@@ -2,7 +2,7 @@ import os
 import sys
 
 import azcam
-from azcam.tools.system import System
+from azcam.system import System
 from azcam.tools.ascom.controller_ascom import ControllerASCOM
 from azcam.tools.ascom.exposure_ascom import ExposureASCOM
 from azcam.tools.ascom.tempcon_ascom import TempConASCOM

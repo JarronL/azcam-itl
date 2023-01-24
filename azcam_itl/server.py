@@ -16,7 +16,7 @@ from runpy import run_path
 import azcam
 import azcam.server
 import azcam.shortcuts
-from azcam.tools.cmdserver import CommandServer
+from azcam.cmdserver import CommandServer
 from azcam.logger import check_for_remote_logger
 from azcam.tools.webserver.fastapi_server import WebServer
 from azcam.tools.webtools.exptool.exptool import Exptool
@@ -157,8 +157,8 @@ if 1:
 parfile = os.path.join(
     azcam.db.datafolder, "parameters", f"parameters_server_{azcam.db.systemname}.ini"
 )
-azcam.db.tools["parameters"].read_parfile(parfile)
-azcam.db.tools["parameters"].update_pars(0, "azcamserver")
+azcam.db.parameters.read_parfile(parfile)
+azcam.db.parameters.update_pars(0, "azcamserver")
 
 # ****************************************************************
 # start command server

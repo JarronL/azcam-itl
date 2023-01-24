@@ -1,7 +1,7 @@
 import os
 
 import azcam
-from azcam.tools.system import System
+from azcam.system import System
 from azcam.tools.ds9display import Ds9Display
 from azcam.tools.archon.controller_archon import ControllerArchon
 from azcam.tools.archon.exposure_archon import ExposureArchon

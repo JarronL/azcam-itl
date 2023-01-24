@@ -80,7 +80,7 @@ class DesiDetCharClass(DetChar):
         # *************************************************************************
         currentfolder, reportfolder = azcam.utils.make_file_folder("report", 1, 1)
         azcam.utils.curdir(reportfolder)
-        azcam.db.tools["parameters"].set_par("imagefolder", reportfolder)
+        azcam.db.parameters.set_par("imagefolder", reportfolder)
 
         print("Flush detector")
         azcam.db.tools["exposure"].roi_reset()
@@ -102,7 +102,7 @@ class DesiDetCharClass(DetChar):
             # *************************************************************************
             # Acquire data
             # *************************************************************************
-            azcam.db.tools["parameters"].set_par(
+            azcam.db.parameters.set_par(
                 "imagesequencenumber", 1
             )  # uniform image sequence numbers
 

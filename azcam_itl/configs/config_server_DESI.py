@@ -1,7 +1,7 @@
 import os
 
 import azcam
-from azcam.tools.system import System
+from azcam.system import System
 from azcam.tools.arc.controller_arc import ControllerArc
 from azcam.tools.arc.exposure_arc import ExposureArc
 from azcam.tools.tempcon_cryocon24 import TempConCryoCon24

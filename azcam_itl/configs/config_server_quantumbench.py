@@ -10,7 +10,7 @@ from azcam_itl.instruments.instrument_qb_server import InstrumentQBServer
 # ****************************************************************
 instrument = InstrumentQBServer()
 
-azcam.db.tools["cmdserver"].logcommands = 1
+azcam.db.cmdserver.logcommands = 1
 
 print("Initializing instruments")
 instrument.initialize()
