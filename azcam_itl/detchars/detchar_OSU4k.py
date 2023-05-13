@@ -9,13 +9,12 @@ import time
 import shutil
 
 import azcam
-from azcam.tools.testers.detchar import DetChar
+from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
 class Osu4kDetCharClass(DetChar):
     def __init__(self):
-
         super().__init__()
 
         self.is_retest = 0
@@ -86,7 +85,6 @@ class Osu4kDetCharClass(DetChar):
         azcam.db.tools["exposure"].test(0)
 
         try:
-
             # *************************************************************************
             # gain images
             # *************************************************************************
@@ -101,9 +99,7 @@ class Osu4kDetCharClass(DetChar):
             # *************************************************************************
             # Acquire data
             # *************************************************************************
-            azcam.db.parameters.set_par(
-                "imagesequencenumber", 1
-            )  # uniform image sequence numbers
+            azcam.db.parameters.set_par("imagesequencenumber", 1)  # uniform image sequence numbers
 
             # clear device after reset delay
             print("Delaying start for %.0f seconds (to settle)..." % self.start_delay)
@@ -302,7 +298,6 @@ class Osu4kDetCharClass(DetChar):
         return
 
     def setup(self):
-
         self.customer = "OSU"
         self.system = "OSU4k"
         self.dewar = "OSU4k"

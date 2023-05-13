@@ -2,10 +2,10 @@ import os
 import sys
 
 import azcam
-from azcam.system import System
-from azcam.tools.ascom.controller_ascom import ControllerASCOM
-from azcam.tools.ascom.exposure_ascom import ExposureASCOM
-from azcam.tools.ascom.tempcon_ascom import TempConASCOM
+from azcam.header import System
+from azcam_server.tools.ascom.controller_ascom import ControllerASCOM
+from azcam_server.tools.ascom.exposure_ascom import ExposureASCOM
+from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
 from azcam.tools.instrument import Instrument
 from azcam.tools.tempcon import TempCon
 from azcam.tools.ds9display import Ds9Display
@@ -16,14 +16,18 @@ from azcam_itl.instruments.instrument_qb import InstrumentQB
 # ****************************************************************
 # controller
 # ****************************************************************
-controller = ControllerASCOM()
-controller.driver = "ASCOM.QHYCCD.Camera"
-# init now due to threading issue
-controller.initialize()
-controller.nx = 8288
-controller.ny = 5644
-controller.camera.Gain = 0
-controller.camera.Offset = 10
+try:
+    controller = ControllerASCOM()
+    controller.driver = "ASCOM.QHYCCD.Camera"
+    # init now due to threading issue
+    controller.initialize()
+
+    controller.nx = 8288
+    controller.ny = 5644
+    controller.camera.Gain = 0
+    controller.camera.Offset = 10
+except Exception:
+    pass
 
 """
 # QHY174 data
@@ -47,7 +51,10 @@ instrument = InstrumentQB()
 # ****************************************************************
 tempcon = TempConASCOM()
 tempcon.control_temperature = -20
-tempcon.initialize()
+try:
+    tempcon.initialize()
+except Exception:
+    pass
 
 # ****************************************************************
 # exposure
@@ -67,7 +74,10 @@ system = System("QHY174", template)
 # ****************************************************************
 # detector
 # ****************************************************************
-exposure.set_detpars(detector_qhy174)
+try:
+    exposure.set_detpars(detector_qhy174)
+except Exception:
+    pass
 
 # ****************************************************************
 # define display

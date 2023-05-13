@@ -11,13 +11,12 @@ import time
 import keyring
 
 import azcam
-from azcam.tools.testers.detchar import DetChar
+from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
 class ASI2600MMDetChar(DetChar):
     def __init__(self):
-
         super().__init__()
 
         self.imsnap_scale = 1.0
@@ -75,7 +74,17 @@ class ASI2600MMDetChar(DetChar):
         if not self.is_setup:
             self.setup()
 
-        (gain, bias, detcal, superflat, ptc, qe, dark, defects, dark,) = azcam.utils.get_tools(
+        (
+            gain,
+            bias,
+            detcal,
+            superflat,
+            ptc,
+            qe,
+            dark,
+            defects,
+            dark,
+        ) = azcam.utils.get_tools(
             [
                 "gain",
                 "bias",
@@ -133,9 +142,7 @@ class ASI2600MMDetChar(DetChar):
         # *************************************************************************
         # Acquire data
         # *************************************************************************
-        azcam.db.parameters.set_par(
-            "imagesequencenumber", 1
-        )  # uniform image sequence numbers
+        azcam.db.parameters.set_par("imagesequencenumber", 1)  # uniform image sequence numbers
 
         # reset camera
         print("Reset and Flush detector")
@@ -186,7 +193,15 @@ class ASI2600MMDetChar(DetChar):
         print("Begin analysis of dataset")
         rootfolder = azcam.utils.curdir()
 
-        (gain, bias, superflat, ptc, qe, dark, defects,) = azcam.utils.get_tools(
+        (
+            gain,
+            bias,
+            superflat,
+            ptc,
+            qe,
+            dark,
+            defects,
+        ) = azcam.utils.get_tools(
             [
                 "gain",
                 "bias",
@@ -442,7 +457,6 @@ class ASI2600MMDetChar(DetChar):
         return
 
     def setup(self):
-
         s = azcam.utils.curdir()
         itlid = azcam.utils.prompt("Enter sensor ID")
         self.itl_id = itlid
@@ -605,7 +619,7 @@ linearity.use_weights = 0
 # QE
 qe.cal_scale = 1.107
 qe.global_scale = 1.0
-qe.pixel_area = 0.00376 ** 2
+qe.pixel_area = 0.00376**2
 qe.diode_cal_folder = "/data/ASI2600MM"
 qe.flux_cal_folder = "/data/ASI2600MM"
 qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]

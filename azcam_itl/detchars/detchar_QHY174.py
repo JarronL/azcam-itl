@@ -11,13 +11,12 @@ import time
 import keyring
 
 import azcam
-from azcam.tools.testers.detchar import DetChar
+from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
 class QHY174DetChar(DetChar):
     def __init__(self):
-
         super().__init__()
 
         self.imsnap_scale = 1.0
@@ -141,7 +140,6 @@ class QHY174DetChar(DetChar):
         detcal.mean_counts = {int(k): v for k, v in detcal.mean_counts.items()}
 
         for timefile in self.timingfiles:
-
             azcam.db.parameters.set_par("timingfile", timefile)
 
             # *************************************************************************
@@ -155,12 +153,9 @@ class QHY174DetChar(DetChar):
             # *************************************************************************
             # Acquire data
             # *************************************************************************
-            azcam.db.parameters.set_par(
-                "imagesequencenumber", 1
-            )  # uniform image sequence numbers
+            azcam.db.parameters.set_par("imagesequencenumber", 1)  # uniform image sequence numbers
 
             try:
-
                 # reset camera
                 print("Reset and Flush detector")
                 exposure.reset()
@@ -523,7 +518,6 @@ class QHY174DetChar(DetChar):
         return
 
     def setup(self):
-
         s = azcam.utils.curdir()
         try:
             x = s.index("/sn")
@@ -803,7 +797,7 @@ linearity.use_weights = 0
 # QE
 qe.cal_scale = 1.0
 qe.global_scale = 1.0
-qe.pixel_area = 0.00586 ** 2
+qe.pixel_area = 0.00586**2
 qe.diode_cal_folder = "/data/QHY/QHY174"
 qe.flux_cal_folder = "/data/QHY/QHY174"
 qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]

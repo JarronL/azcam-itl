@@ -18,7 +18,4 @@ def ws():
 
 
 # add to shortcuts
-if azcam.mode == "server":
-    azcam.db.shortcuts.update({"ws": ws})
-elif azcam.mode == "console":
-    pass
+azcam.db.shortcuts.update({"ws": ws})

@@ -5,13 +5,12 @@ import time
 import shutil
 
 import azcam
-from azcam.tools.testers.detchar import DetChar
+from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
 class DesiDetCharClass(DetChar):
     def __init__(self):
-
         super().__init__()
 
         self.is_retest = 0
@@ -87,7 +86,6 @@ class DesiDetCharClass(DetChar):
         azcam.db.tools["exposure"].test(0)
 
         try:
-
             # *************************************************************************
             # gain images
             # *************************************************************************
@@ -102,9 +100,7 @@ class DesiDetCharClass(DetChar):
             # *************************************************************************
             # Acquire data
             # *************************************************************************
-            azcam.db.parameters.set_par(
-                "imagesequencenumber", 1
-            )  # uniform image sequence numbers
+            azcam.db.parameters.set_par("imagesequencenumber", 1)  # uniform image sequence numbers
 
             # clear device after reset delay
             print("Delaying start for %.0f seconds (to settle)..." % self.start_delay)
@@ -322,7 +318,6 @@ class DesiDetCharClass(DetChar):
         return
 
     def setup(self):
-
         s = azcam.utils.curdir()
         try:
             x = s.index("/sn")

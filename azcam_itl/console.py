@@ -14,11 +14,11 @@ import threading
 from runpy import run_path
 
 import azcam
-import azcam.console
-import azcam.shortcuts
-import azcam.tools.console_tools
-import azcam.tools.testers
-import azcam.scripts
+import azcam_console.console
+import azcam_console.shortcuts
+import azcam_console.tools.console_tools
+import azcam_console.tools.testers
+import azcam_console.scripts
 from azcam.tools.ds9display import Ds9Display
 
 
@@ -26,7 +26,7 @@ from azcam_itl import itlutils
 from azcam_itl.scripts import load_scripts
 import azcam_itl.shortcuts_itl
 
-from azcam_observe.observe_cli.observe_cli import ObserveCli
+# from azcam_observe.observe_cli.observe_cli import ObserveCli
 
 # parse command line arguments
 try:
@@ -97,25 +97,25 @@ dthread = threading.Thread(target=display.initialize, args=[])
 dthread.start()  # thread just for speed
 
 # console tools
-from azcam.tools import create_console_tools
+from azcam_console.tools import create_console_tools
 
 create_console_tools()
 
 # ****************************************************************
 # testers
 # ****************************************************************
-azcam.tools.testers.load()
+azcam_console.tools.testers.load()
 
 # ****************************************************************
 # ObserveCli
 # ****************************************************************
-observe = ObserveCli()
+# observe = ObserveCli()
 
 # ****************************************************************
 # scripts
 # ****************************************************************
 azcam.log("Loading scripts")
-azcam.scripts.load("console")
+azcam_console.scripts.load()
 
 # try to connect to azcamserver
 connected = azcam.db.tools["server"].connect(port=cmdport)  # default host and port
@@ -127,7 +127,7 @@ else:
 # system-specific
 if azcam.db.systemname == "DESI":
     from azcam_itl.detchars.detchar_DESI import detchar
-    import azcam.tools.arc.console_arc
+    import azcam_console.tools.console_arc
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/DESI"
@@ -139,14 +139,14 @@ elif azcam.db.systemname == "LVM":
         azcam.db.wd = "/data/ITL4k"
     else:
         from azcam_itl.detchars.detchar_LVM import detchar
-    import azcam.tools.archon.console_archon
+    import azcam_console.tools.console_archon
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/LVM"
 
 elif azcam.db.systemname == "90prime4k":
     from azcam_itl.detchars.detchar_90prime4k import detchar
-    import azcam.tools.archon.console_archon
+    import azcam_console.tools.console_archon
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/90prime4k"
@@ -165,14 +165,14 @@ elif azcam.db.systemname == "ASI2600MM":
 
 elif azcam.db.systemname == "OSU4k":
     from azcam_itl.detchars.detchar_OSU4k import detchar
-    import azcam.tools.archon.console_archon
+    import azcam_console.tools.console_archon
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/OSU4k"
 
 elif azcam.db.systemname == "ITL4k":
     from azcam_itl.detchars.detchar_ITL4k import detchar
-    import azcam.tools.archon.console_archon
+    import azcam_console.tools.console_archon
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/ITL4k"
@@ -185,7 +185,7 @@ azcam.db.parameters.read_parfile(parfile)
 azcam.db.parameters.update_pars(0, "azcamconsole")
 
 # cli commands
-from azcam.cli import *
+from azcam_console.cli import *
 
 # try to change window title
 try:

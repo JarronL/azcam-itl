@@ -2,10 +2,10 @@ import sys
 import os
 
 import azcam
-from azcam.system import System
-from azcam.tools.archon.controller_archon import ControllerArchon
-from azcam.tools.archon.exposure_archon import ExposureArchon
-from azcam.tools.archon.tempcon_archon import TempConArchon
+from azcam.header import System
+from azcam_server.tools.archon.controller_archon import ControllerArchon
+from azcam_server.tools.archon.exposure_archon import ExposureArchon
+from azcam_server.tools.archon.tempcon_archon import TempConArchon
 from azcam.tools.ds9display import Ds9Display
 
 from azcam_itl.detectors import detector_sta0500

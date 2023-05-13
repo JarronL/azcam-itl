@@ -1,10 +1,10 @@
 import os
 
 import azcam
-from azcam.system import System
-from azcam.tools.arc.controller_arc import ControllerArc
-from azcam.tools.arc.exposure_arc import ExposureArc
-from azcam.tools.tempcon_cryocon24 import TempConCryoCon24
+from azcam.header import System
+from azcam_server.tools.arc.controller_arc import ControllerArc
+from azcam_server.tools.arc.exposure_arc import ExposureArc
+from azcam_server.tools.tempcon_cryocon24 import TempConCryoCon24
 from azcam.tools.ds9display import Ds9Display
 
 from azcam_itl.instruments.instrument_bb import InstrumentBB

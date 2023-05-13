@@ -14,16 +14,16 @@ import ctypes
 from runpy import run_path
 
 import azcam
-import azcam.server
-import azcam.shortcuts
-from azcam.cmdserver import CommandServer
+import azcam_server.server
+import azcam_server.shortcuts
+from azcam_server.cmdserver import CommandServer
 from azcam.logger import check_for_remote_logger
 from azcam.tools.webserver.fastapi_server import WebServer
-from azcam.tools.webtools.exptool.exptool import Exptool
-from azcam.tools.webtools.status.status import Status
-import azcam.scripts
+from azcam_server.tools.webtools.exptool.exptool import Exptool
+from azcam_server.tools.webtools.status.status import Status
+import azcam_server.scripts
 
-from azcam_monitor.monitorinterface import AzCamMonitorInterface
+# from azcam_monitor.monitorinterface import AzCamMonitorInterface
 
 import azcam_itl.shortcuts_itl
 
@@ -121,13 +121,14 @@ cmdserver.logcommands = 0
 # ****************************************************************
 # load system-specific code
 # ****************************************************************
-importlib.import_module(f"azcam_itl.configs.config_server_{azcam.db.systemname}")
+if azcam.db.systemname != "NoSystem":
+    importlib.import_module(f"azcam_itl.configs.config_server_{systemname}")
 
 # ****************************************************************
 # scripts
 # ****************************************************************
 azcam.log("Loading scripts")
-azcam.scripts.load("server")
+azcam_server.scripts.load()
 
 # ****************************************************************
 # web server
@@ -167,7 +168,7 @@ azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
 cmdserver.start()
 
 # cli commands
-from azcam.cli import *
+from azcam_server.cli import *
 
 # try to change window title
 try:

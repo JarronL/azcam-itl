@@ -8,7 +8,7 @@ import time
 from astropy.io import fits as pyfits
 
 import azcam
-from azcam.tools.testers.detchar import DetChar
+from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
@@ -18,7 +18,6 @@ class ITL4kDetChar(DetChar):
     """
 
     def __init__(self):
-
         super().__init__()
 
         self.LVM_2amps = 0
@@ -555,7 +554,6 @@ class ITL4kDetChar(DetChar):
         azcam.utils.curdir(self.upload_folder)
 
         for fname in self.upload_files:
-
             matches = []
             for root, dirnames, filenames in os.walk(report_folder):
                 for filename in fnmatch.filter(filenames, fname):

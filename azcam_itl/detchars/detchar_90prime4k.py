@@ -6,7 +6,7 @@ import subprocess
 import time
 
 import azcam
-from azcam.tools.testers.detchar import DetChar
+from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
@@ -16,7 +16,6 @@ class PrimeFocus4kDetChar(DetChar):
     """
 
     def __init__(self):
-
         super().__init__()
 
         self.SummaryPdfFile = None
@@ -479,7 +478,6 @@ class PrimeFocus4kDetChar(DetChar):
         azcam.utils.curdir(self.upload_folder)
 
         for fname in self.upload_files:
-
             matches = []
             for root, dirnames, filenames in os.walk(report_folder):
                 for filename in fnmatch.filter(filenames, fname):

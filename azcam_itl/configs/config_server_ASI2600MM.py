@@ -3,10 +3,10 @@ import sys
 import time
 
 import azcam
-from azcam.tools.ascom.controller_ascom import ControllerASCOM
-from azcam.tools.ascom.exposure_ascom import ExposureASCOM
-from azcam.tools.ascom.tempcon_ascom import TempConASCOM
-from azcam.system import System
+from azcam_server.tools.ascom.controller_ascom import ControllerASCOM
+from azcam_server.tools.ascom.exposure_ascom import ExposureASCOM
+from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
+from azcam.header import System
 from azcam.tools.tempcon import TempCon
 from azcam.tools.ds9display import Ds9Display
 from azcam.tools.sendimage import SendImage
@@ -29,12 +29,12 @@ try:
 except Exception as e:
     print(e)
     print("could not initialize camera")
-    print("Gain:", azcam.db.tools["controller"].camera.Gain)
-    print("Offset:", azcam.db.tools["controller"].camera.Offset)
-    azcam.db.tools["controller"].nx = 6248
-    azcam.db.tools["controller"].ny = 4176
-    # azcam.db.tools["controller"].camera.Gain = 120
-    # azcam.db.tools["controller"].camera.Offset = 10
+    # print("Gain:", controller.camera.Gain)
+    # print("Offset:", controller.camera.Offset)
+    # controller.nx = 6248
+    # controller.ny = 4176
+    # controller.camera.Gain = 120
+    # controller.camera.Offset = 10
 
 """
 ZWO ASI2600MM data
