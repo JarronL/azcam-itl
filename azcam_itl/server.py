@@ -66,21 +66,21 @@ menu_options = {
     # "Magellan Guider": "magguider",
     # "SO Guider": "soguider",
     "QHY174 CMOS camera": "QHY174",
-    "LVM": "LVM",
-    "ZWO ASI2600MM CMOS camera": "ASI2600MM",
+    # "LVM": "LVM",
+    # "ZWO ASI2600MM CMOS camera": "ASI2600MM",
     # "OSU4k": "OSU4k",
-    "ITL6k": "ITL6k",
-    "90prime4k": "90prime4k",
+    # "ITL6k": "ITL6k",
+    # "90prime4k": "90prime4k",
     "QB": "QB",
     "EB": "EB",
     "None": "NoSystem",
 }
 
 if systemname == "menu":
-    azcam.db.systemname = azcam.utils.show_menu(menu_options)
+    systemname = azcam.utils.show_menu(menu_options)
 else:
-    azcam.db.systemname = systemname
-
+    systemname = systemname
+azcam.db.systemname = systemname
 azcam.db.systemfolder = os.path.dirname(__file__)
 azcam.db.systemfolder = azcam.utils.fix_path(azcam.db.systemfolder)
 

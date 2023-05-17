@@ -53,10 +53,11 @@ except ValueError:
 # menu to select system
 menu_options = {
     "DESI": "DESI",
-    "LVM": "LVM",
-    "ZWO ASI2600MM CMOS camera": "ASI2600MM",
+    # "LVM": "LVM",
+    # "ZWO ASI2600MM CMOS camera": "ASI2600MM",
+    "QHY174 CMOS camera": "QHY174",
     # "OSU4k": "OSU4k",
-    "ITL4k": "ITL4k",
+    # "ITL4k": "ITL4k",
     "None": "NoSystem",
 }
 
