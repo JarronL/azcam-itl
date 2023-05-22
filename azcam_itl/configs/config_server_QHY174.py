@@ -6,9 +6,9 @@ from azcam.header import System
 from azcam_server.tools.ascom.controller_ascom import ControllerASCOM
 from azcam_server.tools.ascom.exposure_ascom import ExposureASCOM
 from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
-from azcam.tools.instrument import Instrument
-from azcam.tools.tempcon import TempCon
-from azcam.tools.ds9display import Ds9Display
+from azcam_server.tools.instrument import Instrument
+from azcam_server.tools.tempcon import TempCon
+from azcam_server.tools.ds9display import Ds9Display
 
 from azcam_itl.detectors import detector_qhy174
 from azcam_itl.instruments.instrument_qb import InstrumentQB

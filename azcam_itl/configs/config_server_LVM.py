@@ -2,7 +2,7 @@ import os
 
 import azcam
 from azcam.header import System
-from azcam.tools.ds9display import Ds9Display
+from azcam_server.tools.ds9display import Ds9Display
 from azcam_server.tools.archon.controller_archon import ControllerArchon
 from azcam_server.tools.archon.exposure_archon import ExposureArchon
 from azcam_server.tools.tempcon_cryocon24 import TempConCryoCon24

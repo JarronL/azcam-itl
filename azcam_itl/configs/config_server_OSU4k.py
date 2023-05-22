@@ -6,7 +6,7 @@ from azcam.header import System
 from azcam_server.tools.archon.controller_archon import ControllerArchon
 from azcam_server.tools.archon.exposure_archon import ExposureArchon
 from azcam_server.tools.archon.tempcon_archon import TempConArchon
-from azcam.tools.ds9display import Ds9Display
+from azcam_server.tools.ds9display import Ds9Display
 
 from azcam_itl.detectors import detector_sta0500
 from azcam_itl.instruments.instrument_bb import InstrumentBB

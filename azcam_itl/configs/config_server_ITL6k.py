@@ -6,12 +6,12 @@ import os
 
 import azcam
 from azcam.header import System
-from azcam.tools.ds9display import Ds9Display
+from azcam_server.tools.ds9display import Ds9Display
 from azcam_server.tools.archon.controller_archon import ControllerArchon
 from azcam_server.tools.archon.exposure_archon import ExposureArchon
 from azcam_server.tools.tempcon_cryocon24 import TempConCryoCon24
-from azcam.tools.tempcon import TempCon
-from azcam.tools.instrument import Instrument
+from azcam_server.tools.tempcon import TempCon
+from azcam_server.tools.instrument import Instrument
 
 from azcam_itl.detectors import detector_sta4500
 from azcam_itl.instruments.instrument_qb import InstrumentQB

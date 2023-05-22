@@ -6,7 +6,7 @@ import socket
 import time
 
 import azcam
-from azcam.tools.instrument import Instrument
+from azcam_server.tools.instrument import Instrument
 
 
 class InstrumentArduino(Instrument):
@@ -15,7 +15,6 @@ class InstrumentArduino(Instrument):
     """
 
     def __init__(self, tool_id="instrument", description="Flex instrument"):
-
         super().__init__(tool_id, description)
 
         self.arduino_host = "10.0.0.39"
@@ -164,7 +163,6 @@ class InstrumentArduino(Instrument):
         return complist
 
     def set_comps(self, comp_names=["shutter"]):
-
         if type(comp_names) == list:
             lamps = " ".join(comp_names)
         else:
@@ -362,12 +360,10 @@ class InstrumentArduino(Instrument):
 
 # start
 if __name__ == "__main__":
-
     arduino = InstrumentArduino()
 
     # debug here
     if 1:
-
         for i in range(10):
             print(f"Loop {i+1} of 10")
             arduino.set_fe55(1)

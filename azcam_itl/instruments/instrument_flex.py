@@ -11,7 +11,7 @@ import time
 import pyvisa  # for filter wheel
 
 import azcam
-from azcam.tools.instrument import Instrument
+from azcam_server.tools.instrument import Instrument
 from azcam_itl.instruments import pressure_mks900
 from azcam_itl.instruments.pollux import PolluxCtrl  # SMC-Pollux stages
 
@@ -22,7 +22,6 @@ class InstrumentFlex(Instrument):
     """
 
     def __init__(self, tool_id="instrument", description="Flex instrument"):
-
         super().__init__(tool_id, description)
 
         self.shutter_strobe = 1
@@ -294,7 +293,6 @@ class InstrumentFlex(Instrument):
         return complist
 
     def set_comps(self, comp_names=["shutter"]):
-
         if type(comp_names) == list:
             lamps = " ".join(comp_names)
         else:
@@ -509,7 +507,6 @@ class InstrumentFlex(Instrument):
         return
 
     def get_focus(self, AxisID=1, wait=1):
-
         reply = self.pollux.get_pos(AxisID, wait)
 
         position = reply[1]
@@ -518,7 +515,6 @@ class InstrumentFlex(Instrument):
         return position
 
     def set_focus(self, FocusPosition, focus_id=1, focus_type="absolute"):
-
         FocusPosition = float(FocusPosition)
         focus_id = int(focus_id)
 
@@ -532,14 +528,12 @@ class InstrumentFlex(Instrument):
         return
 
     def _set_focus(self, Position, AxisID=1):
-
         Position = float(Position)
         self.pollux.MoveAbsolute(AxisID, Position)
 
         return
 
     def _step_focus(self, PositionChange, AxisID=1):
-
         PositionChange = float(PositionChange)
         self.pollux.move_relative(AxisID, PositionChange)
 
@@ -618,7 +612,6 @@ class InstrumentFlex(Instrument):
 
 # start
 if __name__ == "__main__":
-
     ebserver = InstrumentEB()
 
     # debug here

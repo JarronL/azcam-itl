@@ -6,7 +6,7 @@ import serial
 import threading
 
 import azcam
-from azcam.tools.instrument import Instrument
+from azcam_server.tools.instrument import Instrument
 from azcam_itl.instruments import pressure_vgc501
 from azcam_itl.instruments import pressure_mks900
 from azcam_itl.instruments import pressure_pkr361
@@ -31,7 +31,6 @@ class InstrumentEB(Instrument):
     """
 
     def __init__(self, tool_id="instrument", description="EB instrument"):
-
         super().__init__(tool_id, description)
 
         self.shutter_strobe = 1
@@ -76,7 +75,6 @@ class InstrumentEB(Instrument):
         """
 
         try:
-
             if pressure_id == 0:
                 reply = self.pressure0.read_pressure(1)  # temp 2 is for MKS CC
 
@@ -140,7 +138,6 @@ class InstrumentEB(Instrument):
         """
 
         while self.autofillstate:
-
             time.sleep(self.autofill_looptime)
 
             self.auto_fill()

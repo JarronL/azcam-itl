@@ -4,7 +4,7 @@ import pyvisa
 
 import azcam
 import azcam.sockets
-from azcam.tools.instrument import Instrument
+from azcam_server.tools.instrument import Instrument
 from azcam_itl.instruments.keithley_6512 import EM6512
 from azcam_itl.instruments.newport_1936_R import NewPort_1936r
 from azcam_itl.instruments import pressure_mks900
@@ -17,7 +17,6 @@ class InstrumentQB(Instrument):
     """
 
     def __init__(self, tool_id="instrument", description="QB instrument"):
-
         super().__init__(tool_id, description)
 
         self.MonoShutterState = -1

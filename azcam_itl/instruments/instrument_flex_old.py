@@ -1,7 +1,7 @@
 import serial
 
 import azcam
-from azcam.tools.instrument import Instrument
+from azcam_server.tools.instrument import Instrument
 
 from azcam_itl.instruments import pressure_vgc401
 from azcam_itl.instruments import pressure_vgc501
@@ -26,7 +26,6 @@ class InstrumentFlex(Instrument):
     """
 
     def __init__(self, tool_id="instrument", description="Flex instrument"):
-
         super().__init__(tool_id, description)
 
         self.shutter_strobe = 1

@@ -7,9 +7,10 @@ import time
 from pydantic import validate_arguments
 
 import azcam
-from azcam.tools.instrument import Instrument
+from azcam_server.tools.instrument import Instrument
 
 from azcam_itl.instruments import keithley_6482
+
 # import pressure_pkr361
 from azcam_itl.instruments import filters_bb
 from azcam_itl.instruments import newport_1936_R
@@ -35,7 +36,6 @@ class InstrumentBB(Instrument):
     """
 
     def __init__(self, tool_id="instrument", description="BB instrument"):
-
         super().__init__(tool_id, description)
 
         self.shutter_strobe = 1

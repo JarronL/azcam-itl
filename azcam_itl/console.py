@@ -19,7 +19,7 @@ import azcam_console.shortcuts
 import azcam_console.tools.console_tools
 import azcam_console.tools.testers
 import azcam_console.scripts
-from azcam.tools.ds9display import Ds9Display
+from azcam_console.tools.ds9display import Ds9Display
 
 
 from azcam_itl import itlutils
