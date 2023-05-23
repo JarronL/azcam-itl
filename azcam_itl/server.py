@@ -168,7 +168,7 @@ azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
 cmdserver.start()
 
 # cli commands
-from azcam_server.cli import *
+from azcam.cli import *
 
 # try to change window title
 try:

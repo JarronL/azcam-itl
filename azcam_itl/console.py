@@ -186,7 +186,7 @@ azcam.db.parameters.read_parfile(parfile)
 azcam.db.parameters.update_pars(0, "azcamconsole")
 
 # cli commands
-from azcam_console.cli import *
+from azcam.cli import *
 
 # try to change window title
 try:
