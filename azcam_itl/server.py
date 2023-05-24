@@ -21,7 +21,7 @@ from azcam.logger import check_for_remote_logger
 from azcam_server.tools.webserver.fastapi_server import WebServer
 from azcam_server.tools.webtools.exptool.exptool import Exptool
 from azcam_server.tools.webtools.status.status import Status
-import azcam_server.scripts
+from azcam.scripts import loadscripts
 
 # from azcam_monitor.monitorinterface import AzCamMonitorInterface
 
@@ -122,18 +122,21 @@ cmdserver.logcommands = 0
 # load system-specific code
 # ****************************************************************
 if azcam.db.systemname != "NoSystem":
-    importlib.import_module(f"azcam_itl.configs.config_server_{systemname}")
+    try:
+        importlib.import_module(f"azcam_itl.configs.config_server_{systemname}")
+    except Exception as e:
+        azcam.log(f"Error loading config_server module: {e}")
 
 # ****************************************************************
 # scripts
 # ****************************************************************
 azcam.log("Loading scripts")
-azcam_server.scripts.load()
+loadscripts(["azcam_itl.scripts.server"])
 
 # ****************************************************************
 # web server
 # ****************************************************************
-if 1:
+if 0:
     webserver = WebServer()
     webserver.port = 2403
     webserver.logcommands = 0

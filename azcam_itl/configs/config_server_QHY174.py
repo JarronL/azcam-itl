@@ -19,6 +19,7 @@ from azcam_itl.instruments.instrument_qb import InstrumentQB
 try:
     controller = ControllerASCOM()
     controller.driver = "ASCOM.QHYCCD.Camera"
+
     # init now due to threading issue
     controller.initialize()
 

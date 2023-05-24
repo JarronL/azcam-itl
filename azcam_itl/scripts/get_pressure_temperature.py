@@ -6,7 +6,7 @@ import datetime
 import sys
 
 import azcam
-from azcam.functions.plot import plt
+from azcam_console.plot import plt
 
 # import seaborn
 # seaborn.set_theme(style="ticks", font_scale=1.25)
@@ -15,7 +15,6 @@ from azcam.functions.plot import plt
 
 
 def get_pressure_temperature(delay=1.0, start_offset=0):
-
     plt.ion()
 
     # setup plot
@@ -48,7 +47,6 @@ def get_pressure_temperature(delay=1.0, start_offset=0):
         loop = 1
         print(data_txt_hdr)
         while loop:
-
             timenow = datetime.datetime.now()
             s = str(timenow)
             secs = timenow - timestart

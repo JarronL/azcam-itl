@@ -23,7 +23,7 @@ from azcam_console.tools.ds9display import Ds9Display
 
 
 from azcam_itl import itlutils
-from azcam_itl.scripts import load_scripts
+from azcam.scripts import loadscripts
 import azcam_itl.shortcuts_itl
 
 # from azcam_observe.observe_cli.observe_cli import ObserveCli
@@ -116,7 +116,7 @@ azcam_console.tools.testers.load()
 # scripts
 # ****************************************************************
 azcam.log("Loading scripts")
-azcam_console.scripts.load()
+loadscripts(["azcam_itl.scripts"])
 
 # try to connect to azcamserver
 connected = azcam.db.tools["server"].connect(port=cmdport)  # default host and port

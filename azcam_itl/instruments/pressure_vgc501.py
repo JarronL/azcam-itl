@@ -3,7 +3,7 @@ import time
 import serial
 
 import azcam
-from azcam.functions.utils import check_keyboard
+from azcam.utils import check_keyboard
 
 
 class PressureController(object):
@@ -12,7 +12,6 @@ class PressureController(object):
     """
 
     def __init__(self, port="COM1"):
-
         self.ComPort = port
         # self.BaudRate = 9600
         self.BaudRate = 115200
@@ -85,7 +84,6 @@ class PressureController(object):
         loop_time = 0.0
 
         while loop_time < timeout:
-
             # wait for bytes at port
             for lcount in range(loop):
                 current_bytes = self.ser.in_waiting
