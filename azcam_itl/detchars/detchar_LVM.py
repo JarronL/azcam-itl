@@ -143,52 +143,60 @@ class LVMDetChar(DetChar):
             azcam.db.tools["bias"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars, currentfolder)
+            azcam.utils.restore_imagepars(impars)
+            azcam.utils.curdir(currentfolder)
 
         # gain acquire and analyze
         try:
             azcam.db.tools["gain"].find()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars, currentfolder)
+            azcam.utils.restore_imagepars(impars)
+            azcam.utils.curdir(currentfolder)
 
         # superflat sequence
         try:
             azcam.db.tools["superflat"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars, currentfolder)
+            azcam.utils.restore_imagepars(impars)
+            azcam.utils.curdir(currentfolder)
 
         # QE sequence
         try:
             azcam.db.tools["qe"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars, currentfolder)
+            azcam.utils.restore_imagepars(impars)
+            azcam.utils.curdir(currentfolder)
 
         # PTC sequence
         try:
             azcam.db.tools["ptc"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars, currentfolder)
+            azcam.utils.restore_imagepars(impars)
+            azcam.utils.curdir(currentfolder)
 
         # Dark sequence
         try:
             azcam.db.tools["dark"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars, currentfolder)
+            azcam.utils.restore_imagepars(impars)
+            azcam.utils.curdir(currentfolder)
 
         # Fe55 sequence
         try:
             azcam.db.tools["fe55"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars, currentfolder)
+            azcam.utils.restore_imagepars(impars)
+            azcam.utils.curdir(currentfolder)
 
         # finish
-        azcam.utils.restore_imagepars(impars, currentfolder)
+        azcam.utils.restore_imagepars(impars)
+        azcam.utils.curdir(currentfolder)
 
         # send email notice
         finishedtime = datetime.datetime.strftime(datetime.datetime.now(), "%H:%M:%S")
@@ -227,7 +235,8 @@ class LVMDetChar(DetChar):
             try:
                 azcam.db.tools["gain"].find()
             except Exception:
-                azcam.utils.restore_imagepars(impars, currentfolder)
+                azcam.utils.restore_imagepars(impars)
+                azcam.utils.curdir(currentfolder)
                 return
 
         # detcal sequence - multiple NDs used
@@ -235,7 +244,8 @@ class LVMDetChar(DetChar):
             try:
                 azcam.db.tools["detcal"].calibrate()
             except Exception:
-                azcam.utils.restore_imagepars(impars, currentfolder)
+                azcam.utils.restore_imagepars(impars)
+                azcam.utils.curdir(currentfolder)
                 return
 
         self.is_prepared = 1

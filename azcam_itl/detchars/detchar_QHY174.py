@@ -195,7 +195,8 @@ class QHY174DetChar(DetChar):
                 dark.acquire()
 
             finally:
-                azcam.utils.restore_imagepars(impars, currentfolder)
+                azcam.utils.restore_imagepars(impars)
+                azcam.utils.curdir(currentfolder)
 
         print("acquire sequence finished")
 

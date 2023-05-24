@@ -123,11 +123,13 @@ class Osu4kDetCharClass(DetChar):
             azcam.db.tools["dark"].acquire()
 
         except Exception:
-            azcam.utils.restore_imagepars(impars, currentfolder)
+            azcam.utils.restore_imagepars(impars)
+            azcam.utils.curdir(currentfolder)
             return
 
         # finish
-        azcam.utils.restore_imagepars(impars, currentfolder)
+        azcam.utils.restore_imagepars(impars)
+        azcam.utils.curdir(currentfolder)
 
         # send email notice
         finishedtime = datetime.datetime.strftime(datetime.datetime.now(), "%H:%M:%S")

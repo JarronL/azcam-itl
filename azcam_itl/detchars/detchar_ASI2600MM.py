@@ -179,7 +179,8 @@ class ASI2600MMDetChar(DetChar):
         exposure.test(0)
         dark.acquire()
 
-        azcam.utils.restore_imagepars(impars, currentfolder)
+        azcam.utils.restore_imagepars(impars)
+        azcam.utils.curdir(currentfolder)
 
         print("acquire sequence finished")
 
