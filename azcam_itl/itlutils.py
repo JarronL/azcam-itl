@@ -20,6 +20,7 @@ import keyring
 
 import azcam
 import azcam.image
+import azcam_console
 
 
 def cleanup_files(folder=None):
@@ -62,28 +63,25 @@ def archive(foldername="", filetype="tar"):
     """
 
     if foldername == "":
-        reply = azcam.utils.file_browser("", "folder", "Select folder to archive")
+        reply = azcam_console.utils.file_browser("", "folder", "Select folder to archive")
         if reply == []:
             raise azcam.AzcamError("no folder or file selected")
         else:
             foldername = reply[0]
 
     if filetype == "tar.gz":
-
         filename = foldername + ".tar.gz"
         tar = tarfile.open(filename, "w:gz")
         tar.add(foldername)
         tar.close()
 
     elif filetype == "tar":
-
         filename = foldername + ".tar"
         tar = tarfile.open(filename, "w:")
         tar.add(foldername)
         tar.close()
 
     elif filetype == "zip":
-
         filename = foldername
         shutil.make_archive(filename, "zip", foldername)
         filename = filename + ".zip"
@@ -152,7 +150,6 @@ def _example():
 
 
 def mailto(to, subject, text, attachments=None):
-
     gmail_service = "gmail.com"
     gmail_user = "arizona.itl"
 
@@ -187,6 +184,7 @@ def mailto(to, subject, text, attachments=None):
     mailServer.close()
 
     return
+
 
 def imsnap(scale: float = 1.0, fits_file: str = "last", snap_file: str = None) -> None:
     """
@@ -236,7 +234,7 @@ def imsnap(scale: float = 1.0, fits_file: str = "last", snap_file: str = None) -
     z1 = median - std * scale
     z2 = median + std * scale
     z1 = max(0.0, z1)
-    z2 = min(z2, 2 ** 16 - 1)
+    z2 = min(z2, 2**16 - 1)
 
     print(f"Image median scaling: [{z1:.0f}, {z2:.0f}]")
 

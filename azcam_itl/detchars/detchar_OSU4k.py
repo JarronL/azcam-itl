@@ -9,6 +9,7 @@ import time
 import shutil
 
 import azcam
+import azcam_console
 from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
@@ -71,12 +72,12 @@ class Osu4kDetCharClass(DetChar):
         # save current image parameters
         # *************************************************************************
         impars = {}
-        azcam.utils.save_imagepars(impars)
+        azcam.db.parameters.save_imagepars(impars)
 
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam.utils.make_file_folder("report", 1, 1)
+        currentfolder, reportfolder = azcam_console.utils.make_file_folder("report", 1, 1)
         azcam.utils.curdir(reportfolder)
         azcam.db.parameters.set_par("imagefolder", reportfolder)
 
@@ -123,12 +124,12 @@ class Osu4kDetCharClass(DetChar):
             azcam.db.tools["dark"].acquire()
 
         except Exception:
-            azcam.utils.restore_imagepars(impars)
+            azcam.db.parameters.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
             return
 
         # finish
-        azcam.utils.restore_imagepars(impars)
+        azcam.db.parameters.restore_imagepars(impars)
         azcam.utils.curdir(currentfolder)
 
         # send email notice
@@ -368,7 +369,7 @@ detchar = Osu4kDetCharClass()
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
-azcam.utils.set_image_roi([[1950, 2000, 400, 450], [2040, 2050, 400, 450]])
+azcam_console.utils.set_image_roi([[1950, 2000, 400, 450], [2040, 2050, 400, 450]])
 
 # detcal
 azcam.db.tools["detcal"].bias_goal = 1000
