@@ -47,7 +47,7 @@ class InstrumentEB(Instrument):
 
         # Aux.Web power switch instance
         self.poweraux = webpower.WebPowerClass()
-        self.poweraux.service_name = "powerswitchebaux"
+        self.poweraux.service_name = "powerswitcheb2"
         self.poweraux.username = "lab"
         self.poweraux.hostname = "10.0.0.15"
 
