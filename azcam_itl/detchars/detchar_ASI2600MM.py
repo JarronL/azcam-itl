@@ -11,6 +11,7 @@ import time
 import keyring
 
 import azcam
+import azcam_console
 from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
@@ -84,7 +85,7 @@ class ASI2600MMDetChar(DetChar):
             dark,
             defects,
             dark,
-        ) = azcam.utils.get_tools(
+        ) = azcam_console.utils.get_tools(
             [
                 "gain",
                 "bias",
@@ -96,7 +97,7 @@ class ASI2600MMDetChar(DetChar):
                 "dark",
             ]
         )
-        exposure, tempcon = azcam.utils.get_tools(
+        exposure, tempcon = azcam_console.utils.get_tools(
             [
                 "exposure",
                 "tempcon",
@@ -121,7 +122,7 @@ class ASI2600MMDetChar(DetChar):
         # save current image parameters
         # *************************************************************************
         impars = {}
-        azcam.utils.save_imagepars(impars)
+        azcam.db.parameters.save_imagepars(impars)
 
         # *************************************************************************
         # read most recent detcal info
@@ -134,7 +135,7 @@ class ASI2600MMDetChar(DetChar):
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam.utils.make_file_folder(
+        currentfolder, reportfolder = azcam_console.utils.make_file_folder(
             "report", 1, 1
         )  # start with report1
         azcam.utils.curdir(reportfolder)
@@ -179,7 +180,7 @@ class ASI2600MMDetChar(DetChar):
         exposure.test(0)
         dark.acquire()
 
-        azcam.utils.restore_imagepars(impars)
+        azcam.db.parameters.restore_imagepars(impars)
         azcam.utils.curdir(currentfolder)
 
         print("acquire sequence finished")
@@ -202,7 +203,7 @@ class ASI2600MMDetChar(DetChar):
             qe,
             dark,
             defects,
-        ) = azcam.utils.get_tools(
+        ) = azcam_console.utils.get_tools(
             [
                 "gain",
                 "bias",
@@ -508,7 +509,7 @@ detchar = ASI2600MMDetChar()
     defects,
     linearity,
     prnu,
-) = azcam.utils.get_tools(
+) = azcam_console.utils.get_tools(
     [
         "exposure",
         "gain",
@@ -527,7 +528,7 @@ detchar = ASI2600MMDetChar()
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
-azcam.utils.set_image_roi([[500, 600, 500, 600]])
+azcam_console.utils.set_image_roi([[500, 600, 500, 600]])
 
 et = {
     300: 25.0,

@@ -8,6 +8,7 @@ import time
 from astropy.io import fits as pyfits
 
 import azcam
+import azcam_console
 from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
@@ -121,12 +122,12 @@ class ITL4kDetChar(DetChar):
         # save current image parameters
         # *************************************************************************
         impars = {}
-        azcam.utils.save_imagepars(impars)
+        azcam.db.parameters.save_imagepars(impars)
 
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam.utils.make_file_folder("report", 1, 1)
+        currentfolder, reportfolder = azcam_console.utils.make_file_folder("report", 1, 1)
         azcam.utils.curdir(reportfolder)
         azcam.db.parameters.set_par("imagefolder", reportfolder)
 
@@ -143,7 +144,7 @@ class ITL4kDetChar(DetChar):
             azcam.db.tools["bias"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars)
+            azcam.db.parameters.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # gain acquire and analyze
@@ -151,7 +152,7 @@ class ITL4kDetChar(DetChar):
             azcam.db.tools["gain"].find()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars)
+            azcam.db.parameters.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # superflat sequence
@@ -159,7 +160,7 @@ class ITL4kDetChar(DetChar):
             azcam.db.tools["superflat"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars)
+            azcam.db.parameters.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # QE sequence
@@ -167,7 +168,7 @@ class ITL4kDetChar(DetChar):
             azcam.db.tools["qe"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars)
+            azcam.db.parameters.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # PTC sequence
@@ -175,7 +176,7 @@ class ITL4kDetChar(DetChar):
             azcam.db.tools["ptc"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars)
+            azcam.db.parameters.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # Dark sequence
@@ -183,7 +184,7 @@ class ITL4kDetChar(DetChar):
             azcam.db.tools["dark"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars)
+            azcam.db.parameters.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # Fe55 sequence
@@ -191,11 +192,11 @@ class ITL4kDetChar(DetChar):
             azcam.db.tools["fe55"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.utils.restore_imagepars(impars)
+            azcam.db.parameters.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # finish
-        azcam.utils.restore_imagepars(impars)
+        azcam.db.parameters.restore_imagepars(impars)
         azcam.utils.curdir(currentfolder)
 
         # send email notice
@@ -218,7 +219,7 @@ class ITL4kDetChar(DetChar):
 
         # save pars to be changed
         impars = {}
-        azcam.utils.save_imagepars(impars)
+        azcam.db.parameters.save_imagepars(impars)
         currentfolder = azcam.utils.curdir()
 
         # uniform image sequence numbers
@@ -235,7 +236,7 @@ class ITL4kDetChar(DetChar):
             try:
                 azcam.db.tools["gain"].find()
             except Exception:
-                azcam.utils.restore_imagepars(impars)
+                azcam.db.parameters.restore_imagepars(impars)
                 azcam.utils.curdir(currentfolder)
                 return
 
@@ -244,7 +245,7 @@ class ITL4kDetChar(DetChar):
             try:
                 azcam.db.tools["detcal"].calibrate()
             except Exception:
-                azcam.utils.restore_imagepars(impars)
+                azcam.db.parameters.restore_imagepars(impars)
                 azcam.utils.curdir(currentfolder)
                 return
 
@@ -613,7 +614,7 @@ detchar.LVM_2amps = azcam.db.get("LVM_2amps")
 detchar.LVM_nearir = azcam.db.get("LVM_nearir")
 
 # detchar
-azcam.utils.set_image_roi([[1800, 1900, 1800, 1900], [2042, 2058, 1500, 1800]])
+azcam_console.utils.set_image_roi([[1800, 1900, 1800, 1900], [2042, 2058, 1500, 1800]])
 
 azcam.db.start_temperature = -100.0
 

@@ -11,6 +11,7 @@ import time
 import keyring
 
 import azcam
+import azcam_console
 from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
@@ -91,7 +92,7 @@ class QHY174DetChar(DetChar):
             fe55,
             defects,
             dark,
-        ) = azcam.utils.get_tools(
+        ) = azcam_console.utils.get_tools(
             [
                 "gain",
                 "bias",
@@ -105,7 +106,7 @@ class QHY174DetChar(DetChar):
                 "dark",
             ]
         )
-        exposure, tempcon = azcam.utils.get_tools(
+        exposure, tempcon = azcam_console.utils.get_tools(
             [
                 "exposure",
                 "tempcon",
@@ -130,7 +131,7 @@ class QHY174DetChar(DetChar):
         # save current image parameters
         # *************************************************************************
         impars = {}
-        azcam.utils.save_imagepars(impars)
+        azcam.db.parameters.save_imagepars(impars)
 
         # *************************************************************************
         # read most recent detcal info
@@ -145,7 +146,7 @@ class QHY174DetChar(DetChar):
             # *************************************************************************
             # Create and move to a report folder
             # *************************************************************************
-            currentfolder, reportfolder = azcam.utils.make_file_folder(
+            currentfolder, reportfolder = azcam_console.utils.make_file_folder(
                 "report", 1, 1
             )  # start with report1
             azcam.utils.curdir(reportfolder)
@@ -195,7 +196,7 @@ class QHY174DetChar(DetChar):
                 dark.acquire()
 
             finally:
-                azcam.utils.restore_imagepars(impars)
+                azcam.db.parameters.restore_imagepars(impars)
                 azcam.utils.curdir(currentfolder)
 
         print("acquire sequence finished")
@@ -221,7 +222,7 @@ class QHY174DetChar(DetChar):
             dark,
             fe55,
             defects,
-        ) = azcam.utils.get_tools(
+        ) = azcam_console.utils.get_tools(
             [
                 "exposure",
                 "gain",
@@ -606,7 +607,7 @@ class QHY174DetChar(DetChar):
 
         # copy files to new folder and archive
         azcam.log(f"copying dataset to {idstring}")
-        currentfolder, newfolder = azcam.utils.make_file_folder(idstring)
+        currentfolder, newfolder = azcam_console.utils.make_file_folder(idstring)
 
         copy_files = glob.glob("*.pdf")
         for f in copy_files:
@@ -654,7 +655,7 @@ detchar = QHY174DetChar()
     defects,
     linearity,
     prnu,
-) = azcam.utils.get_tools(
+) = azcam_console.utils.get_tools(
     [
         "exposure",
         "gain",
@@ -673,7 +674,7 @@ detchar = QHY174DetChar()
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
-azcam.utils.set_image_roi([[500, 600, 500, 600]])
+azcam_console.utils.set_image_roi([[500, 600, 500, 600]])
 
 et = {
     300: 10.0,
