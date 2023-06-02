@@ -162,7 +162,7 @@ parfile = os.path.join(
     azcam.db.datafolder, "parameters", f"parameters_server_{azcam.db.systemname}.ini"
 )
 azcam.db.parameters.read_parfile(parfile)
-azcam.db.parameters.update_pars(0, "azcamserver")
+azcam.db.parameters.update_pars("azcamserver")
 
 # ****************************************************************
 # start command server

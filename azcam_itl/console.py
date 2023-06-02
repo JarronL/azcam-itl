@@ -183,7 +183,7 @@ if azcam.db.wd is None:
 
 # par file
 azcam.db.parameters.read_parfile(parfile)
-azcam.db.parameters.update_pars(0, "azcamconsole")
+azcam.db.parameters.update_pars("azcamconsole")
 
 # cli commands
 from azcam.cli import *
