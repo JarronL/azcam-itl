@@ -27,7 +27,7 @@ from azcam_itl import itlutils
 from azcam.scripts import loadscripts
 import azcam_itl.shortcuts_itl
 
-# from azcam_observe.observe_cli.observe_cli import ObserveCli
+from azcam_observe.observe_cli.observe_cli import ObserveCli
 
 # parse command line arguments
 try:
@@ -112,7 +112,7 @@ azcam_console.tools.testers.load()
 # ****************************************************************
 # ObserveCli
 # ****************************************************************
-# observe = ObserveCli()
+observe = ObserveCli()
 
 # ****************************************************************
 # scripts
