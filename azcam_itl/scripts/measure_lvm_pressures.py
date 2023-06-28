@@ -20,7 +20,7 @@ class MeasureLvmPressures(object):
         self.ax = None
         self.timestart = None
         self.lines = None
-        self.loop_delay = 30 * 60   # time between measurements
+        self.loop_delay = 30 * 60  # time between measurements
         self.warmup_delay = 3 * 60  # time to warmup after power on
         self.linear = 1
 
@@ -75,9 +75,9 @@ class MeasureLvmPressures(object):
 
         # outlet 1 is Agilent on lid
         # outlet 2 is MKS on elbow
-        # instrument.poweraux.turn_on(1)
-        server.command("instrument.poweraux.turn_on 1")
-        server.command("instrument.poweraux.turn_on 2")
+        # instrument.power2.turn_on(1)
+        server.command("instrument.power2.turn_on 1")
+        server.command("instrument.power2.turn_on 2")
         time.sleep(self.warmup_delay)
 
         if 1:
@@ -86,9 +86,9 @@ class MeasureLvmPressures(object):
             pressures = [1.11e-1, 2.22e-2]
         self.numplots = len(pressures)
 
-        # instrument.poweraux.turn_off(1)
-        server.command("instrument.poweraux.turn_off 1")
-        server.command("instrument.poweraux.turn_off 2")
+        # instrument.power2.turn_off(1)
+        server.command("instrument.power2.turn_off 1")
+        server.command("instrument.power2.turn_off 2")
 
         return pressures
 
@@ -145,11 +145,9 @@ class MeasureLvmPressures(object):
         return
 
     def run(self):
-
         self.setup()
 
         while 1:
-
             self.update()
             if azcam.utils.check_keyboard() == " ":
                 self.datafile.close()

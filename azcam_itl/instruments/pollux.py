@@ -2,6 +2,8 @@
 Pollux stages class.
 
 Axes are [1,2,3]
+
+Serial port is mapped to COM13 on quantum PC through moxaeb. 
 """
 
 # TODO: reformat to fix cases and variable names
@@ -15,10 +17,9 @@ import azcam
 
 class PolluxCtrl(object):
     def __init__(self):
-
-        self.isInitialized = 0
+        self.initialized = 0
         self.isOpen = 0
-        self.ComPort = "COM3"
+        self.ComPort = "COM13"
         self.BaudRate = 19200
         self.Parity = serial.PARITY_NONE
         self.ByteSize = 8
@@ -28,9 +29,10 @@ class PolluxCtrl(object):
         self.XonXoff = 0
         self.maxCtrl = 3
 
-    def initialize(self):
+        self.valid_axes = [1, 2, 3]
 
-        if self.isInitialized:
+    def initialize(self):
+        if self.initialized:
             return
 
         # create serial object
@@ -55,7 +57,7 @@ class PolluxCtrl(object):
         if self.sPort != 0 and self.sPort.isOpen():
             self.identify()
 
-        self.isInitialized = 1
+        self.initialized = 1
 
         return
 
@@ -178,7 +180,6 @@ class PolluxCtrl(object):
         if self.sPort != 0:
             try:
                 if self.sPort.isOpen():
-
                     reply = self.sPort.readline().decode().strip("\r\n")
                     return ["OK", reply]
                 else:
@@ -201,7 +202,6 @@ class PolluxCtrl(object):
         self.nNames = []
 
         if self.sPort != 0:
-
             try:
                 if not self.sPort.isOpen():
                     self.sPort = serial.Serial(
@@ -247,7 +247,6 @@ class PolluxCtrl(object):
 
         if self.sPort != 0:
             try:
-
                 cmd = str(nAxis) + "  gne\r\n"
                 self.sPort.write(str.encode(cmd))
 
@@ -269,7 +268,6 @@ class PolluxCtrl(object):
 
         if self.sPort != 0:
             try:
-
                 if Wait:
                     loop = 0
                     while loop < 200:
@@ -309,7 +307,6 @@ class PolluxCtrl(object):
 
         if self.sPort != 0:
             try:
-
                 loop = 0
                 while 1 and loop < 20:
                     reply = self.get_status(nAxis)
@@ -344,7 +341,6 @@ class PolluxCtrl(object):
 
         if self.sPort != 0:
             try:
-
                 cmd = str(nAxis) + "  nst\r\n"
                 self.sPort.write(str.encode(cmd))
 
@@ -366,7 +362,6 @@ class PolluxCtrl(object):
 
         if self.sPort != 0:
             try:
-
                 cmd = str(nAxis) + "  getswst\r\n"
                 self.sPort.write(str.encode(cmd))
 
@@ -622,7 +617,6 @@ class PolluxCtrl(object):
 
         if self.sPort != 0:
             try:
-
                 for nport in range(1, self.maxCtrl + 1):
                     cmd = str(nport) + "  nreset\r\n"
                     self.sPort.write(str.encode(cmd))

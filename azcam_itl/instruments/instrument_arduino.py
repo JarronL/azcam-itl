@@ -23,14 +23,14 @@ class InstrumentArduino(Instrument):
         self.define_keywords()
 
         self.wavelength = ""  # wavelengths are LED strings like "green"
-        self.valid_wavelengths = ["UV", "violet", "green", "orange", "red", "IR"]
+        self.valid_wavelengths = ["violet", "green", "orange", "red", "IR", "UV"]
         self.wavelengthLeds = {
-            "UV": 7,
             "violet": 2,
             "green": 3,
             "orange": 4,
             "red": 5,
             "IR": 6,
+            "UV": 7,
         }
 
         # current state

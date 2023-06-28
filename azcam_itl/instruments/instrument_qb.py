@@ -9,6 +9,7 @@ from azcam_itl.instruments.keithley_6512 import EM6512
 from azcam_itl.instruments.newport_1936_R import NewPort_1936r
 from azcam_itl.instruments import pressure_mks900
 from azcam_itl.instruments import shutter_control
+from azcam_itl.instruments import webpower
 
 
 class InstrumentQB(Instrument):
@@ -99,17 +100,23 @@ class InstrumentQB(Instrument):
         except Exception as e:
             azcam.log(f"could not initialize shutter {e}")
 
-        if 1:
+        if 0:
             try:
                 self.init_dut_meter()
             except Exception as e:
                 azcam.log(f"could not initialize DUT meter {e}")
 
-        if 1:
+        if 0:
             try:
                 self.init_refdiode_meter()
             except Exception as e:
                 azcam.log(f"could not initialize ref diode meter {e}")
+
+        # QB web power switch instance
+        self.power = webpower.WebPowerClass()
+        self.power.service_name = "powerswitchqb"
+        self.power.username = "lab"
+        self.power.hostname = "10.131.0.5"
 
         self.initialized = 1
 

@@ -2,13 +2,13 @@ import os
 
 import azcam
 from azcam.header import System
-from azcam_server.tools.arc.controller_arc import ControllerArc
+from azcam_server.tools.archon.controller_archon import ControllerArchon
 from azcam_server.tools.arc.exposure_arc import ExposureArc
 from azcam_server.tools.tempcon_cryocon24 import TempConCryoCon24
 from azcam_server.tools.ds9display import Ds9Display
 from azcam_server.tools.focus import Focus
 
-from azcam_itl.instruments.instrument_bb import InstrumentBB
+from azcam_itl.instruments.instrument_eb import InstrumentEB
 from azcam_itl.detectors import detector_sta4150_4amp, detector_sta4150_2amp_left
 
 FOURAMPS = 1
@@ -16,37 +16,20 @@ FOURAMPS = 1
 # ****************************************************************
 # controller
 # ****************************************************************
-controller = ControllerArc()
-controller.timing_board = "arc22"
-controller.clock_boards = ["arc32"]
-controller.video_boards = ["arc45", "arc45"]
-controller.set_boards()
-controller.utility_board = None
-controller.pci_file = os.path.join(azcam.db.datafolder, "dspcode", "dsppci3", "pci3.lod")
-controller.video_gain = 2
-controller.video_speed = 1
-controller.camserver.set_server("conserver2")
-
-# controller timing file
-if FOURAMPS:
-    controller.timing_file = os.path.join(
-        azcam.db.datafolder, "dspcode", "dsptiming", "DESI_config0.lod"
-    )
-else:
-    controller.timing_file = os.path.join(
-        azcam.db.datafolder, "dspcode", "dsptiming_fast_2amp", "DESI_config0.lod"
-    )
+controller = ControllerArchon()
+controller.camserver.port = 4242
+controller.camserver.host = "10.0.2.12"  # ITL3
 
 # ****************************************************************
 # instrument
 # ****************************************************************
-instrument = InstrumentBB()
+instrument = InstrumentEB()
 
 # ****************************************************************
 # tempcon
 # ****************************************************************
-tempcon = TempConCryoCon24(description="cryoconbb")
-tempcon.host = "10.0.0.48"
+tempcon = TempConCryoCon24(description="cryoconeb")
+tempcon.host = "10.131.0.6"
 tempcon.control_temperature = -100.0
 tempcon.init_commands = [
     "input A:units C",
