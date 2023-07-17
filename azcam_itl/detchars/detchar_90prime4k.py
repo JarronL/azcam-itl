@@ -446,7 +446,7 @@ class PrimeFocus4kDetChar(DetChar):
 
         # find first bias image for header info
         azcam.utils.curdir("bias")
-        filename = azcam.utils.find_file_in_sequence("bias")[0]
+        filename = azcam_console.utils.find_file_in_sequence("bias")[0]
         azcam.utils.curdir("..")
 
         # system info
