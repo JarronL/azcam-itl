@@ -40,6 +40,7 @@ class InstrumentQB(Instrument):
 
         try:
             self.n1936 = NewPort_1936r()
+            self.n1936.initialize()
         except Exception as e:
             azcam.log(f"Could not initialize power meter - {e}")
 
