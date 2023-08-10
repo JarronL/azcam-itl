@@ -9,6 +9,7 @@ from azcam_server.tools.ds9display import Ds9Display
 from azcam_server.tools.focus import Focus
 
 from azcam_itl.instruments.instrument_eb import InstrumentEB
+from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam_itl.detectors import detector_sta4150_4amp, detector_sta4150_2amp_left
 
 FOURAMPS = 1
@@ -23,13 +24,13 @@ controller.camserver.host = "10.0.2.12"  # ITL3
 # ****************************************************************
 # instrument
 # ****************************************************************
-instrument = InstrumentEB()
+instrument = InstrumentQB()
 
 # ****************************************************************
 # tempcon
 # ****************************************************************
-tempcon = TempConCryoCon24(description="cryoconeb")
-tempcon.host = "10.131.0.6"
+tempcon = TempConCryoCon24(description="cryoconqb")
+tempcon.host = "10.131.0.10"
 tempcon.control_temperature = -100.0
 tempcon.init_commands = [
     "input A:units C",
