@@ -66,6 +66,7 @@ menu_options = {
     "QHY174 CMOS camera": "QHY174",
     # "LVM": "LVM",
     "ZWO ASI2600MM CMOS camera": "ASI2600MM",
+    "ZWO ASI294MM CMOS camera": "ASI294MM",
     # "OSU4k": "OSU4k",
     # "ITL6k": "ITL6k",
     # "90prime4k": "90prime4k",
@@ -123,7 +124,7 @@ if azcam.db.systemname != "NoSystem":
     try:
         importlib.import_module(f"azcam_itl.configs.config_server_{systemname}")
     except Exception as e:
-        azcam.log(f"Error loading config_server module: {e}")
+        azcam.log(f"Error loading config_server_{systemname}: {e}")
 
 # ****************************************************************
 # scripts

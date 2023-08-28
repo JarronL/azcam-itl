@@ -531,7 +531,6 @@ detchar = ASI2600MMDetChar()
 azcam_console.utils.set_image_roi([[500, 600, 500, 600]])
 
 et = {
-    300: 25.0,
     350: 25.0,
     400: 5.0,
     450: 5.0,
@@ -542,10 +541,6 @@ et = {
     700: 5.0,
     750: 5.0,
     800: 5.0,
-    850: 5.0,
-    900: 5.0,
-    950: 5.0,
-    1000: 5.0,
 }
 
 
@@ -574,7 +569,7 @@ bias.number_flushes = 2
 # gain
 gain.number_pairs = 1
 gain.exposure_time = 3.0
-gain.wavelength = 500
+gain.wavelength = 600
 
 # dark
 dark.number_images_acquire = 5
@@ -587,13 +582,13 @@ dark.report_dark_per_hour = 0
 
 # superflats
 superflat.exposure_times = [10]
-superflat.wavelength = 400
+superflat.wavelength = 600
 superflat.number_images_acquire = [10]
 superflat.overscan_correct = 0
 superflat.zero_correct = 1
 
 # ptc
-ptc.wavelength = 500
+ptc.wavelength = 600
 # ptc.gain_range = [0.75, 1.5]
 ptc.overscan_correct = 0
 ptc.fit_line = True
@@ -605,10 +600,10 @@ ptc.max_exposures = 75
 ptc.number_images_acquire = 75
 
 # linearity
-linearity.wavelength = 500
+linearity.wavelength = 600
 linearity.use_ptc_data = 1
 linearity.linearity_fit_min = 1000.0
-linearity.linearity_fit_max = 50000.0
+linearity.linearity_fit_max = 63000.0
 linearity.max_residual_linearity = 0.01
 linearity.plot_specifications = 1
 linearity.plot_limits = [-4.0, +4.0]
@@ -624,7 +619,7 @@ qe.global_scale = 1.0
 qe.pixel_area = 0.00376**2
 qe.diode_cal_folder = "/data/ASI2600MM"
 qe.flux_cal_folder = "/data/ASI2600MM"
-qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]
+qe.plot_limits = [[300.0, 800.0], [0.0, 100.0]]
 qe.plot_title = "ZWO ASI2600MM Quantum Efficiency"
 qe.qeroi = []
 qe.overscan_correct = 0
@@ -635,18 +630,8 @@ qe.grade_sensor = 0
 qe.create_reports = 1
 qe.exptime_offset = 0.00  # -0.13
 qe.wavelengths = [
-    300,
-    310,
-    320,
-    330,
-    340,
     350,
-    360,
-    370,
-    380,
-    390,
     400,
-    420,
     450,
     500,
     550,
@@ -655,42 +640,34 @@ qe.wavelengths = [
     700,
     750,
     800,
-    850,
-    900,
-    950,
-    1000,
 ]
 
 qeet = 5.0
 qe.exposure_times = {
-    300: qeet * 10,
-    310: qeet * 10,
-    320: qeet * 10,
-    330: qeet * 10,
-    340: qeet * 10,
     350: qeet * 5,
-    360: qeet * 5,
-    370: qeet * 2,
-    380: qeet * 2,
-    390: qeet,
     400: qeet,
-    420: qeet,
     450: qeet,
-    470: qeet,
     500: qeet,
-    520: qeet,
     550: qeet,
-    570: qeet * 2,
     600: qeet * 2,
-    620: qeet * 2,
     650: qeet * 2,
     700: qeet * 5,
-    750: qeet * 10,
-    800: qeet * 10,
-    850: qeet * 10,
-    900: qeet * 20,
-    950: qeet * 20,
-    1000: qeet * 20,
+    750: qeet * 5,
+    800: qeet * 5,
+}
+
+qe_el = 10000.0
+qe.exposure_levels = {
+    350: qe_el,
+    400: qe_el,
+    450: qe_el,
+    500: qe_el,
+    550: qe_el,
+    600: qe_el,
+    650: qe_el,
+    700: qe_el,
+    750: qe_el,
+    800: qe_el,
 }
 
 qe.window_trans = {
@@ -718,18 +695,8 @@ prnu.root_name = "qe."
 prnu.use_edge_mask = 0
 prnu.overscan_correct = 0
 prnu.wavelengths = [
-    300,
-    310,
-    320,
-    330,
-    340,
     350,
-    360,
-    370,
-    380,
-    390,
     400,
-    420,
     450,
     500,
     550,
@@ -738,40 +705,18 @@ prnu.wavelengths = [
     700,
     750,
     800,
-    850,
-    900,
-    950,
-    1000,
 ]
 prnu.exposures = {
-    300: qeet * 25,
-    310: qeet * 25,
-    320: qeet * 25,
-    330: qeet * 25,
-    340: qeet * 25,
     350: qeet * 5,
-    360: qeet * 5,
-    370: qeet * 2,
-    380: qeet * 2,
-    390: qeet,
     400: qeet,
-    420: qeet,
     450: qeet,
-    470: qeet,
     500: qeet,
-    520: qeet,
     550: qeet,
-    570: qeet * 2,
     600: qeet * 2,
-    620: qeet * 2,
     650: qeet * 2,
     700: qeet * 5,
     750: qeet * 10,
     800: qeet * 10,
-    850: qeet * 10,
-    900: qeet * 20,
-    950: qeet * 20,
-    1000: qeet * 20,
 }
 
 # defects

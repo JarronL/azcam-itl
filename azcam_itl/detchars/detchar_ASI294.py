@@ -678,10 +678,9 @@ detchar = ASI294DetChar()
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
-azcam_console.utils.set_image_roi([[500, 600, 500, 600]])
+azcam_console.utils.set_image_roi([[500, 600, 500, 600], [500, 600, 500, 600]])
 
 et = {
-    300: 10.0,
     350: 5.0,
     400: 1.0,
     450: 1.0,
@@ -692,10 +691,6 @@ et = {
     700: 20.0,
     750: 20.0,
     800: 30.0,
-    850: 30.0,
-    900: 40.0,
-    950: 100.0,
-    1000: 200.0,
 }
 
 
@@ -714,7 +709,7 @@ detcal.wavelengths = [
 ]
 detcal.exposure_times = {}
 detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi294.txt")
-detcal.mean_count_goal = 35000
+detcal.mean_count_goal = 10000
 detcal.range_factor = 1.2
 
 # bias
@@ -723,8 +718,8 @@ bias.number_flushes = 2
 
 # gain
 gain.number_pairs = 1
-gain.exposure_time = 3.0
-gain.wavelength = 400
+gain.exposure_time = 1.0
+gain.wavelength = 600
 gain.video_processor_gain = []
 
 # dark
@@ -741,16 +736,16 @@ dark.fit_order = 0
 
 # superflats
 superflat.exposure_levels = [30000]  # electrons
-superflat.wavelength = 400
+superflat.wavelength = 600
 superflat.number_images_acquire = [3]
 
 # ptc
-ptc.wavelength = 400
+ptc.wavelength = 600
 # ptc.gain_range = [0.75, 1.5]
 ptc.overscan_correct = 0
 ptc.fit_line = True
 ptc.fit_min = 1000
-ptc.fit_max = 60000
+ptc.fit_max = 63000
 # ptc.exposure_levels = []
 ptc.exposure_times = []
 # ptc.max_exposures = 40
@@ -783,30 +778,28 @@ ptc.exposure_levels = [
     50000,
     55000,
     60000,
-    65000,
+    63000,
 ]
 
 # linearity
-linearity.wavelength = 400
-linearity.use_ptc_data = 0
-linearity.linearity_fit_min = 1000.0
-linearity.linearity_fit_max = 10000.0
+linearity.wavelength = 600
+linearity.use_ptc_data = 1
+# linearity.linearity_fit_min = 1000.0
+# linearity.linearity_fit_max = 10000.0
 linearity.max_residual_linearity = 0.01
 linearity.plot_specifications = 1
-linearity.plot_limits = [-4.0, +4.0]
+linearity.plot_limits = [-2.0, +2.0]
 linearity.overscan_correct = 0
 linearity.zero_correct = 1
-linearity.number_images_acquire = 5
-linearity.max_exposure = 5
 linearity.use_weights = 0
 
 # QE
 qe.cal_scale = 0.962  # 27apr21 measured
 qe.global_scale = 1.0
 qe.pixel_area = 0.002315**2
-qe.diode_cal_folder = "/data/ZWO/asi294"
-qe.flux_cal_folder = "/data/ZWO/asi294"
-qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]
+qe.diode_cal_folder = "/data/asi294"
+qe.flux_cal_folder = "/data/asi294"
+qe.plot_limits = [[300.0, 800.0], [0.0, 100.0]]
 qe.plot_title = "ZWO ASI294 Quantum Efficiency"
 qe.qeroi = []
 qe.overscan_correct = 0
@@ -818,20 +811,6 @@ qe.create_reports = 1
 # qe.wavelengths = [400]
 qe.plot_limits = []
 qe.exptime_offset = -0.13
-"""
-qe.wavelengths = [
-    350,
-    400,
-    450,
-    500,
-    550,
-    600,
-    650,
-    700,
-    750,
-    800,
-]
- """
 qe.wavelengths = [
     350,
     360,
@@ -865,7 +844,7 @@ qe.wavelengths = [
     800: 10000,
 }
 """
-qeet = 20.0
+qeet = 5.0
 qe.exposure_times = {
     350: qeet,
     360: qeet,

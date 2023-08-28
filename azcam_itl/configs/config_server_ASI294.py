@@ -53,15 +53,15 @@ tempcon.initialize()
 # exposure
 # ****************************************************************
 exposure = ExposureASCOM()
-filetype = "BIN"  # BIN FITS
+filetype = "FITS"  # BIN FITS
 exposure.filetype = exposure.filetypes[filetype]
 exposure.image.filetype = exposure.filetypes[filetype]
-exposure.image.filename = "/data/ZWO/asi294/image.fits"  # .bin .fits
+exposure.image.filename = "/data/asi294/image.fits"  # .bin .fits
 
 # ****************************************************************
 # remote image
 # ****************************************************************
-if 1:
+if 0:
     sendimage = SendImage()
     remote_imageserver_host = "lesser"
     remote_imageserver_port = 6543
