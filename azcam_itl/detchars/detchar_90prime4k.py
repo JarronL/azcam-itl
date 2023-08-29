@@ -648,7 +648,6 @@ azcam.db.tools["prnu"].zero_correct = 0  # flag to correct with bias residuals
 qe = azcam.db.tools["qe"]
 qe.cal_scale = 1.00
 qe.global_scale = 1.24
-qe.diode_cal_folder = "/data/90prime4k"
 qe.flux_cal_folder = "/data/90prime4k"
 qe.use_edge_mask = False
 qe.pixel_area = 0.015 * 0.015

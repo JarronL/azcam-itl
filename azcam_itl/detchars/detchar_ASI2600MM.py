@@ -617,7 +617,6 @@ linearity.use_weights = 0
 qe.cal_scale = 1.107
 qe.global_scale = 1.0
 qe.pixel_area = 0.00376**2
-qe.diode_cal_folder = "/data/ASI2600MM"
 qe.flux_cal_folder = "/data/ASI2600MM"
 qe.plot_limits = [[300.0, 800.0], [0.0, 100.0]]
 qe.plot_title = "ZWO ASI2600MM Quantum Efficiency"
@@ -626,55 +625,25 @@ qe.overscan_correct = 0
 qe.zero_correct = 1
 qe.flush_before_exposure = 0
 qe.grade_sensor = 0
-
 qe.create_reports = 1
-qe.exptime_offset = 0.00  # -0.13
-qe.wavelengths = [
-    350,
-    400,
-    450,
-    500,
-    550,
-    600,
-    650,
-    700,
-    750,
-    800,
-]
-
-qeet = 5.0
-qe.exposure_times = {
-    350: qeet * 5,
-    400: qeet,
-    450: qeet,
-    500: qeet,
-    550: qeet,
-    600: qeet * 2,
-    650: qeet * 2,
-    700: qeet * 5,
-    750: qeet * 5,
-    800: qeet * 5,
-}
-
-qe_el = 10000.0
+qe.use_exposure_levels = 1
+el = 5000.0
 qe.exposure_levels = {
-    350: qe_el,
-    400: qe_el,
-    450: qe_el,
-    500: qe_el,
-    550: qe_el,
-    600: qe_el,
-    650: qe_el,
-    700: qe_el,
-    750: qe_el,
-    800: qe_el,
+    350: el,
+    400: el,
+    450: el,
+    500: el,
+    550: el,
+    600: el,
+    650: el,
+    700: el,
+    750: el,
+    800: el,
 }
-
 qe.window_trans = {
     300: 1.0,
     1000: 1.0,
 }
-
 # from online plot
 """
 qe.window_trans = {

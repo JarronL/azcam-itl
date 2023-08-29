@@ -800,7 +800,6 @@ linearity.use_weights = 0
 qe.cal_scale = 1.0
 qe.global_scale = 1.0
 qe.pixel_area = 0.00586**2
-qe.diode_cal_folder = "/data/QHY/QHY174"
 qe.flux_cal_folder = "/data/QHY/QHY174"
 qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]
 qe.plot_title = "QHY QHY174 Quantum Efficiency"
@@ -813,7 +812,6 @@ qe.grade_sensor = 0
 qe.create_reports = 0
 qe.plot_limits = []
 qe.wavelengths = [450]
-qe.exptime_offset = -0.03
 """ qe.wavelengths = [
     350,
     400,

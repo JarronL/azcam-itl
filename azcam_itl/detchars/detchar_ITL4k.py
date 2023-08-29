@@ -751,7 +751,6 @@ else:
 # recalibrate in dewar 08Nov21
 azcam.db.tools["qe"].global_scale = 1.0
 
-azcam.db.tools["qe"].diode_cal_folder = "/data/LVM"
 azcam.db.tools["qe"].flux_cal_folder = "/data/LVM"
 azcam.db.tools["qe"].use_edge_mask = True  # use defects mask
 azcam.db.tools["qe"].pixel_area = 0.015 * 0.015

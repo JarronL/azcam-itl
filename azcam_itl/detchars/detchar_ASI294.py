@@ -797,7 +797,6 @@ linearity.use_weights = 0
 qe.cal_scale = 0.962  # 27apr21 measured
 qe.global_scale = 1.0
 qe.pixel_area = 0.002315**2
-qe.diode_cal_folder = "/data/asi294"
 qe.flux_cal_folder = "/data/asi294"
 qe.plot_limits = [[300.0, 800.0], [0.0, 100.0]]
 qe.plot_title = "ZWO ASI294 Quantum Efficiency"
@@ -806,73 +805,26 @@ qe.overscan_correct = 0
 qe.zero_correct = 1
 qe.flush_before_exposure = 0
 qe.grade_sensor = 0
-
 qe.create_reports = 1
-# qe.wavelengths = [400]
 qe.plot_limits = []
-qe.exptime_offset = -0.13
-qe.wavelengths = [
-    350,
-    360,
-    370,
-    380,
-    390,
-    400,
-    420,
-    450,
-    500,
-    550,
-    600,
-    650,
-    700,
-    750,
-    800,
-    850,
-]
-
-# qe.exposure_times = et
-"""qe.exposure_levels ={
-    350: 10000,
-    400: 10000,
-    450: 10000,
-    500: 10000,
-    550: 10000,
-    600: 10000,
-    650: 10000,
-    700: 10000,
-    750: 10000,
-    800: 10000,
+qe.use_exposure_levels = 1
+el = 5000.0
+qe.exposure_levels = {
+    350: el,
+    400: el,
+    450: el,
+    500: el,
+    550: el,
+    600: el,
+    650: el,
+    700: el,
+    750: el,
+    800: el,
 }
-"""
-qeet = 5.0
-qe.exposure_times = {
-    350: qeet,
-    360: qeet,
-    370: qeet,
-    380: qeet,
-    390: qeet,
-    400: qeet,
-    420: qeet,
-    450: qeet,
-    470: qeet,
-    500: qeet,
-    520: qeet,
-    550: qeet,
-    570: qeet,
-    600: qeet,
-    620: qeet,
-    650: qeet,
-    700: qeet,
-    750: qeet,
-    800: qeet,
-    850: qeet,
-}
-
 qe.window_trans = {
     300: 1.0,
     1000: 1.0,
 }
-
 # from online plot
 """
 qe.window_trans = {
