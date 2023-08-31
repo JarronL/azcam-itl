@@ -127,7 +127,7 @@ class InstrumentQB(Instrument):
 
         return wave
 
-    def set_shutter(self, state):
+    def set_shutter(self, state, shutter_id=0):
         """
         Open (1) or close (0) monochomator shutter.
         """

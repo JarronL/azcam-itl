@@ -16,14 +16,17 @@ from azcam_itl.instruments.instrument_qb import InstrumentQB
 # ****************************************************************
 # controller
 # ****************************************************************
-controller = ControllerASCOM()
-controller.driver = "ASCOM.ASICamera2.Camera"
-# init now due to threading issue
-controller.initialize()
-controller.nx = 8288
-controller.ny = 5644
-controller.camera.Gain = 120
-controller.camera.Offset = 10
+try:
+    controller = ControllerASCOM()
+    controller.driver = "ASCOM.ASICamera2.Camera"
+    # init now due to threading issue
+    controller.initialize()
+    controller.nx = 8288
+    controller.ny = 5644
+    controller.camera.Gain = 120
+    controller.camera.Offset = 10
+except Exception as e:
+    azcam.log(e)
 
 """
 ZWO ASI294 data

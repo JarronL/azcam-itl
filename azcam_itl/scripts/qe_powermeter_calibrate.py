@@ -11,7 +11,7 @@ import azcam.sockets
 
 def qe_powermeter_calibrate(
     wavelengths=[
-        360,
+        350,
         400,
         450,
         500,
@@ -24,11 +24,9 @@ def qe_powermeter_calibrate(
         850,
         900,
         950,
-        980,
         1000,
     ]
 ):
-
     """
     Obtains values for multiple wavelengths by selecting wavelength and obtaining readings
     from power meter.
@@ -43,16 +41,7 @@ def qe_powermeter_calibrate(
 
     instrument = azcam.db.tools["instrument"]
 
-    # 0 for QB, connection to remote server on conserver1
-    if 0:
-        server = azcam.sockets.SocketInterface("conserver1", 2402)
-        if server.open():
-            print("Connected to azcamserver")
-            server.command("Register qe_console")
-        else:
-            print("Not connected to azcamserver")
-    else:
-        server = azcam.db.tools["server"]
+    server = azcam.db.tools["server"]
 
     data_txt_hdr = "Wavelength" + "\t" + "Flux" + "\t\t" + "Light" + "\t\t" + "Dark"
     print(data_txt_hdr)
@@ -61,13 +50,14 @@ def qe_powermeter_calibrate(
 
     # Iterate through wavelengths and obtain readings
     for wave in wavelengths:
-
-        instrument.comps_off()
+        # instrument.comps_off()
+        instrument.set_shutter(0)
         instrument.set_wavelength(wave)
         time.sleep(4)
         flux_close = server.command(f"instrument.get_power {wave}")
 
-        instrument.comps_on()
+        # instrument.comps_on()
+        instrument.set_shutter(1)
         time.sleep(2)
         flux_open = server.command(f"instrument.get_power {wave}")
 
@@ -104,7 +94,6 @@ if __name__ == "__main__":
     # waves = [330, 350, 370, 400, 500, 600, 700, 800, 900, 1000]  # BB
     # waves = [int(w) for w in range(300, 1110, 10)]  # QB
     waves = [
-        360,
         400,
         450,
         500,
@@ -117,7 +106,6 @@ if __name__ == "__main__":
         850,
         900,
         950,
-        980,
         1000,
     ]  # LVM QB
 

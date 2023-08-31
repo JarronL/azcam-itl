@@ -794,11 +794,12 @@ linearity.zero_correct = 1
 linearity.use_weights = 0
 
 # QE
-qe.cal_scale = 0.962  # 27apr21 measured
+qe.cal_scale = 0.989  # 30Aug23 measured phyically ARB
+# qe.cal_scale = 0.802  # 29aug23 from plot - ARB
 qe.global_scale = 1.0
 qe.pixel_area = 0.002315**2
 qe.flux_cal_folder = "/data/asi294"
-qe.plot_limits = [[300.0, 800.0], [0.0, 100.0]]
+qe.plot_limits = [[300.0, 850.0], [0.0, 100.0]]
 qe.plot_title = "ZWO ASI294 Quantum Efficiency"
 qe.qeroi = []
 qe.overscan_correct = 0
@@ -806,8 +807,8 @@ qe.zero_correct = 1
 qe.flush_before_exposure = 0
 qe.grade_sensor = 0
 qe.create_reports = 1
-qe.plot_limits = []
 qe.use_exposure_levels = 1
+qe.exptime_offset = 0.00
 el = 5000.0
 qe.exposure_levels = {
     350: el,
@@ -821,23 +822,28 @@ qe.exposure_levels = {
     750: el,
     800: el,
 }
-qe.window_trans = {
-    300: 1.0,
-    1000: 1.0,
-}
-# from online plot
-"""
-qe.window_trans = {
-    400: 0.95,
-    450: 0.99,
-    650: 0.99,
-    700: 0.95,
-    750: 0.93,
-    850: 0.85,
-    950: 0.78,
-    1050: 0.75,
-}
-"""
+if 1:
+    qe.window_trans = {
+        300: 1.0,
+        1000: 1.0,
+    }
+else:
+    # from online plot
+    qe.window_trans = {
+        350: 0.25,
+        400: 0.95,
+        450: 0.99,
+        500: 0.99,
+        550: 0.99,
+        600: 0.99,
+        650: 0.99,
+        700: 0.95,
+        750: 0.93,
+        800: 0.90,
+        850: 0.85,
+        950: 0.78,
+        1050: 0.75,
+    }
 
 # prnu
 prnu.allowable_deviation_from_mean = 0.1
