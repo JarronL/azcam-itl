@@ -135,7 +135,7 @@ loadscripts(["azcam_itl.scripts.server"])
 # ****************************************************************
 # web server
 # ****************************************************************
-if 0:
+if 1:
     webserver = WebServer()
     webserver.port = 2403
     webserver.logcommands = 0
