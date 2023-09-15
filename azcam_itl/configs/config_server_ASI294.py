@@ -23,7 +23,7 @@ try:
     controller.initialize()
     controller.nx = 8288
     controller.ny = 5644
-    controller.camera.Gain = 120
+    controller.camera.Gain = 1
     controller.camera.Offset = 10
 except Exception as e:
     azcam.log(e)

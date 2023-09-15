@@ -118,7 +118,7 @@ observe = ObserveCli()
 # scripts
 # ****************************************************************
 azcam.log("Loading scripts")
-loadscripts(["azcam_itl.scripts"])
+loadscripts(["azcam_itl.scripts", "azcam_console.scripts"])
 
 # try to connect to azcamserver
 connected = azcam.db.tools["server"].connect(port=cmdport)  # default host and port

@@ -9,24 +9,7 @@ import azcam
 import azcam.sockets
 
 
-def qe_powermeter_calibrate(
-    wavelengths=[
-        350,
-        400,
-        450,
-        500,
-        550,
-        600,
-        650,
-        700,
-        750,
-        800,
-        850,
-        900,
-        950,
-        1000,
-    ]
-):
+def qe_powermeter_calibrate(wavelengths):
     """
     Obtains values for multiple wavelengths by selecting wavelength and obtaining readings
     from power meter.
@@ -91,8 +74,8 @@ def qe_powermeter_calibrate(
 if __name__ == "__main__":
     args = sys.argv[1:]
 
-    # waves = [330, 350, 370, 400, 500, 600, 700, 800, 900, 1000]  # BB
-    # waves = [int(w) for w in range(300, 1110, 10)]  # QB
+    waves = [int(w) for w in range(300, 1110, 10)]  # QB
+    """
     waves = [
         400,
         450,
@@ -108,6 +91,7 @@ if __name__ == "__main__":
         950,
         1000,
     ]  # LVM QB
+"""
 
     # qe_diode_calibrate(*args)
     qe_powermeter_calibrate(waves)

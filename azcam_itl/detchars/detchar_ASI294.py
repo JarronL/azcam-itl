@@ -21,27 +21,22 @@ class ASI294DetChar(DetChar):
         super().__init__()
 
         self.imsnap_scale = 1.0
+        self.start_temperature = 25.0
 
         self.filename2 = ""
         self.itl_sn = -1
-        self.itl_id = ""
 
         self.system = ""
         self.customer = ""
-        self.dewar = ""
-        self.device_type = ""
-        self.backside_bias = 0.0
 
-        self.lot = "UNKNOWN"
-        self.wafer = 0
-        self.die = 0
         self.report_date = ""
 
         self.report_comment = ""
 
-        self.start_delay = 10  # acquisition starting delay in seconds
+        self.start_delay = 5
 
         # report parameters
+        self.create_html = 1
         self.report_file = ""
         self.summary_report_file = ""
         self.report_names = [
@@ -52,22 +47,16 @@ class ASI294DetChar(DetChar):
             "qe",
             "dark",
             "defects",
-            "fe55",
         ]
         self.report_files = {
-            "dark": "dark/dark",
-            "defects": "defects/darkdefects",
-            "fe55": "fe55/fe55",
             "gain": "gain/gain",
-            "linearity": "ptc/linearity",
-            "ptc": "ptc/ptc",
             "prnu": "prnu/prnu",
+            "ptc": "ptc/ptc",
+            "linearity": "ptc/linearity",
             "qe": "qe/qe",
+            "dark": "dark/dark",
+            "defects": "defects/defects",
         }
-
-        self.start_temperature = -110.0
-
-        self.timingfiles = []
 
     def acquire(self, SN="prompt"):
         """
@@ -89,7 +78,6 @@ class ASI294DetChar(DetChar):
             ptc,
             qe,
             dark,
-            fe55,
             defects,
             dark,
         ) = azcam_console.utils.get_tools(
@@ -101,7 +89,6 @@ class ASI294DetChar(DetChar):
                 "ptc",
                 "qe",
                 "dark",
-                "fe55",
                 "defects",
                 "dark",
             ]
@@ -140,75 +127,69 @@ class ASI294DetChar(DetChar):
         detcal.mean_electrons = {int(k): v for k, v in detcal.mean_electrons.items()}
         detcal.mean_counts = {int(k): v for k, v in detcal.mean_counts.items()}
 
-        for timefile in self.timingfiles:
-            azcam.db.parameters.set_par("timingfile", timefile)
+        # *************************************************************************
+        # Create and move to a report folder
+        # *************************************************************************
+        currentfolder, reportfolder = azcam_console.utils.make_file_folder(
+            "report", 1, 1
+        )  # start with report1
+        azcam.utils.curdir(reportfolder)
 
-            # *************************************************************************
-            # Create and move to a report folder
-            # *************************************************************************
-            currentfolder, reportfolder = azcam_console.utils.make_file_folder(
-                "report", 1, 1
-            )  # start with report1
-            azcam.utils.curdir(reportfolder)
+        # *************************************************************************
+        # Acquire data
+        # *************************************************************************
+        azcam.db.parameters.set_par("imagesequencenumber", 1)  # uniform image sequence numbers
 
-            # *************************************************************************
-            # Acquire data
-            # *************************************************************************
-            azcam.db.parameters.set_par("imagesequencenumber", 1)  # uniform image sequence numbers
+        try:
+            # reset camera
+            print("Reset and Flush detector")
+            exposure.reset()
+            exposure.roi_reset()
+            exposure.test(0)  # flush
 
-            try:
-                # reset camera
-                print("Reset and Flush detector")
-                exposure.reset()
-                exposure.roi_reset()
-                exposure.test(0)  # flush
+            # clear device after reset delay
+            print("Delaying start for %.0f seconds (to settle)..." % self.start_delay)
+            time.sleep(self.start_delay)
+            exposure.test(0)  # flush
 
-                # clear device after reset delay
-                print("Delaying start for %.0f seconds (to settle)..." % self.start_delay)
-                time.sleep(self.start_delay)
-                exposure.test(0)  # flush
+            # bias images
+            bias.acquire()
+            itlutils.imsnap(self.imsnap_scale, "last")
 
-                # bias images
-                bias.acquire()
-                itlutils.imsnap(self.imsnap_scale, "last")
+            # gain images
+            # gain.find()
+            gain.acquire()
 
-                # gain images
-                # gain.find()
-                gain.acquire()
+            # Prnu images
+            azcam.db.tools["prnu"].acquire()
 
-                # Prnu images
-                azcam.db.tools["prnu"].acquire()
+            # superflat sequence
+            superflat.acquire()
 
-                # superflat sequence
-                superflat.acquire()
+            # PTC and linearity
+            ptc.acquire()
 
-                # PTC and linearity
-                ptc.acquire()
+            # QE
+            qe.acquire()
 
-                # QE
-                qe.acquire()
+            # Dark signal
+            exposure.test(0)
+            dark.acquire()
 
-                # Fe55
-                fe55.acquire()
-
-                # Dark signal
-                exposure.test(0)
-                dark.acquire()
-
-            finally:
-                azcam.db.parameters.restore_imagepars(impars)
-                azcam.utils.curdir(currentfolder)
+        finally:
+            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.curdir(currentfolder)
 
         print("acquire sequence finished")
 
         return
 
-    def analyze(self):
+    def analyze(self, itlsn="unknown"):
         """
         Analyze data.
         """
 
-        print("Begin analysis of STA3600 dataset")
+        print("Begin analysis of ASI294 dataset")
         rootfolder = azcam.utils.curdir()
 
         (
@@ -220,7 +201,6 @@ class ASI294DetChar(DetChar):
             ptc,
             qe,
             dark,
-            fe55,
             defects,
         ) = azcam_console.utils.get_tools(
             [
@@ -232,13 +212,12 @@ class ASI294DetChar(DetChar):
                 "ptc",
                 "qe",
                 "dark",
-                "fe55",
                 "defects",
             ]
         )
 
         if not self.is_setup:
-            self.setup()
+            self.setup(itlsn)
 
         # analyze bias
         azcam.utils.curdir("bias")
@@ -251,15 +230,6 @@ class ASI294DetChar(DetChar):
         gain.analyze()
         azcam.utils.curdir(rootfolder)
         print("")
-
-        # analyze Fe-55
-        azcam.utils.curdir("fe55")
-        fe55.analyze()
-        azcam.utils.curdir(rootfolder)
-        print("")
-
-        # use fe55 gain from now on
-        gain.fe55_gain()
 
         # analyze superflats
         azcam.utils.curdir("superflat1")
@@ -315,24 +285,13 @@ class ASI294DetChar(DetChar):
 
         # analyze qe
         azcam.utils.curdir("qe")
-        try:
-            qe.analyze()
-        except Exception:
-            azcam.utils.curdir(rootfolder)
-            azcam.utils.curdir("qe")
-            qe.analyze()
+        azcam.db.tools["qe"].analyze()
         azcam.utils.curdir(rootfolder)
         print("")
 
         # analyze prnu
-        azcam.utils.curdir("qe")
-        try:
-            azcam.db.tools["prnu"].analyze()
-        except Exception:
-            azcam.utils.curdir(rootfolder)
-            azcam.utils.curdir("qe")
-            azcam.db.tools["prnu"].analyze()
-        azcam.db.tools["prnu"].copy_data_files()
+        azcam.utils.curdir("prnu")
+        azcam.db.tools["prnu"].analyze()
         azcam.utils.curdir(rootfolder)
         print("")
 
@@ -353,10 +312,10 @@ class ASI294DetChar(DetChar):
 
         folder = azcam.utils.curdir()
         self.report_folder = folder
-        report_name = f"ASI294_report_SN{self.itl_sn}.pdf"
+        report_name = f"ASI294_report_{self.itl_sn}.pdf"
 
         print("")
-        print("Generating SN%s Report" % self.itl_sn)
+        print("Generating %s Report" % self.itl_sn)
         print("")
 
         # *********************************************
@@ -388,25 +347,21 @@ class ASI294DetChar(DetChar):
         if len(self.report_comment) == 0:
             self.report_comment = azcam.utils.prompt("Enter report comment")
 
+        # get current date
+        self.report_date = datetime.datetime.now().strftime("%b-%d-%Y")
+
         lines = []
 
         lines.append("# ITL Detector Characterization Report")
         lines.append("")
-        lines.append("|    |    |")
+        lines.append("|||")
         lines.append("|:---|:---|")
         lines.append("|**Identification**||")
         lines.append(f"|Customer       |UArizona|")
-        lines.append(f"|ITL System     |ASI294|")
-        lines.append(f"|ITL ID         |{self.itl_id}|")
-        lines.append(f"|ITL SN         |{int(self.itl_sn)}|")
-        lines.append(f"|Type           |ASI294|")
-        lines.append(f"|Lot            |{self.lot}|")
-        lines.append(f"|Wafer          |{int(self.wafer):02d}|")
-        lines.append(f"|Die            |{int(self.die)}|")
+        lines.append(f"|System         |ZWO ASI294|")
+        lines.append(f"|System         |{self.itl_sn}|")
         lines.append(f"|Report Date    |{self.report_date}|")
         lines.append(f"|Author         |{self.filename2}|")
-        lines.append(f"|**Operating Conditions**||")
-        lines.append(f"|System         |ZWO|")
         lines.append(f"|**Results**||")
         lines.append(f"|Comment        |{self.report_comment}|")
         lines.append("")
@@ -434,7 +389,6 @@ class ASI294DetChar(DetChar):
         itlutils.cleanup_files()
         self.copy_reports()
         self.copy_flats()
-        self.copy_metrology()
 
         return
 
@@ -495,85 +449,18 @@ class ASI294DetChar(DetChar):
 
         return
 
-    def copy_metrology(self):
-        """
-        Find all metrology files from current folder tree and copy them to
-        the folder two levels up (run from report) with new name.
-        """
-
-        folder = azcam.utils.curdir()
-        dest_folder = azcam.utils.curdir()
-        azcam.utils.curdir(folder)
-        matches = []
-        for root, dirnames, filenames in os.walk(folder):
-            for filename in fnmatch.filter(filenames, "metrology_*.pdf"):
-                matches.append(os.path.join(root, filename))
-            for filename in fnmatch.filter(filenames, "*_out.csv"):
-                matches.append(os.path.join(root, filename))
-
-        for t in matches:
-            print("Found: ", t)
-            print("Press y or enter to copy this file...")
-            key = azcam.utils.check_keyboard(1)
-            if key == "y" or key == "\r":
-                shutil.copy(t, dest_folder)
-            else:
-                print("File not copied")
-
-        return
-
-    def setup(self):
-        s = azcam.utils.curdir()
-        try:
-            x = s.index("/sn")
-            if x > 0:
-                sn = s[x + 3 : x + 8]
-            else:
-                sn = 0
-        except ValueError:
-            sn = 0
-        itlsn = azcam.utils.prompt("Enter sensor serial number (integer)", sn)
-        self.itl_sn = int(itlsn)
+    def setup(self, itlsn="unknown"):
+        itlsn = azcam.utils.prompt("Enter cameras ID", itlsn)
+        self.itl_sn = itlsn
 
         operator = azcam.utils.prompt("Enter you initals", "mpl")
-
-        # ****************************************************************
-        # Identification
-        # ****************************************************************
-        if self.itl_sn == 0 or self.itl_sn == -1:
-            print("WARNING! Unspecified detector serial number")
-            self.itl_sn = 0
-            self.itl_id = "0"
-        else:
-            # get ID number in format NNN (package ID)
-            self.lot = azcam.utils.prompt("Enter lot")
-            self.device_type = azcam.utils.prompt("Enter device type")
-            self.wafer = azcam.utils.prompt("Enter wafer")
-            self.die = azcam.utils.prompt("Enter die")
-            self.itl_id = azcam.utils.prompt("Enter ITL ID")
-
-        # device serial number
-        self.itl_sn = int(itlsn)
-        if self.itl_sn == 0 or self.itl_sn == -1:
-            print("WARNING! Unspecified detector serial number")
-            self.itl_sn = 0
-            self.itl_id = "0"
-        else:
-            self.lot = azcam.utils.prompt("Enter lot")
-            self.device_type = azcam.utils.prompt("Enter device type")
-            self.wafer = azcam.utils.prompt("Enter wafer")
-            self.die = azcam.utils.prompt("Enter die")
-            self.itl_id = azcam.utils.prompt("Enter ITL ID")
 
         # sponsor/report info
         self.customer = "UArizona"
         self.system = "ASI294"
         qe.plot_title = "ASI294 Quantum Efficiency"
-        self.summary_report_file = f"SummaryReport_SN{self.itl_sn}"
+        self.summary_report_file = f"SummaryReport_{self.itl_sn}"
         self.report_file = f"ASI294{self.itl_sn}.pdf"
-
-        # dewar info
-        self.dewar = "ASI294"
 
         if operator.lower() == "mpl":
             self.filename2 = "Michael Lesser"
@@ -582,8 +469,6 @@ class ASI294DetChar(DetChar):
             print("Intruder!  Unknown user.")
             self.filename2 = "UNKNOWN"
         print("")
-
-        self.device_type = "ASI294"
 
         self.is_setup = 1
 
@@ -675,24 +560,11 @@ detchar = ASI294DetChar()
     ]
 )
 
+detchar.start_temperature = -15.0
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
 azcam_console.utils.set_image_roi([[500, 600, 500, 600], [500, 600, 500, 600]])
-
-et = {
-    350: 5.0,
-    400: 1.0,
-    450: 1.0,
-    500: 1.0,
-    550: 5.0,
-    600: 20.0,
-    650: 20.0,
-    700: 20.0,
-    750: 20.0,
-    800: 30.0,
-}
-
 
 # detcal
 detcal.wavelengths = [
@@ -706,10 +578,31 @@ detcal.wavelengths = [
     700,
     750,
     800,
+    850,
+    900,
+    950,
+    1000,
 ]
-detcal.exposure_times = {}
+# values below for binned values 4x4, 10,000
+bin = 16
+detcal.exposure_times = {
+    350: 30.0 * bin,
+    400: 4.0 * bin,
+    450: 2.0 * bin,
+    500: 2.5 * bin,
+    550: 5.0 * bin,
+    600: 8.0 * bin,
+    650: 10.0 * bin,
+    700: 15.0 * bin,
+    750: 30.0 * bin,
+    800: 45.0 * bin,
+    850: 45.0 * bin,
+    900: 35.0 * bin,
+    950: 110.0 * bin,
+    1000: 175.0 * bin,
+}
 detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi294.txt")
-detcal.mean_count_goal = 10000
+detcal.mean_count_goal = 5000
 detcal.range_factor = 1.2
 
 # bias
@@ -719,7 +612,7 @@ bias.number_flushes = 2
 # gain
 gain.number_pairs = 1
 gain.exposure_time = 1.0
-gain.wavelength = 600
+gain.wavelength = 500
 gain.video_processor_gain = []
 
 # dark
@@ -728,25 +621,25 @@ dark.exposure_time = 60.0
 dark.dark_fraction = -1  # no spec on individual pixels
 # dark.mean_dark_spec = 3.0 / 600.0  # blue e/pixel/sec
 # dark.mean_dark_spec = 6.0 / 600.0  # red
-# dark.use_edge_mask = 1
+dark.use_edge_mask = 0
 # dark.bright_pixel_reject = 0.05  # e/pix/sec clip
 dark.overscan_correct = 0  # flag to overscan correct images
 dark.zero_correct = 1  # flag to correct with bias residuals
 dark.fit_order = 0
+dark.report_dark_per_hour = 1  # report per hour
 
 # superflats
 superflat.exposure_levels = [30000]  # electrons
-superflat.wavelength = 600
+superflat.wavelength = 500
 superflat.number_images_acquire = [3]
 
 # ptc
-ptc.wavelength = 600
+ptc.wavelength = 500
 # ptc.gain_range = [0.75, 1.5]
 ptc.overscan_correct = 0
 ptc.fit_line = True
 ptc.fit_min = 1000
 ptc.fit_max = 63000
-# ptc.exposure_levels = []
 ptc.exposure_times = []
 # ptc.max_exposures = 40
 # ptc.number_images_acquire = 40
@@ -782,24 +675,24 @@ ptc.exposure_levels = [
 ]
 
 # linearity
-linearity.wavelength = 600
+linearity.wavelength = 500
 linearity.use_ptc_data = 1
 # linearity.linearity_fit_min = 1000.0
 # linearity.linearity_fit_max = 10000.0
-linearity.max_residual_linearity = 0.01
+linearity.max_residual_linearity = -1
 linearity.plot_specifications = 1
-linearity.plot_limits = [-2.0, +2.0]
+linearity.plot_limits = [-3.0, +3.0]
 linearity.overscan_correct = 0
 linearity.zero_correct = 1
 linearity.use_weights = 0
 
 # QE
-qe.cal_scale = 0.989  # 30Aug23 measured phyically ARB
+qe.cal_scale = 0.989  # 30Aug23 measured physically ARB
 # qe.cal_scale = 0.802  # 29aug23 from plot - ARB
 qe.global_scale = 1.0
 qe.pixel_area = 0.002315**2
 qe.flux_cal_folder = "/data/asi294"
-qe.plot_limits = [[300.0, 850.0], [0.0, 100.0]]
+qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]
 qe.plot_title = "ZWO ASI294 Quantum Efficiency"
 qe.qeroi = []
 qe.overscan_correct = 0
@@ -821,6 +714,10 @@ qe.exposure_levels = {
     700: el,
     750: el,
     800: el,
+    850: el,
+    900: el,
+    950: el,
+    1000: el,
 }
 if 1:
     qe.window_trans = {
@@ -842,29 +739,34 @@ else:
         800: 0.90,
         850: 0.85,
         950: 0.78,
-        1050: 0.75,
+        1000: 0.75,
     }
 
 # prnu
-prnu.allowable_deviation_from_mean = 0.1
 prnu.root_name = "prnu."
 prnu.use_edge_mask = 0
 prnu.overscan_correct = 0
-prnu.wavelengths = [
-    350,
-    400,
-    450,
-    500,
-    550,
-    600,
-    650,
-    700,
-    750,
-    800,
-]
-prnu.exposures = et
+prnu.zero_correct = 1
+el = 5000.0
+prnu.exposure_levels = {
+    350: el,
+    400: el,
+    450: el,
+    500: el,
+    550: el,
+    600: el,
+    650: el,
+    700: el,
+    750: el,
+    800: el,
+    850: el,
+    900: el,
+    950: el,
+    1000: el,
+}
+prnu.mean_count_goal = 5000.0
 
 # defects
 defects.use_edge_mask = 0
-defects.bright_pixel_reject = 0.5  # e/pix/sec
+defects.bright_pixel_reject = 1  # e/pix/sec
 defects.dark_pixel_reject = 0.80  # below mean
