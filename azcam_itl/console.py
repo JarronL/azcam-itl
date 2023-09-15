@@ -95,8 +95,8 @@ azcam.log(f"Configuring console for {azcam.db.systemname}")
 
 # display
 display = Ds9Display()
-dthread = threading.Thread(target=display.initialize, args=[])
-dthread.start()  # thread just for speed
+# dthread = threading.Thread(target=display.initialize, args=[])
+# dthread.start()  # thread just for speed
 
 # console tools
 from azcam_console.tools import create_console_tools
