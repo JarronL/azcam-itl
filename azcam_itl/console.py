@@ -55,7 +55,8 @@ except ValueError:
 menu_options = {
     "DESI": "DESI",
     # "LVM": "LVM",
-    # "ZWO ASI2600MM CMOS camera": "ASI2600MM",
+    "ZWO ASI6200MM CMOS camera": "ASI6200MM",
+    "ZWO ASI294 CMOS camera": "ASI294",
     "QHY174 CMOS camera": "QHY174",
     # "OSU4k": "OSU4k",
     # "ITL4k": "ITL4k",
@@ -160,11 +161,11 @@ elif azcam.db.systemname == "ASI294":
     if azcam.db.wd is None:
         azcam.db.wd = "/data/ZWO/ASI294"
 
-elif azcam.db.systemname == "ASI2600MM":
-    from azcam_itl.detchars.detchar_ASI2600MM import detchar
+elif azcam.db.systemname == "ASI6200MM":
+    from azcam_itl.detchars.detchar_ASI6200MM import detchar
 
     if azcam.db.wd is None:
-        azcam.db.wd = "/data/ASI2600MM"
+        azcam.db.wd = "/data/ASI6200MM"
 
 elif azcam.db.systemname == "OSU4k":
     from azcam_itl.detchars.detchar_OSU4k import detchar

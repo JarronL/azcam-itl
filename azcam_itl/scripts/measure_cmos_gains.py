@@ -41,7 +41,8 @@ class MeasureCmosGains(object):
         plt.xticks(rotation=45, ha="right")
         plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
 
-        # plt.ylim(1e-7, 1e-5)
+        plt.ylim(0, 2)
+        plt.xlim(0, 200)
 
         self.ax.plot([], [])
 
@@ -54,7 +55,7 @@ class MeasureCmosGains(object):
 
         return
 
-    def measure(self, gain_settings: list = [1, 10, 100]):
+    def measure(self, gain_settings: list):
         """
         Measure and record system gain.
         """
@@ -68,10 +69,12 @@ class MeasureCmosGains(object):
         for gain_setting in gain_settings:
             # set gain here
             azcam.log(f"Settin camera gain to {gain_setting}")
+            azcam.db.tools["parameters"].set_par("cmos_gain", gain_setting)
 
             # measure gain
             try:
-                gains = azcam.db.tools["gain"].find()
+                azcam.db.tools["gain"].find()
+                gains = azcam.db.tools["gain"].system_gain
             except Exception as e:
                 print(e)
                 return
@@ -79,7 +82,7 @@ class MeasureCmosGains(object):
             azcam.log(f"Measure gain [e/DN]: {gains}")
             self.gains[gain_setting] = gains
 
-            s = f"{gain_setting}\t\t{[f'{g:1.1e}' for g in gains]}"
+            s = f"{gain_setting}\t\t{[float(f'{g:1.2f}') for g in gains]}"
 
             if not self.datafile.closed:
                 self.datafile.write(s + "\n")
@@ -87,25 +90,29 @@ class MeasureCmosGains(object):
                 self.datafile = open(self.datafilename, "a+")
                 self.datafile.write(s + "\n")
 
-            self.x_plot.append(gains)
-            self.y_plot.append(gain_setting)
+            self.y_plot.append(gains)
+            self.x_plot.append(gain_setting)
 
             # self.ax.cla()
             self.ax.plot(self.x_plot, self.y_plot, "b.")
 
-            azcam.plot.update()
+            azcam_console.plot.update()
 
         self.datafile.close()
+
+        azcam_console.plot.plt.show()
+        fignum = self.fig.number
+        azcam_console.plot.save_figure(fignum, "camera_gains.png")
 
         return
 
 
-def measure_cmos_gains():
+def measure_cmos_gains(gain_settings: list = [1, 100]):
     """
     Measure CMOS gains.
     """
 
     measurecmosgains = MeasureCmosGains()
-    measurecmosgains.measure()
+    measurecmosgains.measure(gain_settings)
 
-    return
+    return measurecmosgains

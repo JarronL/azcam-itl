@@ -16,7 +16,7 @@ from azcam_console.tools.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
-class ASI294DetChar(DetChar):
+class ASI6200MMDetChar(DetChar):
     def __init__(self):
         super().__init__()
 
@@ -67,7 +67,7 @@ class ASI294DetChar(DetChar):
         print("")
 
         if not self.is_setup:
-            self.setup()
+            self.setup(itlsn)
 
         (
             gain,
@@ -188,7 +188,7 @@ class ASI294DetChar(DetChar):
         Analyze data.
         """
 
-        print("Begin analysis of ASI294 dataset")
+        print("Begin analysis of ASI6200MM dataset")
         rootfolder = azcam.utils.curdir()
 
         (
@@ -311,7 +311,7 @@ class ASI294DetChar(DetChar):
 
         folder = azcam.utils.curdir()
         self.report_folder = folder
-        report_name = f"ASI294_report_{self.itl_sn}.pdf"
+        report_name = f"ASI6200MM_report_{self.itl_sn}.pdf"
 
         print("")
         print("Generating %s Report" % self.itl_sn)
@@ -357,7 +357,7 @@ class ASI294DetChar(DetChar):
         lines.append("|:---|:---|")
         lines.append("|**Identification**||")
         lines.append(f"|Customer       |UArizona|")
-        lines.append(f"|System         |ZWO ASI294|")
+        lines.append(f"|System         |ZWO ASI6200MM|")
         lines.append(f"|System         |{self.itl_sn}|")
         lines.append(f"|Report Date    |{self.report_date}|")
         lines.append(f"|Author         |{self.filename2}|")
@@ -434,7 +434,7 @@ class ASI294DetChar(DetChar):
         azcam.utils.curdir(folder)
         matches = []
         for root, dirnames, filenames in os.walk(folder):
-            for filename in fnmatch.filter(filenames, "ASI294_Report_*.pdf"):
+            for filename in fnmatch.filter(filenames, "ASI6200MM_Report_*.pdf"):
                 matches.append(os.path.join(root, filename))
 
         for t in matches:
@@ -456,10 +456,10 @@ class ASI294DetChar(DetChar):
 
         # sponsor/report info
         self.customer = "UArizona"
-        self.system = "ASI294"
-        qe.plot_title = "ASI294 Quantum Efficiency"
+        self.system = "ASI6200MM"
+        qe.plot_title = "ASI6200MM Quantum Efficiency"
         self.summary_report_file = f"SummaryReport_{self.itl_sn}"
-        self.report_file = f"ASI294{self.itl_sn}.pdf"
+        self.report_file = f"ASI6200MM{self.itl_sn}.pdf"
 
         if operator.lower() == "mpl":
             self.filename2 = "Michael Lesser"
@@ -529,7 +529,7 @@ class ASI294DetChar(DetChar):
 
 
 # create instance
-detchar = ASI294DetChar()
+detchar = ASI6200MMDetChar()
 
 (
     exposure,
@@ -582,25 +582,27 @@ detcal.wavelengths = [
     950,
     1000,
 ]
-# values below for binned values 4x4, 10,000
-bin = 16
+# values below for unbinned values, 5000 DN, gain=1, 0.8 e/DN
+reg_gain = 0.8  # reference gain used for dict below
+new_gain = 0.8  # for other settings
+scale = reg_gain / new_gain
 detcal.exposure_times = {
-    350: 30.0 * bin,
-    400: 4.0 * bin,
-    450: 2.0 * bin,
-    500: 2.5 * bin,
-    550: 5.0 * bin,
-    600: 8.0 * bin,
-    650: 10.0 * bin,
-    700: 15.0 * bin,
-    750: 30.0 * bin,
-    800: 45.0 * bin,
-    850: 45.0 * bin,
-    900: 35.0 * bin,
-    950: 110.0 * bin,
-    1000: 175.0 * bin,
+    350: 208.0 * scale,
+    400: 14.0 * scale,
+    450: 8.0 * scale,
+    500: 8.7 * scale,
+    550: 12.2 * scale,
+    600: 12.6 * scale,
+    650: 23.2 * scale,
+    700: 40.0 * scale,
+    750: 72.3 * scale,
+    800: 157.0 * scale,
+    850: 103.0 * scale,
+    900: 122.0 * scale,
+    950: 243.0 * scale,
+    1000: 453.0 * scale,
 }
-detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi294.txt")
+detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi6200mm.txt")
 detcal.mean_count_goal = 5000
 detcal.range_factor = 1.2
 
@@ -631,6 +633,8 @@ dark.report_dark_per_hour = 1  # report per hour
 superflat.exposure_levels = [30000]  # electrons
 superflat.wavelength = 500
 superflat.number_images_acquire = [3]
+superflat.zero_correct = 0
+superflat.overscan_correct = 0
 
 # ptc
 ptc.wavelength = 500
@@ -689,10 +693,10 @@ linearity.use_weights = 0
 qe.cal_scale = 0.989  # 30Aug23 measured physically ARB
 # qe.cal_scale = 0.802  # 29aug23 from plot - ARB
 qe.global_scale = 1.0
-qe.pixel_area = 0.002315**2
-qe.flux_cal_folder = "/data/asi294"
+qe.pixel_area = 0.00376**2
+qe.flux_cal_folder = "/data/ASI6200MM"
 qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]
-qe.plot_title = "ZWO ASI294 Quantum Efficiency"
+qe.plot_title = "ZWO ASI6200MM Quantum Efficiency"
 qe.qeroi = []
 qe.overscan_correct = 0
 qe.zero_correct = 1

@@ -65,7 +65,7 @@ menu_options = {
     "DESI": "DESI",
     "QHY174 CMOS camera": "QHY174",
     # "LVM": "LVM",
-    "ZWO ASI2600MM CMOS camera": "ASI2600MM",
+    "ZWO ASI6200MM CMOS camera": "ASI6200MM",
     "ZWO ASI294MM CMOS camera": "ASI294MM",
     # "OSU4k": "OSU4k",
     # "ITL6k": "ITL6k",
