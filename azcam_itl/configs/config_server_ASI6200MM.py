@@ -57,7 +57,7 @@ instrument = InstrumentQB()
 # temperature controller
 # ****************************************************************
 tempcon = TempConASCOM()
-tempcon.control_temperature = -20
+tempcon.control_temperature = +10
 tempcon.initialize()
 
 # ****************************************************************

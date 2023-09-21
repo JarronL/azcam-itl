@@ -171,9 +171,12 @@ class ASI6200MMDetChar(DetChar):
             # QE
             qe.acquire()
 
-            # Dark signal
-            exposure.test(0)
-            dark.acquire()
+            if 1:
+                # Dark signal
+                exposure.test(0)
+                dark.acquire()
+            else:
+                print("Close shutter and run dark.acquire()")
 
         finally:
             azcam.db.parameters.restore_imagepars(impars)
@@ -344,7 +347,9 @@ class ASI6200MMDetChar(DetChar):
         """
 
         if len(self.report_comment) == 0:
-            self.report_comment = azcam.utils.prompt("Enter report comment")
+            self.report_comment = azcam.utils.prompt(
+                "Enter report comment", "Oracle Search Sensor-1"
+            )
 
         # get current date
         self.report_date = datetime.datetime.now().strftime("%b-%d-%Y")
@@ -357,8 +362,8 @@ class ASI6200MMDetChar(DetChar):
         lines.append("|:---|:---|")
         lines.append("|**Identification**||")
         lines.append(f"|Customer       |UArizona|")
-        lines.append(f"|System         |ZWO ASI6200MM|")
-        lines.append(f"|System         |{self.itl_sn}|")
+        lines.append(f"|System         |Sony IMX455|")
+        lines.append(f"|Camera SN      |{self.itl_sn}|")
         lines.append(f"|Report Date    |{self.report_date}|")
         lines.append(f"|Author         |{self.filename2}|")
         lines.append(f"|**Results**||")
@@ -559,11 +564,11 @@ detchar = ASI6200MMDetChar()
     ]
 )
 
-detchar.start_temperature = -15.0
+detchar.start_temperature = +10.0
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
-azcam_console.utils.set_image_roi([[500, 600, 500, 600], [500, 600, 500, 600]])
+azcam_console.utils.set_image_roi([[4000, 4100, 3000, 3100], [4000, 4100, 3000, 3100]])
 
 # detcal
 detcal.wavelengths = [
@@ -583,9 +588,9 @@ detcal.wavelengths = [
     1000,
 ]
 # values below for unbinned values, 5000 DN, gain=1, 0.8 e/DN
-reg_gain = 0.8  # reference gain used for dict below
+ref_gain = 0.8  # reference gain used for dict below
 new_gain = 0.8  # for other settings
-scale = reg_gain / new_gain
+scale = ref_gain / new_gain
 detcal.exposure_times = {
     350: 208.0 * scale,
     400: 14.0 * scale,
@@ -604,7 +609,7 @@ detcal.exposure_times = {
 }
 detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi6200mm.txt")
 detcal.mean_count_goal = 5000
-detcal.range_factor = 1.2
+detcal.range_factor = 1.3
 
 # bias
 bias.number_images_acquire = 3
@@ -612,13 +617,13 @@ bias.number_flushes = 2
 
 # gain
 gain.number_pairs = 1
-gain.exposure_time = 1.0
+gain.exposure_time = 5.0
 gain.wavelength = 500
 gain.video_processor_gain = []
 
 # dark
 dark.number_images_acquire = 3
-dark.exposure_time = 60.0
+dark.exposure_time = 600.0
 dark.dark_fraction = -1  # no spec on individual pixels
 # dark.mean_dark_spec = 3.0 / 600.0  # blue e/pixel/sec
 # dark.mean_dark_spec = 6.0 / 600.0  # red
@@ -630,7 +635,7 @@ dark.fit_order = 0
 dark.report_dark_per_hour = 1  # report per hour
 
 # superflats
-superflat.exposure_levels = [30000]  # electrons
+superflat.exposure_levels = [20000]  # electrons
 superflat.wavelength = 500
 superflat.number_images_acquire = [3]
 superflat.zero_correct = 0
@@ -638,11 +643,14 @@ superflat.overscan_correct = 0
 
 # ptc
 ptc.wavelength = 500
-# ptc.gain_range = [0.75, 1.5]
+ptc.gain_range = [0.4, 1.2]
 ptc.overscan_correct = 0
+ptc.zero_correct = 1
 ptc.fit_line = True
-ptc.fit_min = 1000
-ptc.fit_max = 63000
+ptc.fullwell_estimate = 63000  # counts
+ptc.fit_min = ptc.fullwell_estimate * 0.10
+ptc.fit_max = ptc.fullwell_estimate * 0.90
+
 ptc.exposure_times = []
 # ptc.max_exposures = 40
 # ptc.number_images_acquire = 40
