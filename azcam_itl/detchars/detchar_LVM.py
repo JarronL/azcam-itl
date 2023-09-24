@@ -693,10 +693,10 @@ azcam.db.tools["ptc"].overscan_correct = 1
 azcam.db.tools["ptc"].exposure_levels = []
 # linearity
 azcam.db.tools["linearity"].use_ptc_data = 1
-azcam.db.tools["linearity"].linearity_fit_min = 1000.0  # fit (e-) for linearity fit
-azcam.db.tools["linearity"].linearity_fit_max = 60000.0  # DN
+azcam.db.tools["linearity"].fit_min = 1000.0  # fit (e-) for linearity fit
+azcam.db.tools["linearity"].fit_max = 60000.0  # DN
 azcam.db.tools["linearity"].fit_all_data = 0
-azcam.db.tools["linearity"].max_residual_linearity = 0.02  # max residual spec
+azcam.db.tools["linearity"].max_allowed_linearity = 0.02  # max residual spec
 azcam.db.tools["linearity"].plot_specifications = 1
 azcam.db.tools["linearity"].plot_limits = [-3, 3]
 azcam.db.tools["linearity"].overscan_correct = 0  # normally 1, but ptc already analyzed

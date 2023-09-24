@@ -440,7 +440,6 @@ azcam.db.tools["detcal"].data_file = f"{azcam.db.datafolder}/detcal_desi.txt"
 
 # bias
 azcam.db.tools["bias"].number_images_acquire = 3
-azcam.db.tools["bias"].number_flushes = 2
 azcam.db.tools["bias"].grade_sensor = 0
 
 # gain
@@ -496,9 +495,9 @@ azcam.db.tools["ptc"].grade_sensor = 0
 # linearity
 azcam.db.tools["linearity"].wavelength = 600
 azcam.db.tools["linearity"].use_ptc_data = 1
-azcam.db.tools["linearity"].linearity_fit_min = 1000.0  # 200?
-azcam.db.tools["linearity"].linearity_fit_max = 55000.0
-azcam.db.tools["linearity"].max_residual_linearity = 0.01  # max residual for linearity
+azcam.db.tools["linearity"].fit_min = 1000.0  # 200?
+azcam.db.tools["linearity"].fit_max = 55000.0
+azcam.db.tools["linearity"].max_allowed_linearity = 0.01  # max residual for linearity
 azcam.db.tools["linearity"].plot_specifications = 1
 azcam.db.tools["linearity"].plot_limits = [-3.0, +4.0]
 azcam.db.tools["linearity"].overscan_correct = 1

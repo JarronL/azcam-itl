@@ -606,7 +606,6 @@ detcal.range_factor = 1.2
 
 # bias
 bias.number_images_acquire = 3
-bias.number_flushes = 2
 
 # gain
 gain.number_pairs = 1
@@ -676,9 +675,10 @@ ptc.exposure_levels = [
 # linearity
 linearity.wavelength = 500
 linearity.use_ptc_data = 1
-# linearity.linearity_fit_min = 1000.0
-# linearity.linearity_fit_max = 10000.0
-linearity.max_residual_linearity = -1
+linearity.fit_min = 1000.0
+linearity.fit_max = 10000.0
+linearity.fit_all_data = 0
+linearity.max_allowed_linearity = -1
 linearity.plot_specifications = 1
 linearity.plot_limits = [-3.0, +3.0]
 linearity.overscan_correct = 0

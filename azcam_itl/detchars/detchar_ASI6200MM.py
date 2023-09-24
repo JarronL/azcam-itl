@@ -60,7 +60,7 @@ class ASI6200MMDetChar(DetChar):
 
     def acquire(self, itlsn="unknown"):
         """
-        Acquire detector characterization data.
+        Acquire sensor characterization data.
         """
 
         print("Starting acquisition sequence")
@@ -141,7 +141,7 @@ class ASI6200MMDetChar(DetChar):
 
         try:
             # reset camera
-            print("Reset and Flush detector")
+            print("Reset and Flush sensor")
             exposure.reset()
             exposure.roi_reset()
             exposure.test(0)  # flush
@@ -305,7 +305,7 @@ class ASI6200MMDetChar(DetChar):
 
     def report(self):
         """
-        Make detector characterization report.
+        Make sensor characterization report.
         Run setup() first.
         """
 
@@ -356,7 +356,7 @@ class ASI6200MMDetChar(DetChar):
 
         lines = []
 
-        lines.append("# ITL Detector Characterization Report")
+        lines.append("# ITL Sensor Characterization Report")
         lines.append("")
         lines.append("|||")
         lines.append("|:---|:---|")
@@ -612,8 +612,8 @@ detcal.mean_count_goal = 5000
 detcal.range_factor = 1.3
 
 # bias
-bias.number_images_acquire = 3
-bias.number_flushes = 2
+bias.number_images_acquire = 10
+bias.overscan_correct = 0
 
 # gain
 gain.number_pairs = 1
@@ -628,7 +628,7 @@ dark.dark_fraction = -1  # no spec on individual pixels
 # dark.mean_dark_spec = 3.0 / 600.0  # blue e/pixel/sec
 # dark.mean_dark_spec = 6.0 / 600.0  # red
 dark.use_edge_mask = 0
-# dark.bright_pixel_reject = 0.05  # e/pix/sec clip
+dark.bright_pixel_reject = 20.0 / 3600 * 10  # clip, 10x mean dark current [e/pix/sec]
 dark.overscan_correct = 0  # flag to overscan correct images
 dark.zero_correct = 1  # flag to correct with bias residuals
 dark.fit_order = 0
@@ -647,7 +647,7 @@ ptc.gain_range = [0.4, 1.2]
 ptc.overscan_correct = 0
 ptc.zero_correct = 1
 ptc.fit_line = True
-ptc.fullwell_estimate = 63000  # counts
+ptc.fullwell_estimate = 54000 / 0.8  # counts
 ptc.fit_min = ptc.fullwell_estimate * 0.10
 ptc.fit_max = ptc.fullwell_estimate * 0.90
 
@@ -688,14 +688,17 @@ ptc.exposure_levels = [
 # linearity
 linearity.wavelength = 500
 linearity.use_ptc_data = 1
-# linearity.linearity_fit_min = 1000.0
-# linearity.linearity_fit_max = 10000.0
-linearity.max_residual_linearity = -1
+linearity.fullwell_estimate = 54000 / 0.8  # counts
+linearity.fit_all_data = 0
+linearity.fit_min = 0.05
+linearity.fit_max = 0.90  # .95 too close to ADC limit
+
+linearity.max_allowed_linearity = -1
 linearity.plot_specifications = 1
-linearity.plot_limits = [-3.0, +3.0]
+linearity.plot_limits = [-4.0, +4.0]
 linearity.overscan_correct = 0
 linearity.zero_correct = 1
-linearity.use_weights = 0
+linearity.use_weights = 1
 
 # QE
 qe.cal_scale = 0.989  # 30Aug23 measured physically ARB
@@ -779,5 +782,5 @@ prnu.mean_count_goal = 5000.0
 
 # defects
 defects.use_edge_mask = 0
-defects.bright_pixel_reject = 1  # e/pix/sec
+defects.bright_pixel_reject = 20.0 / 3600 * 10  # 10x mean dark current [e/pix/sec]
 defects.dark_pixel_reject = 0.80  # below mean
