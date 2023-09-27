@@ -15,32 +15,22 @@ from azcam_itl.instruments.instrument_qb import InstrumentQB
 # ****************************************************************
 controller = ControllerASCOM()
 controller.driver = "ASCOM.ASICamera2.Camera"
+
 # init now due to threading issue
 try:
     controller.nx = 6248
     controller.ny = 4176
     controller.initialize()
-    controller.camera.Gain = 1
+    controller.camera.Gain = 100
     controller.camera.Offset = 10
 except Exception as e:
     print(e)
     print("could not initialize camera")
-    # print("Gain:", controller.camera.Gain)
-    # print("Offset:", controller.camera.Offset)
-    # controller.nx = 6248
-    # controller.ny = 4176
-    # controller.camera.Gain = 120
-    # controller.camera.Offset = 10
 
-"""
-ZWO ASI6200MM data
-self.camera.Offset = 10
-self.camera.Gain = 120  # 0.20 e/DN, 1.4 e noise
-self.camera.Gain = 100  # 0.25 e/DN, 1.6 e noise
-self.camera.Gain = 80   # 0.32 e/DN, 3.6 e noise
-self.camera.Gain = 60   # 0.40 e/DN, 3.5 e noise
-self.camera.Gain = 20   # 0.60 e/DN, 3.5 e noise
-"""
+# gain 1, offset 10 (100DN) was used for unbinned, 0.8 e/DN
+# gain 1, offset 10 (100DN) was used for 2x2, 3.2 e/DN
+# gain 10, offset 10 (100DN) was used for 2x2, 2.7 e/DN
+# gain 100, offset 10 (100DN) was used for 2x2, 1.0 e/DN
 
 # ****************************************************************
 # add remote commands to server
@@ -57,7 +47,7 @@ instrument = InstrumentQB()
 # temperature controller
 # ****************************************************************
 tempcon = TempConASCOM()
-tempcon.control_temperature = +10
+tempcon.control_temperature = -10.0
 tempcon.initialize()
 
 # ****************************************************************

@@ -21,16 +21,16 @@ class ASI6200MMDetChar(DetChar):
         super().__init__()
 
         self.imsnap_scale = 1.0
-        self.start_temperature = 25.0
+        self.start_temperature = -10.0
 
-        self.filename2 = ""
+        self.operator = "Lesser"
         self.itl_sn = -1
 
         self.system = ""
         self.customer = ""
 
         self.report_date = ""
-
+        self.report_id = ""
         self.report_comment = ""
 
         self.start_delay = 5
@@ -171,7 +171,7 @@ class ASI6200MMDetChar(DetChar):
             # QE
             qe.acquire()
 
-            if 1:
+            if 0:
                 # Dark signal
                 exposure.test(0)
                 dark.acquire()
@@ -186,12 +186,11 @@ class ASI6200MMDetChar(DetChar):
 
         return
 
-    def analyze(self, itlsn="unknown"):
+    def analyze(self, report_id="unknown"):
         """
         Analyze data.
         """
 
-        print("Begin analysis of ASI6200MM dataset")
         rootfolder = azcam.utils.curdir()
 
         (
@@ -204,6 +203,7 @@ class ASI6200MMDetChar(DetChar):
             qe,
             dark,
             defects,
+            linearity,
         ) = azcam_console.utils.get_tools(
             [
                 "exposure",
@@ -215,11 +215,12 @@ class ASI6200MMDetChar(DetChar):
                 "qe",
                 "dark",
                 "defects",
+                "linearity",
             ]
         )
 
         if not self.is_setup:
-            self.setup(itlsn)
+            self.setup(report_id)
 
         # analyze bias
         azcam.utils.curdir("bias")
@@ -235,12 +236,7 @@ class ASI6200MMDetChar(DetChar):
 
         # analyze superflats
         azcam.utils.curdir("superflat1")
-        try:
-            superflat.analyze()
-        except Exception:
-            azcam.utils.curdir(rootfolder)
-            azcam.utils.curdir("superflat1")
-            superflat.analyze()
+        superflat.analyze()
         azcam.utils.curdir(rootfolder)
         print("")
 
@@ -252,12 +248,7 @@ class ASI6200MMDetChar(DetChar):
 
         # analyze linearity from PTC data
         azcam.utils.curdir("ptc")
-        try:
-            azcam.db.tools["linearity"].analyze()
-        except Exception:
-            azcam.utils.curdir(rootfolder)
-            azcam.utils.curdir("ptc")
-            azcam.db.tools["linearity"].analyze()
+        linearity.analyze()
         azcam.utils.curdir(rootfolder)
         print("")
 
@@ -268,16 +259,16 @@ class ASI6200MMDetChar(DetChar):
         print("")
 
         # analyze defects
-        azcam.db.tools["defects"].dark_filename = dark.dark_filename
+        defects.dark_filename = dark.dark_filename
         azcam.utils.curdir("dark")
-        azcam.db.tools["defects"].analyze_bright_defects()
-        azcam.db.tools["defects"].copy_data_files()
+        defects.analyze_bright_defects()
+        defects.copy_data_files()
         azcam.utils.curdir(rootfolder)
 
-        azcam.db.tools["defects"].flat_filename = superflat.superflat_filename
+        defects.flat_filename = superflat.superflat_filename
         azcam.utils.curdir("superflat1")
-        azcam.db.tools["defects"].analyze_dark_defects()
-        azcam.db.tools["defects"].copy_data_files()
+        defects.analyze_dark_defects()
+        defects.copy_data_files()
         azcam.utils.curdir(rootfolder)
 
         azcam.utils.curdir("defects")
@@ -314,10 +305,10 @@ class ASI6200MMDetChar(DetChar):
 
         folder = azcam.utils.curdir()
         self.report_folder = folder
-        report_name = f"ASI6200MM_report_{self.itl_sn}.pdf"
+        report_name = f"ASI6200MM_report_{self.report_id}.pdf"
 
         print("")
-        print("Generating %s Report" % self.itl_sn)
+        print(f"Generating report for {self.report_id}")
         print("")
 
         # *********************************************
@@ -345,12 +336,6 @@ class ASI6200MMDetChar(DetChar):
         """
         Create a ID and summary report.
         """
-
-        if len(self.report_comment) == 0:
-            self.report_comment = azcam.utils.prompt(
-                "Enter report comment", "Oracle Search Sensor-1"
-            )
-
         # get current date
         self.report_date = datetime.datetime.now().strftime("%b-%d-%Y")
 
@@ -362,12 +347,12 @@ class ASI6200MMDetChar(DetChar):
         lines.append("|:---|:---|")
         lines.append("|**Identification**||")
         lines.append(f"|Customer       |UArizona|")
+        lines.append(f"|Project        |Oracle Search Sensor-1|")
         lines.append(f"|System         |Sony IMX455|")
         lines.append(f"|Camera SN      |{self.itl_sn}|")
+        lines.append(f"|Report ID      |{self.report_id}|")
         lines.append(f"|Report Date    |{self.report_date}|")
-        lines.append(f"|Author         |{self.filename2}|")
-        lines.append(f"|**Results**||")
-        lines.append(f"|Comment        |{self.report_comment}|")
+        lines.append(f"|Author         |{self.operator}|")
         lines.append("")
 
         # add superflat image
@@ -453,26 +438,16 @@ class ASI6200MMDetChar(DetChar):
 
         return
 
-    def setup(self, itlsn="unknown"):
-        itlsn = azcam.utils.prompt("Enter cameras ID", itlsn)
-        self.itl_sn = itlsn
-
-        operator = azcam.utils.prompt("Enter you initals", "mpl")
+    def setup(self, report_id=None):
+        self.report_id = azcam.utils.prompt("Enter report ID", report_id)
 
         # sponsor/report info
         self.customer = "UArizona"
         self.system = "ASI6200MM"
+        self.itl_sn = "361d940d2d010900"
         qe.plot_title = "ASI6200MM Quantum Efficiency"
-        self.summary_report_file = f"SummaryReport_{self.itl_sn}"
-        self.report_file = f"ASI6200MM{self.itl_sn}.pdf"
-
-        if operator.lower() == "mpl":
-            self.filename2 = "Michael Lesser"
-        else:
-            print("")
-            print("Intruder!  Unknown user.")
-            self.filename2 = "UNKNOWN"
-        print("")
+        self.summary_report_file = f"SummaryReport_{self.report_id}"
+        self.report_file = f"ASI6200MM{self.report_id}.pdf"
 
         self.is_setup = 1
 
@@ -587,14 +562,14 @@ detcal.wavelengths = [
     950,
     1000,
 ]
-# values below for unbinned values, 5000 DN, gain=1, 0.8 e/DN
+# values below estimates for unbinned values, 5000 DN, gain=1, 0.8 e/DN
 ref_gain = 0.8  # reference gain used for dict below
-new_gain = 0.8  # for other settings
+new_gain = 1.0  # for other settings
 scale = ref_gain / new_gain
 detcal.exposure_times = {
-    350: 208.0 * scale,
+    350: 220.0 * scale,
     400: 14.0 * scale,
-    450: 8.0 * scale,
+    450: 10.0 * scale,
     500: 8.7 * scale,
     550: 12.2 * scale,
     600: 12.6 * scale,
@@ -701,8 +676,7 @@ linearity.zero_correct = 1
 linearity.use_weights = 1
 
 # QE
-qe.cal_scale = 0.989  # 30Aug23 measured physically ARB
-# qe.cal_scale = 0.802  # 29aug23 from plot - ARB
+qe.cal_scale = 0.985  # 27sep23 measured physically ARB
 qe.global_scale = 1.0
 qe.pixel_area = 0.00376**2
 qe.flux_cal_folder = "/data/ASI6200MM"
