@@ -1,3 +1,4 @@
+import sys
 from statistics import mean
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
@@ -8,20 +9,23 @@ import azcam_console.plot
 
 class MeasureCmosGains(object):
     """
-    Get instrument pressures and plot.
+    Get camera gain and noise as a function of camera gain setting.
     """
 
     def __init__(self) -> None:
         self.gains = {}
+        self.noises = {}
 
-        self.ax = None
+        self.ax1 = None
+        self.ax2 = None
         self.lines = None
         self.delay = 0.0
 
         self.x_plot = []
         self.y_plot = []
 
-        self.datafilename = "camera_gains.txt"
+        self.datafilename_gain = "camera_gains.txt"
+        self.datafilename_noise = "camera_noise.txt"
 
         plt.ion()
 
@@ -30,25 +34,31 @@ class MeasureCmosGains(object):
         Setup plot and data output header.
         """
 
-        self.fig, self.ax = azcam_console.plot.plt.subplots()
-        self.fig.subplots_adjust(left=0.18, bottom=0.20, right=0.95, top=0.9)
-        self.ax.grid(1)
-        self.ax.xaxis.set_major_locator(MaxNLocator(20))
+        self.fig, (self.ax1, self.ax2) = plt.subplots(2, 1, sharex=True)
+        # self.fig.suptitle("Camera Gain and Noise")
+        self.fig.subplots_adjust(left=0.18, bottom=0.15, right=0.95, top=0.9)
 
-        plt.title("Measured System Gain")
-        plt.ylabel("Gain [e/DN]")
-        plt.xlabel("Camera Gain Setting")
-        plt.xticks(rotation=45, ha="right")
-        plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+        self.ax1.grid(1)
+        self.ax1.set_title("Measured System Gain")
+        self.ax1.set_ylabel("Gain [e/DN]")
+        # self.ax1.ticklabel_format(axis="y", style="plain", scilimits=(0, 0))
+        # self.ax1.plot([], [])
 
-        plt.ylim(0, 2)
-        plt.xlim(0, 200)
-
-        self.ax.plot([], [])
+        self.ax2.grid(1)
+        self.ax2.xaxis.set_major_locator(MaxNLocator(20))
+        # self.ax2.set_title("Measured System Nosie")
+        self.ax2.set_ylabel("Noise [e]")
+        self.ax2.set_xlabel("Camera Gain Setting")
+        # self.ax2.ticklabel_format(axis="y", style="plain", scilimits=(0, 0))
+        # self.ax2.plot([], [])
 
         data_txt_hdr = "Gain_Setting\tSystem_Gain"
-        self.datafile = open(self.datafilename, "a+")
-        self.datafile.write("# " + data_txt_hdr + "\n")
+        self.datafile_gain = open(self.datafilename_gain, "a+")
+        self.datafile_gain.write("# " + data_txt_hdr + "\n")
+
+        data_txt_hdr = "Gain_Setting\tSystem_Noise"
+        self.datafile_noise = open(self.datafilename_noise, "a+")
+        self.datafile_noise.write("# " + data_txt_hdr + "\n")
 
         azcam_console.plot.move_window(1, 100, 100)
         azcam_console.plot.update()
@@ -64,7 +74,17 @@ class MeasureCmosGains(object):
 
         self.gains = {}
         self.x_plot = []
-        self.y_plot = []
+        self.y1_plot = []
+        self.y2_plot = []
+
+        plt.sca(self.ax1)
+        plt.ylim(0, 3)
+        plt.xticks(rotation=45, ha="right")
+
+        plt.sca(self.ax2)
+        plt.ylim(0, 4)
+        plt.xlim(0, max(gain_settings))
+        plt.xticks(rotation=45, ha="right")
 
         for gain_setting in gain_settings:
             # set gain here
@@ -75,34 +95,46 @@ class MeasureCmosGains(object):
             try:
                 azcam.db.tools["gain"].find()
                 gains = azcam.db.tools["gain"].system_gain
+                noises = azcam.db.tools["gain"].noise
             except Exception as e:
                 print(e)
                 return
 
-            azcam.log(f"Measure gain [e/DN]: {gains}")
+            azcam.log(f"Measured gain [e/DN] and noises [e]: {gains}:{noises}")
             self.gains[gain_setting] = gains
+            self.noises[gain_setting] = noises
 
+            # data files
             s = f"{gain_setting}\t\t{[float(f'{g:1.2f}') for g in gains]}"
-
-            if not self.datafile.closed:
-                self.datafile.write(s + "\n")
+            if not self.datafile_gain.closed:
+                self.datafile_gain.write(s + "\n")
             else:
-                self.datafile = open(self.datafilename, "a+")
-                self.datafile.write(s + "\n")
+                self.datafile_gain = open(self.datafilename_gain, "a+")
+                self.datafile_gain.write(s + "\n")
 
-            self.y_plot.append(gains)
+            s = f"{gain_setting}\t\t{[float(f'{n:1.1f}') for n in noises]}"
+            if not self.datafile_noise.closed:
+                self.datafile_noise.write(s + "\n")
+            else:
+                self.datafile_noise = open(self.datafilename_noise, "a+")
+                self.datafile_noise.write(s + "\n")
+
+            self.y1_plot.append(gains)
+            self.y2_plot.append(noises)
             self.x_plot.append(gain_setting)
 
             # self.ax.cla()
-            self.ax.plot(self.x_plot, self.y_plot, "b.")
+            self.ax1.plot(self.x_plot, self.y1_plot, "b.")
+            self.ax2.plot(self.x_plot, self.y2_plot, "r.")
 
             azcam_console.plot.update()
 
-        self.datafile.close()
+        self.datafile_gain.close()
+        self.datafile_noise.close()
 
         azcam_console.plot.plt.show()
         fignum = self.fig.number
-        azcam_console.plot.save_figure(fignum, "camera_gains.png")
+        azcam_console.plot.save_figure(fignum, "camera_gain_noise.png")
 
         return
 
@@ -113,6 +145,15 @@ def measure_cmos_gains(gain_settings: list = [1, 100]):
     """
 
     measurecmosgains = MeasureCmosGains()
+
+    # measurecmosgains.setup()
+
     measurecmosgains.measure(gain_settings)
 
     return measurecmosgains
+
+
+# start
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    measure_cmos_gains(*args)
