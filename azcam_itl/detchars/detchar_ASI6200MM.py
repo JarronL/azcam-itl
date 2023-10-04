@@ -40,6 +40,7 @@ class ASI6200MMDetChar(DetChar):
         self.report_file = ""
         self.summary_report_file = ""
         self.report_names = [
+            "bias",
             "gain",
             "prnu",
             "ptc",
@@ -49,6 +50,7 @@ class ASI6200MMDetChar(DetChar):
             "defects",
         ]
         self.report_files = {
+            "bias": "bias/bias",
             "gain": "gain/gain",
             "prnu": "prnu/prnu",
             "ptc": "ptc/ptc",
