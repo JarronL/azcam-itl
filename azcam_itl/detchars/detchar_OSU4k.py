@@ -10,7 +10,7 @@ import shutil
 
 import azcam
 import azcam_console
-from azcam_console.tools.testers.detchar import DetChar
+from azcam_testers.tools.detchar import DetChar
 from azcam_itl import itlutils
 
 

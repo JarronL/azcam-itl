@@ -20,7 +20,7 @@ dependencies = [
     "azcam",
 ]
 [project.urls]
-Documentation = "https://mplesser.github.io/azcam/"
+Documentation = "https://azcam.readthedocs.io/"
 Repository = "https://github.com/mplesser/azcam-itl/"
 
 [build-system]

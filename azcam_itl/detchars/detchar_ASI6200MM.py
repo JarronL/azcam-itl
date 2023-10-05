@@ -12,7 +12,7 @@ import keyring
 
 import azcam
 import azcam_console
-from azcam_console.tools.testers.detchar import DetChar
+from azcam_testers.tools.detchar import DetChar
 from azcam_itl import itlutils
 
 
@@ -624,8 +624,6 @@ ptc.overscan_correct = 0
 ptc.zero_correct = 1
 ptc.fit_line = True
 ptc.fullwell_estimate = 54000 / 0.8  # counts
-ptc.fit_min = ptc.fullwell_estimate * 0.10
-ptc.fit_max = ptc.fullwell_estimate * 0.90
 
 ptc.exposure_times = []
 # ptc.max_exposures = 40
