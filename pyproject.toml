@@ -17,6 +17,7 @@ dependencies = [
     "pyvisa",
     "opencv-python-headless",
     "pyside6",
+    "azcam-testers",
     "azcam",
 ]
 [project.urls]
