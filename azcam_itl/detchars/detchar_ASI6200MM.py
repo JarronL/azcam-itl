@@ -603,12 +603,10 @@ gain.video_processor_gain = []
 dark.number_images_acquire = 3
 dark.exposure_time = 600.0
 dark.dark_fraction = -1  # no spec on individual pixels
-# dark.mean_dark_spec = 3.0 / 600.0  # blue e/pixel/sec
-# dark.mean_dark_spec = 6.0 / 600.0  # red
 dark.use_edge_mask = 0
 dark.bright_pixel_reject = 20.0 / 3600 * 10  # clip, 10x mean dark current [e/pix/sec]
 dark.overscan_correct = 0  # flag to overscan correct images
-dark.zero_correct = 1  # flag to correct with bias residuals
+dark.zero_correct = 0  # flag to correct with bias residuals
 dark.fit_order = 0
 dark.report_dark_per_hour = 1  # report per hour
 
