@@ -5,23 +5,13 @@ import subprocess
 
 packages = [
     "azcam",
-    "azcam-arc",
-    "azcam-archon",
-    "azcam-ascom",
-    "azcam-cryocon",
-    "azcam-ds9",
     "azcam-ds9-winsupport",
     "azcam-expstatus",
-    "azcam-fastapi",
-    "azcam-focus",
-    "azcam-imageserver",
-    "azcam-mag",
     "azcam-monitor",
     "azcam-observe",
-    "azcam-scripts",
     "azcam-testers",
+    "azcam-imageserver",
     "azcam-tool",
-    "azcam-webtools",
     "azcam-itl",
     "azcam-90prime",
     "azcam-bcspec",
@@ -32,7 +22,6 @@ packages = [
     "azcam-vatt4k",
     "azcam-vattspec",
     "azcam-osu4k",
-    "azcam-pepsi",
 ]
 github_root = "https://github.com/mplesser/"
 
