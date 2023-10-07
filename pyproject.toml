@@ -9,7 +9,7 @@ keywords = ["ccd", "imaging", "astronomy", "sensors"]
 authors = [{ name = "Michael Lesser" }, { email = "mlesser@arizona.edu" }]
 dependencies = [
     "numpy",
-    "ipython==8.10",
+    "ipython",
     "rich",
     "matplotlib",
     "keyring",
