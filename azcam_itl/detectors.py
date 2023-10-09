@@ -450,6 +450,20 @@ detector_asi6200MM = {
 }
 
 
+x1 = 14208
+y1 = 10656
+detector_imx411 = {
+    "name": "IMX411",
+    "description": "IMX411 CMOS camera",
+    "ref_pixel": [x1 / 2, y1 / 2],
+    "format": [x1, 0, 0, 0, y1, 0, 0, 0, 0],
+    "focalplane": [1, 1, 1, 1, [0]],
+    "roi": [1, x1, 1, y1, 1, 1],
+    "ext_position": [[1, 1]],
+    "jpg_order": [1],
+}
+
+
 detector_sta4850 = {
     "name": "STA4850",
     "description": "STA STA4850 CCD",

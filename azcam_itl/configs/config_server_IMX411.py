@@ -7,7 +7,7 @@ from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
 from azcam.header import System
 from azcam_server.tools.ds9display import Ds9Display
 
-from azcam_itl.detectors import detector_asi6200MM
+from azcam_itl.detectors import detector_imx411
 from azcam_itl.instruments.instrument_qb import InstrumentQB
 
 # ****************************************************************
@@ -18,8 +18,8 @@ controller.driver = "ASCOM.ASICamera2.Camera"
 
 # init now due to threading issue
 try:
-    controller.nx = 6248
-    controller.ny = 4176
+    controller.nx = 14208
+    controller.ny = 10656
     controller.initialize()
     controller.camera.Gain = 50
     controller.camera.Offset = 10
@@ -48,7 +48,7 @@ instrument = InstrumentQB()
 # temperature controller
 # ****************************************************************
 tempcon = TempConASCOM()
-tempcon.control_temperature = -10.0
+tempcon.control_temperature = 0.0
 tempcon.initialize()
 
 # ****************************************************************
@@ -58,18 +58,18 @@ exposure = ExposureASCOM()
 filetype = "FITS"  # BIN FITS
 exposure.filetype = exposure.filetypes[filetype]
 exposure.image.filetype = exposure.filetypes[filetype]
-exposure.image.filename = "/data/ASI6200MM/image.fits"  # .bin .fits
+exposure.image.filename = "/data/IMX411/image.fits"  # .bin .fits
 
 # ****************************************************************
 # system header
 # ****************************************************************
-template = os.path.join(azcam.db.datafolder, "templates", "fits_template_ASI6200MM.txt")
-system = System("ASI6200MM", template)
+template = os.path.join(azcam.db.datafolder, "templates", "fits_template_IMX411.txt")
+system = System("IMX411", template)
 
 # ****************************************************************
 # detector
 # ****************************************************************
-exposure.set_detpars(detector_asi6200MM)
+exposure.set_detpars(detector_imx411)
 
 # ****************************************************************
 # define display
