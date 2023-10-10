@@ -7,7 +7,7 @@ from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
 from azcam.header import System
 from azcam_server.tools.ds9display import Ds9Display
 
-from azcam_itl.detectors import detector_asi2600MM
+from azcam_itl.detectors import detectors_asi2600MM
 from azcam_itl.instruments.instrument_qb import InstrumentQB
 
 # ****************************************************************
@@ -77,7 +77,7 @@ system = System("ASI2600MM", template)
 # detector
 # ****************************************************************
 try:
-    exposure.set_detpars(detector_asi2600MM)
+    exposure.set_detpars(detectors_asi2600MM)
 except Exception:
     pass
 
