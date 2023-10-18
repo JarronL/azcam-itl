@@ -140,36 +140,26 @@ class PolluxCtrl(object):
         else:
             return ["ERROR", "Serial port is not initialized"]
 
-    def send_cmd(self, Command, getStatus=-1):
+    def send_cmd(self, command: str, readback: bool = True):
         """
-        Send command.
-        If getStatus != -1 get status after the command is sent to the controller.
-        26Oct2015 last change Zareba
+        Send a command to the pollux stage and optional read reply.
+        Includes string cleanup.
         """
 
-        if self.sPort != 0:
-            try:
-                if self.sPort.isOpen():
-                    cmd = Command + "\r\n"
+        if self.sPort.isOpen():
+            cmd = command + "\r\n"
 
-                    reply = self.sPort.write(str.encode(cmd))
-                    # self.sPort.flush()
+            reply = self.sPort.write(str.encode(cmd))
+            # self.sPort.flush()
 
-                    if getStatus != -1:
-                        reply = self.sPort.readline().decode().strip("\r\n")
-                        return ["OK", reply]
-                    else:
-                        return ["OK"]
-
-                else:
-                    return ["ERROR", "Serial port is not opened"]
-
-            except Exception as message:
-                return ["ERROR", message]
-            pass
+            if readback:
+                reply = self.sPort.readline().decode().strip("\r\n").strip()
+                return reply
+            else:
+                return
 
         else:
-            return ["ERROR", "Serial port is not initialized"]
+            raise azcam.AzcamError("Pollux serial port not open")
 
     def get_reply(self):
         """
@@ -245,20 +235,13 @@ class PolluxCtrl(object):
         26Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(nAxis) + "  gne\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(nAxis) + "  gne\r\n"
+        try:
+            reply = self.send_cmd(cmd, True)
+        except Exception:
+            reply = self.send_cmd(cmd, True)
 
-                reply = self.sPort.readline().decode().strip("\r\n")
-
-                return ["OK", reply]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return reply
 
     def get_pos(self, nAxis, Wait=0):
         """
@@ -308,7 +291,7 @@ class PolluxCtrl(object):
         if self.sPort != 0:
             try:
                 loop = 0
-                while 1 and loop < 20:
+                while 1 and loop < 100:
                     reply = self.get_status(nAxis)
                     try:
                         flag = int(reply[1])
@@ -365,7 +348,7 @@ class PolluxCtrl(object):
                 cmd = str(nAxis) + "  getswst\r\n"
                 self.sPort.write(str.encode(cmd))
 
-                reply = self.sPort.readline().decode().strip("\r\n")
+                reply = self.sPort.readline().decode().strip("\r\n").strip()
 
                 return ["OK", reply]
 
@@ -381,20 +364,10 @@ class PolluxCtrl(object):
         23Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(nAxis) + "  getnlimit\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(nAxis) + "  getnlimit"
 
-                reply = self.sPort.readline().decode().strip("\r\n")
-
-                return ["OK", reply]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        reply = self.send_cmd(cmd, True)
+        return ["OK", reply]
 
     def get_velocity(self, nAxis):
         """
@@ -420,21 +393,12 @@ class PolluxCtrl(object):
     def set_velocity(self, nAxis, value):
         """
         Set velocity for nAxis.
-        26Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(format(value, "f")) + " " + str(nAxis) + "  snv\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(format(value, "f")) + " " + str(nAxis) + "  snv"
+        self.send_cmd(cmd, False)
 
-                return ["OK"]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return
 
     def get_acceleration(self, nAxis):
         """
@@ -442,20 +406,10 @@ class PolluxCtrl(object):
         23Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(nAxis) + "  gna\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(nAxis) + "  gna"
+        reply = self.send_cmd(cmd, True)
 
-                reply = self.sPort.readline().decode().strip("\r\n")
-
-                return ["OK", reply]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return reply
 
     def set_acceleration(self, nAxis, value):
         """
@@ -463,56 +417,30 @@ class PolluxCtrl(object):
         23Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(format(value, "f")) + " " + str(nAxis) + "  sna\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(format(value, "f")) + " " + str(nAxis) + "  sna"
+        self.send_cmd(cmd, False)
 
-                return ["OK"]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return
 
     def move_absolute(self, nAxis, pos):
         """
         Move to absolute position.
-        24Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(format(pos, "f")) + " " + str(nAxis) + "  nm\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(format(pos, "f")) + " " + str(nAxis) + "  nm"
+        self.send_cmd(cmd, False)
 
-                return ["OK"]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return
 
     def move_relative(self, nAxis, step):
         """
         Move relative.
-        24Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(format(step, "f")) + " " + str(nAxis) + "  nr\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(format(step, "f")) + " " + str(nAxis) + "  nr"
+        self.send_cmd(cmd, False)
 
-                return ["OK"]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return
 
     def calibrate(self, nAxis):
         """
@@ -520,130 +448,69 @@ class PolluxCtrl(object):
         24Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(nAxis) + "  ncal\r\n"
-                self.sPort.write(str.encode(cmd))
+        self.get_error(nAxis)
 
-                return ["OK"]
+        cmd = str(nAxis) + "  ncal"
+        self.send_cmd(cmd, False)
 
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return
 
     def range_measure(self, nAxis):
         """
         Measure range of nAxis - move to the right position.
-        24Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(nAxis) + "  nrm\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(nAxis) + "  nrm"
+        self.send_cmd(cmd, False)
 
-                return ["OK"]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return
 
     def set_home(self, nAxis):
         """
         Set home position for nAxis.
-        24Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(0) + " " + str(nAxis) + "  setnpos\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(0) + " " + str(nAxis) + "  setnpos"
+        self.send_cmd(cmd, False)
 
-                return ["OK"]
+        return
 
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
-
-    def home(self, nAxis):
+    def go_home(self, nAxis):
         """
         Go to home position for nAxis - equivalent to the absolute move to 0 position.
-        24Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(0) + " " + str(nAxis) + "  nm\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(0) + " " + str(nAxis) + "  nm"
+        self.send_cmd(cmd, False)
 
-                return ["OK"]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return
 
     def reset(self, nAxis):
         """
         Reset controller.
-        24Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(nAxis) + "  nreset\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(nAxis) + "  nreset\r\n"
+        self.send_cmd(cmd, False)
 
-                return ["OK"]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return
 
     def reset_all(self):
         """
-        Reset controller.
-        24Oct2015 last change Zareba
+        Reset all controllers.
         """
 
-        if self.sPort != 0:
-            try:
-                for nport in range(1, self.maxCtrl + 1):
-                    cmd = str(nport) + "  nreset\r\n"
-                    self.sPort.write(str.encode(cmd))
+        for nAxis in range(1, self.maxCtrl + 1):
+            self.reset(nAxis)
 
-                return ["OK"]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return
 
     def stop_all(self):
         """
-        Stop movement for all controllers (axis).
-        24Oct2015 last change Zareba
+        Stop movement for all controllers.
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = chr(0x03) + "\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = chr(0x03)
+        self.send_cmd(cmd, False)
 
-                return ["OK"]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return

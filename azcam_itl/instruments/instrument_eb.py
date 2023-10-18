@@ -392,7 +392,7 @@ class InstrumentEB(Instrument):
 
     def initialize_focus(self):
         """
-        Initialize focus stages.
+        Initialize focus stage communications.
         """
 
         self.pollux.initialize()
@@ -401,13 +401,13 @@ class InstrumentEB(Instrument):
 
     def home_focus(self, AxisID):
         """
-        Home an axis.
+        Home an axis to its absolute home reference.
         """
 
         if AxisID not in self.pollux.valid_axes:
             raise azcam.AzcamError(f"focus axis {AxisID} not supported")
 
-        self.pollux.home(AxisID)
+        self.pollux.go_home(AxisID)
 
         return
 
@@ -453,6 +453,32 @@ class InstrumentEB(Instrument):
 
         PositionChange = float(PositionChange)
         self.pollux.move_relative(AxisID, PositionChange)
+
+        return
+
+    def calibrate_focus(self, AxisID=1):
+        """
+        Run calibration sequence for axis.
+        """
+
+        print("Moving to end of travel")
+        self.pollux.calibrate(AxisID)
+        self.pollux.get_motion(AxisID, 1)  # wait for motion to stop
+
+        print("Measuring range of travel")
+        self.pollux.range_measure(AxisID)
+        self.pollux.get_motion(AxisID, 1)  # wait for motion to stop
+
+        reply = self.pollux.get_limits(AxisID)
+        print(reply)
+        limits = [float(x) for x in reply[1].split()]
+        print(f"Limits: {limits[0]} - {limits[1]}")
+        midrange = (limits[1] - limits[0]) / 2.0
+        self.set_focus(midrange, AxisID)
+
+        self.pollux.set_home(AxisID)
+        reply = self.get_focus(AxisID)
+        print("Homed position in center:", reply)
 
         return
 
