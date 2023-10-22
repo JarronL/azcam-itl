@@ -17,5 +17,5 @@ def ws():
     return
 
 
-# add to shortcuts
-azcam.db.shortcuts.update({"ws": ws})
+# add to cli
+azcam.db.cli.update({"ws": ws})
