@@ -12,6 +12,7 @@ from azcam_server.tools.ds9display import Ds9Display
 from azcam_server.tools.sendimage import SendImage
 
 from azcam_itl.instruments.instrument_qb import InstrumentQB
+from azcam_itl.instruments.instrument_eb import InstrumentEB
 
 # ****************************************************************
 # controller
@@ -48,7 +49,9 @@ azcam.db.par_table["cmos_gain"] = "controller.camera.Gain"
 # instrument
 # ****************************************************************
 # instrument = Instrument()
-instrument = InstrumentQB()
+# instrument = InstrumentQB()
+instrument = InstrumentEB()
+# instrument.initialize()
 
 # ****************************************************************
 # temperature controller

@@ -319,23 +319,12 @@ class PolluxCtrl(object):
     def get_status(self, nAxis):
         """
         Get status of nAxis.
-        26Oct2015 last change Zareba
         """
 
-        if self.sPort != 0:
-            try:
-                cmd = str(nAxis) + "  nst\r\n"
-                self.sPort.write(str.encode(cmd))
+        cmd = str(nAxis) + "  nst"
+        reply = self.send_cmd(cmd, True)
 
-                reply = self.sPort.readline().decode().strip("\r\n")
-
-                return ["OK", reply.strip()]
-
-            except Exception as message:
-                return ["ERROR", message]
-
-        else:
-            return ["ERROR", "Serial port is not initialized"]
+        return ["OK", reply]
 
     def get_switch_status(self, nAxis):
         """
@@ -453,6 +442,8 @@ class PolluxCtrl(object):
         cmd = str(nAxis) + "  ncal"
         self.send_cmd(cmd, False)
 
+        self.get_motion(nAxis, True)
+
         return
 
     def range_measure(self, nAxis):
@@ -462,6 +453,8 @@ class PolluxCtrl(object):
 
         cmd = str(nAxis) + "  nrm"
         self.send_cmd(cmd, False)
+
+        self.get_motion(nAxis, True)
 
         return
 
