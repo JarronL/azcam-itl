@@ -18,9 +18,9 @@ import azcam_server.server
 import azcam_server.shortcuts
 from azcam_server.cmdserver import CommandServer
 from azcam.logger import check_for_remote_logger
-from azcam_server.tools.webserver.fastapi_server import WebServer
-from azcam_server.tools.webtools.exptool.exptool import Exptool
-from azcam_server.tools.webtools.status.status import Status
+from azcam_server.webserver.fastapi_server import WebServer
+from azcam_webtools.status.status import Status
+from azcam_webtools.exptool.exptool import Exptool
 from azcam.scripts import loadscripts
 
 # from azcam_monitor.monitorinterface import AzCamMonitorInterface
