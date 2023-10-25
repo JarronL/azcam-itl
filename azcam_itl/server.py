@@ -166,10 +166,14 @@ azcam.db.parameters.update_pars("azcamserver")
 azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
 cmdserver.start()
 
+# ****************************************************************
 # cli commands
+# ****************************************************************
 from azcam.cli import *
 
+# ****************************************************************
 # try to change window title
+# ****************************************************************
 try:
     ctypes.windll.kernel32.SetConsoleTitleW("azcamserver")
 except Exception:
