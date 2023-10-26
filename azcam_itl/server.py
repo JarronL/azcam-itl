@@ -19,6 +19,7 @@ import azcam_server.shortcuts
 from azcam_server.cmdserver import CommandServer
 from azcam.logger import check_for_remote_logger
 from azcam_server.webserver.fastapi_server import WebServer
+from azcam_server.tools.observe import Observe
 from azcam_webtools.status.status import Status
 from azcam_webtools.exptool.exptool import Exptool
 from azcam.scripts import loadscripts
@@ -128,6 +129,11 @@ if azcam.db.systemname != "NoSystem":
 # ****************************************************************
 azcam.log("Loading scripts")
 loadscripts(["azcam_itl.scripts.server"])
+
+# ****************************************************************
+# observe
+# ****************************************************************
+observer = Observe()
 
 # ****************************************************************
 # web server
