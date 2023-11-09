@@ -18,9 +18,10 @@ import azcam_server.server
 import azcam_server.shortcuts
 from azcam_server.cmdserver import CommandServer
 from azcam.logger import check_for_remote_logger
-from azcam_server.tools.webserver.fastapi_server import WebServer
-from azcam_server.tools.webtools.exptool.exptool import Exptool
-from azcam_server.tools.webtools.status.status import Status
+from azcam_server.webserver.fastapi_server import WebServer
+from azcam_server.tools.observe import Observe
+from azcam_webtools.status.status import Status
+from azcam_webtools.exptool.exptool import Exptool
 from azcam.scripts import loadscripts
 
 # from azcam_monitor.monitorinterface import AzCamMonitorInterface
@@ -131,13 +132,17 @@ azcam.log("Loading scripts")
 loadscripts(["azcam_itl.scripts.server"])
 
 # ****************************************************************
+# observe
+# ****************************************************************
+observer = Observe()
+
+# ****************************************************************
 # web server
 # ****************************************************************
 if 1:
     webserver = WebServer()
     webserver.port = 2403
     webserver.logcommands = 0
-    webserver.return_json = 0
     webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
     webserver.message = f"for host {azcam.db.hostname}"
     webserver.datafolder = azcam.db.datafolder
@@ -167,10 +172,14 @@ azcam.db.parameters.update_pars("azcamserver")
 azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
 cmdserver.start()
 
+# ****************************************************************
 # cli commands
+# ****************************************************************
 from azcam.cli import *
 
+# ****************************************************************
 # try to change window title
+# ****************************************************************
 try:
     ctypes.windll.kernel32.SetConsoleTitleW("azcamserver")
 except Exception:
