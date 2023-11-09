@@ -14,7 +14,7 @@ from azcam_itl.instruments.instrument_qb import InstrumentQB
 # controller
 # ****************************************************************
 controller = ControllerASCOM()
-controller.driver = "ASCOM.ASICamera2.Camera"
+controller.driver = "ASCOM.MoravinstCCD.GXCamera64"
 
 # init now due to threading issue
 try:
@@ -22,7 +22,7 @@ try:
     controller.ny = 10656
     controller.initialize()
     controller.camera.Gain = 50
-    controller.camera.Offset = 10
+    # controller.camera.Offset = 10
 except Exception as e:
     print(e)
     print("could not initialize camera")
