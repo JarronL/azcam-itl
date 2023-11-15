@@ -78,7 +78,9 @@ if datafolder is None:
             droot = os.environ.get("HOME")
         else:
             droot = "/"
-        azcam.db.datafolder = os.path.join(os.path.realpath(droot), "data", azcam.db.systemname)
+        azcam.db.datafolder = os.path.join(
+            os.path.realpath(droot), "data", azcam.db.systemname
+        )
     else:
         azcam.db.datafolder = os.path.join(os.path.realpath(droot), azcam.db.systemname)
 else:
@@ -95,6 +97,7 @@ azcam.log(f"Configuring console for {azcam.db.systemname}")
 
 # display
 display = Ds9Display()
+display.initialize()
 # dthread = threading.Thread(target=display.initialize, args=[])
 # dthread.start()  # thread just for speed
 
@@ -165,6 +168,12 @@ elif azcam.db.systemname == "ASI6200MM":
 
     if azcam.db.wd is None:
         azcam.db.wd = "/data/ASI6200MM"
+
+elif azcam.db.systemname == "IMX411":
+    from azcam_itl.detchars.detchar_IMX411 import detchar
+
+    if azcam.db.wd is None:
+        azcam.db.wd = "/data/IMX411"
 
 elif azcam.db.systemname == "OSU4k":
     from azcam_itl.detchars.detchar_OSU4k import detchar

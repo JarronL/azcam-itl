@@ -1,6 +1,5 @@
 import datetime
 import fnmatch
-import ftplib
 import glob
 import os
 import re
@@ -8,11 +7,9 @@ import shutil
 import subprocess
 import time
 
-import keyring
-
 import azcam
 import azcam_console
-from azcam_console.tools.testers.detchar import DetChar
+from azcam_testers.tools.detchar import DetChar
 from azcam_itl import itlutils
 
 
@@ -21,10 +18,10 @@ class IMX411DetChar(DetChar):
         super().__init__()
 
         self.imsnap_scale = 1.0
-        self.start_temperature = -10.0
+        self.start_temperature = +10.0
 
-        self.operator = "Lesser"
-        self.itl_sn = -1
+        self.operator = ""
+        self.itl_sn = ""
 
         self.system = ""
         self.customer = ""
@@ -38,7 +35,7 @@ class IMX411DetChar(DetChar):
         # report parameters
         self.create_html = 1
         self.report_file = ""
-        self.summary_report_file = ""
+        self.summary_report_file = "SummaryReport"
         self.report_names = [
             "bias",
             "gain",
@@ -105,9 +102,10 @@ class IMX411DetChar(DetChar):
         # wait for temperature
         # *************************************************************************
         if self.start_temperature != -1000:
+            print(f"Waiting for staer tempertare: {self.start_temperature:.01f}")
             while True:
                 t = tempcon.get_temperatures()[0]
-                print("Current temperature: %.1f" % t)
+                print(f"Current temperature: {t:.01f}")
                 if t <= self.start_temperature + 0.5:
                     break
                 else:
@@ -119,7 +117,9 @@ class IMX411DetChar(DetChar):
         # save current image parameters
         # *************************************************************************
         impars = {}
+        print(detcal.data_file)
         azcam.db.parameters.save_imagepars(impars)
+        print(detcal.data_file)
 
         # *************************************************************************
         # read most recent detcal info
@@ -139,7 +139,9 @@ class IMX411DetChar(DetChar):
         # *************************************************************************
         # Acquire data
         # *************************************************************************
-        azcam.db.parameters.set_par("imagesequencenumber", 1)  # uniform image sequence numbers
+        azcam.db.parameters.set_par(
+            "imagesequencenumber", 1
+        )  # uniform image sequence numbers
 
         try:
             # reset camera
@@ -149,7 +151,7 @@ class IMX411DetChar(DetChar):
             exposure.test(0)  # flush
 
             # clear device after reset delay
-            print("Delaying start for %.0f seconds (to settle)..." % self.start_delay)
+            print(f"Delaying start for {self.start_delay:.0f} seconds (to settle)...")
             time.sleep(self.start_delay)
             exposure.test(0)  # flush
 
@@ -173,7 +175,7 @@ class IMX411DetChar(DetChar):
             # QE
             qe.acquire()
 
-            if 0:
+            if 1:
                 # Dark signal
                 exposure.test(0)
                 dark.acquire()
@@ -307,7 +309,7 @@ class IMX411DetChar(DetChar):
 
         folder = azcam.utils.curdir()
         self.report_folder = folder
-        report_name = f"ASI6200MM_report_{self.report_id}.pdf"
+        report_name = f"IMX411_report_{self.report_id}.pdf"
 
         print("")
         print(f"Generating report for {self.report_id}")
@@ -323,12 +325,12 @@ class IMX411DetChar(DetChar):
             if os.path.exists(f1):
                 rfiles.append(f1)
             else:
-                print("Report file not found: %s" % f1)
+                print(f"Report file not found: {f1}")
         self.merge_pdf(rfiles, report_name)
 
         # open report
         with open(os.devnull, "w") as fnull:
-            s = "%s" % self.report_file
+            s = f"{self.report_file}"
             subprocess.Popen(s, shell=True, cwd=folder, stdout=fnull, stderr=fnull)
             fnull.close()
 
@@ -349,7 +351,7 @@ class IMX411DetChar(DetChar):
         lines.append("|:---|:---|")
         lines.append("|**Identification**||")
         lines.append(f"|Customer       |UArizona|")
-        lines.append(f"|Project        |Oracle Search Sensor-1|")
+        lines.append(f"|Project        |Oracle Search Sensor-2|")
         lines.append(f"|System         |Sony IMX455|")
         lines.append(f"|Camera SN      |{self.itl_sn}|")
         lines.append(f"|Report ID      |{self.report_id}|")
@@ -371,148 +373,25 @@ class IMX411DetChar(DetChar):
 
         return
 
-    def copy_files(self):
-        """
-        Copy both report and flats
-        """
-
-        # azcam.utils.curdir("..")
-        itlutils.cleanup_files()
-        self.copy_reports()
-        self.copy_flats()
-
-        return
-
-    def copy_flats(self):
-        """
-        Find all qe.0004 flat field files from current folder tree and copy them to
-        the folder two levels up (run from report) with new name.
-        Rather dumb, needs 5 digit SN for now...
-        """
-
-        folder = azcam.utils.curdir()
-        dest_folder = azcam.utils.curdir()
-        azcam.utils.curdir(folder)
-        matches = []
-        for root, dirnames, filenames in os.walk(folder):
-            for filename in fnmatch.filter(filenames, "qe.0004.fits"):
-                matches.append(os.path.join(root, filename))
-
-        for t in matches:
-            match = re.search("sn", t)
-            if match is not None:
-                start = match.start()
-                sn = t[start : start + 7]
-                print("Found: ", t)
-                print("Press y or enter to copy this file...")
-                key = azcam.utils.check_keyboard(1)
-                if key == "y" or key == "\r":
-                    print()
-                    shutil.copy(t, os.path.join(dest_folder, "%s_flat.fits" % (sn)))
-                else:
-                    print("File not copied")
-
-        return
-
-    def copy_reports(self):
-        """
-        Find all qe.0004 flat field files from current folder tree and copy them to
-        the folder two levels up (run from report) with new name.
-        Rather dumb, needs 5 digit SN for now...
-        """
-
-        folder = azcam.utils.curdir()
-        dest_folder = azcam.utils.curdir()
-        azcam.utils.curdir(folder)
-        matches = []
-        for root, dirnames, filenames in os.walk(folder):
-            for filename in fnmatch.filter(filenames, "ASI6200MM_Report_*.pdf"):
-                matches.append(os.path.join(root, filename))
-
-        for t in matches:
-            print("Found: ", t)
-            print("Press y or enter to copy this file...")
-            key = azcam.utils.check_keyboard(1)
-            if key == "y" or key == "\r":
-                shutil.copy(t, dest_folder)
-            else:
-                print("File not copied")
-
-        return
-
     def setup(self, report_id=None):
         self.report_id = azcam.utils.prompt("Enter report ID", report_id)
 
         # sponsor/report info
         self.customer = "UArizona"
-        self.system = "ASI6200MM"
-        self.itl_sn = "361d940d2d010900"
-        qe.plot_title = "ASI6200MM Quantum Efficiency"
-        self.summary_report_file = f"SummaryReport_{self.report_id}"
-        self.report_file = f"ASI6200MM{self.report_id}.pdf"
+        self.system = "IMX411"
+        self.itl_sn = ""
+        qe.plot_title = "IMX411 Quantum Efficiency"
+        self.report_file = f"IMX411_{self.report_id}.pdf"
 
         self.is_setup = 1
 
         return
 
-    def upload_prep(self, shipdate: str):
-        """
-        Prepare a dataset for upload by creating an archive file.
-        file.  Start in the _shipment folder.
-        """
-
-        startdir = azcam.utils.curdir()
-        shipdate = os.path.basename(startdir)
-        idstring = f"{shipdate}"
-
-        # cleanup folder
-        azcam.log("cleaning dataset folder")
-        itlutils.cleanup_files()
-
-        # move one folder above report folder
-        # azcam.utils.curdir(reportfolder)
-        # azcam.utils.curdir("..")
-
-        self.copy_files()
-
-        # copy files to new folder and archive
-        azcam.log(f"copying dataset to {idstring}")
-        currentfolder, newfolder = azcam_console.utils.make_file_folder(idstring)
-
-        copy_files = glob.glob("*.pdf")
-        for f in copy_files:
-            shutil.move(f, newfolder)
-        copy_files = glob.glob("*.fits")
-        for f in copy_files:
-            shutil.move(f, newfolder)
-        copy_files = glob.glob("*.csv")
-        for f in copy_files:
-            shutil.move(f, newfolder)
-
-        azcam.utils.curdir(newfolder)
-
-        # make archive file
-        azcam.utils.curdir(currentfolder)
-        azcam.log("making archive file")
-        archivefile = itlutils.archive(idstring, "zip")
-        shutil.move(archivefile, newfolder)
-
-        # delete data files from new folder
-        azcam.utils.curdir(newfolder)
-        [os.remove(x) for x in glob.glob("*.pdf")]
-        [os.remove(x) for x in glob.glob("*.fits")]
-        [os.remove(x) for x in glob.glob("*.csv")]
-
-        azcam.utils.curdir(startdir)
-
-        self.remote_upload_folder = idstring
-
-        return archivefile
-
 
 # create instance
 detchar = IMX411DetChar()
 
+# define tools
 (
     exposure,
     gain,
@@ -541,7 +420,9 @@ detchar = IMX411DetChar()
     ]
 )
 
-detchar.start_temperature = +10.0
+detchar.start_temperature = 10.0
+detchar.operator = "Lesser"
+
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
@@ -566,9 +447,7 @@ detcal.wavelengths = [
     1000,
 ]
 # values below estimates for unbinned values, 5000 DN, gain=1, 0.8 e/DN
-ref_gain = 0.8  # reference gain used for dict below
-new_gain = 1.0  # for other settings
-scale = ref_gain / new_gain
+scale = 1.0
 detcal.exposure_times = {
     350: 220.0 * scale,
     400: 14.0 * scale,
@@ -585,7 +464,7 @@ detcal.exposure_times = {
     950: 243.0 * scale,
     1000: 453.0 * scale,
 }
-detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi6200mm.txt")
+detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_IMX411.txt")
 detcal.mean_count_goal = 5000
 detcal.range_factor = 1.3
 
@@ -664,7 +543,7 @@ ptc.exposure_levels = [
 # linearity
 linearity.wavelength = 500
 linearity.use_ptc_data = 1
-linearity.fullwell_estimate = 54000 / 0.8  # counts
+linearity.fullwell_estimate = 65000  # counts
 linearity.fit_all_data = 0
 linearity.fit_min = 0.05
 linearity.fit_max = 0.90  # .95 too close to ADC limit

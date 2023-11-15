@@ -21,13 +21,21 @@ try:
     controller.nx = 14208
     controller.ny = 10656
     controller.initialize()
-    controller.camera.Gain = 50
-    # controller.camera.Offset = 10
+    controller.camera.Gain = 3000
 except Exception as e:
     print(e)
     print("could not initialize camera")
 
-# ASCOM GainMax is 100
+# ASCOM GainMax is 4030
+
+# gain 10, binned 2x2, 3.0 e/DN
+# gain 2000, binned 2x2, 1.6 e/DN
+
+# gain 0, offset 10 (100DN) was used for unbinned, 0.76 e/DN
+# gain 10, offset 10 (100DN) was used for unbinned, 0.76 e/DN
+# gain 1000, offset 10 (100DN) was used for unbinned, 0.59 e/DN
+
+
 # gain 1, offset 10 (100DN) was used for unbinned, 0.8 e/DN
 # gain 1, offset 10 (100DN) was used for 2x2, 3.2 e/DN
 # gain 10, offset 10 (100DN) was used for 2x2, 2.7 e/DN
@@ -48,7 +56,7 @@ instrument = InstrumentQB()
 # temperature controller
 # ****************************************************************
 tempcon = TempConASCOM()
-tempcon.control_temperature = 0.0
+tempcon.control_temperature = -10.0
 tempcon.initialize()
 
 # ****************************************************************
