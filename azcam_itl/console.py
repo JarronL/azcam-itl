@@ -1,5 +1,5 @@
 """
-azcam console script for ITL detchar systems
+azcamconsole config for ITL detchar systems
 
 Command line options:
   -system LVM
@@ -31,9 +31,9 @@ from azcam_observe.observe_cli.observe_cli import ObserveCli
 # parse command line arguments
 try:
     i = sys.argv.index("-system")
-    azcam.db.systemname = sys.argv[i + 1]
+    systemname = sys.argv[i + 1]
 except ValueError:
-    azcam.db.systemname = "menu"
+    systemname = "menu"
 try:
     i = sys.argv.index("-datafolder")
     datafolder = sys.argv[i + 1]
@@ -50,157 +50,168 @@ try:
 except ValueError:
     cmdport = 2402
 
-# menu to select system
-menu_options = {
-    "DESI": "DESI",
-    # "LVM": "LVM",
-    "ZWO ASI6200MM CMOS camera": "ASI6200MM",
-    "ZWO ASI294 CMOS camera": "ASI294",
-    "QHY174 CMOS camera": "QHY174",
-    # "OSU4k": "OSU4k",
-    # "ITL4k": "ITL4k",
-    "None": "NoSystem",
-}
 
-# configuration
-if configuration is not None:
-    run_path(configuration)
+def setup():
+    global systemname, datafolder, configuration, cmdport
 
-if azcam.db.systemname == "menu":
-    azcam.db.systemname = azcam.utils.show_menu(menu_options)
+    azcam.db.systemname = systemname
 
-azcam.db.systemfolder = azcam.utils.fix_path(os.path.dirname(__file__))
+    # menu to select system
+    menu_options = {
+        "DESI": "DESI",
+        # "LVM": "LVM",
+        "ZWO ASI6200MM CMOS camera": "ASI6200MM",
+        "ZWO ASI294 CMOS camera": "ASI294",
+        "QHY174 CMOS camera": "QHY174",
+        # "OSU4k": "OSU4k",
+        # "ITL4k": "ITL4k",
+        "None": "NoSystem",
+    }
 
-if datafolder is None:
-    droot = os.environ.get("AZCAM_DATAROOT")
-    if droot is None:
-        if os.name == "posix":
-            droot = os.environ.get("HOME")
+    # configuration
+    if configuration is not None:
+        run_path(configuration)
+
+    if azcam.db.systemname == "menu":
+        azcam.db.systemname = azcam.utils.show_menu(menu_options)
+
+    azcam.db.systemfolder = azcam.utils.fix_path(os.path.dirname(__file__))
+
+    if datafolder is None:
+        droot = os.environ.get("AZCAM_DATAROOT")
+        if droot is None:
+            if os.name == "posix":
+                droot = os.environ.get("HOME")
+            else:
+                droot = "/"
+            azcam.db.datafolder = os.path.join(
+                os.path.realpath(droot), "data", azcam.db.systemname
+            )
         else:
-            droot = "/"
-        azcam.db.datafolder = os.path.join(
-            os.path.realpath(droot), "data", azcam.db.systemname
-        )
+            azcam.db.datafolder = os.path.join(
+                os.path.realpath(droot), azcam.db.systemname
+            )
     else:
-        azcam.db.datafolder = os.path.join(os.path.realpath(droot), azcam.db.systemname)
-else:
-    azcam.db.datafolder = os.path.realpath(datafolder)
+        azcam.db.datafolder = os.path.realpath(datafolder)
 
-parfile = os.path.join(
-    azcam.db.datafolder, "parameters", f"parameters_console_{azcam.db.systemname}.ini"
-)
+    parfile = os.path.join(
+        azcam.db.datafolder,
+        "parameters",
+        f"parameters_console_{azcam.db.systemname}.ini",
+    )
 
-# logging
-logfile = os.path.join(azcam.db.datafolder, "logs", "console.log")
-azcam.db.logger.start_logging(logfile=logfile)
-azcam.log(f"Configuring console for {azcam.db.systemname}")
+    # logging
+    logfile = os.path.join(azcam.db.datafolder, "logs", "console.log")
+    azcam.db.logger.start_logging(logfile=logfile)
+    azcam.log(f"Configuring console for {azcam.db.systemname}")
 
-# display
-display = Ds9Display()
-display.initialize()
-# dthread = threading.Thread(target=display.initialize, args=[])
-# dthread.start()  # thread just for speed
+    # display
+    display = Ds9Display()
+    display.initialize()
+    # dthread = threading.Thread(target=display.initialize, args=[])
+    # dthread.start()  # thread just for speed
 
-# console tools
-from azcam_console.tools import create_console_tools
+    # console tools
+    from azcam_console.tools import create_console_tools
 
-create_console_tools()
-focus = FocusConsole()
+    create_console_tools()
+    focus = FocusConsole()
 
-# ****************************************************************
-# testers
-# ****************************************************************
-load_testers()
+    # ****************************************************************
+    # testers
+    # ****************************************************************
+    load_testers()
 
-# ****************************************************************
-# ObserveCli
-# ****************************************************************
-observe = ObserveCli()
+    # ****************************************************************
+    # ObserveCli
+    # ****************************************************************
+    observe = ObserveCli()
 
-# ****************************************************************
-# scripts
-# ****************************************************************
-azcam.log("Loading scripts")
-loadscripts(["azcam_itl.scripts", "azcam_console.scripts"])
+    # ****************************************************************
+    # scripts
+    # ****************************************************************
+    azcam.log("Loading scripts")
+    loadscripts(["azcam_itl.scripts", "azcam_console.scripts"])
 
-# try to connect to azcamserver
-connected = azcam.db.tools["server"].connect(port=cmdport)  # default host and port
-if connected:
-    azcam.log("Connected to azcamserver")
-else:
-    azcam.log("Not connected to azcamserver")
+    # try to connect to azcamserver
+    connected = azcam.db.tools["server"].connect(port=cmdport)  # default host and port
+    if connected:
+        azcam.log("Connected to azcamserver")
+    else:
+        azcam.log("Not connected to azcamserver")
 
-# system-specific
-if azcam.db.systemname == "DESI":
-    from azcam_itl.detchars.detchar_DESI import detchar
-    import azcam_console.tools.console_arc
+    # system-specific
+    if azcam.db.systemname == "DESI":
+        from azcam_itl.detchars.detchar_DESI import detchar
+        import azcam_console.tools.console_arc
 
-    if azcam.db.wd is None:
-        azcam.db.wd = "/data/DESI"
+        if azcam.db.wd is None:
+            azcam.db.wd = "/data/DESI"
 
-elif azcam.db.systemname == "LVM":
-    if 0:  # azcam.db.LVM_itl4k:
+    elif azcam.db.systemname == "LVM":
+        if 0:  # azcam.db.LVM_itl4k:
+            from azcam_itl.detchars.detchar_ITL4k import detchar
+
+            azcam.db.wd = "/data/ITL4k"
+        else:
+            from azcam_itl.detchars.detchar_LVM import detchar
+        import azcam_console.tools.console_archon
+
+        if azcam.db.wd is None:
+            azcam.db.wd = "/data/LVM"
+
+    elif azcam.db.systemname == "90prime4k":
+        from azcam_itl.detchars.detchar_90prime4k import detchar
+        import azcam_console.tools.console_archon
+
+        if azcam.db.wd is None:
+            azcam.db.wd = "/data/90prime4k"
+
+    elif azcam.db.systemname == "ASI294":
+        from azcam_itl.detchars.detchar_ASI294 import detchar
+
+        if azcam.db.wd is None:
+            azcam.db.wd = "/data/ZWO/ASI294"
+
+    elif azcam.db.systemname == "ASI6200MM":
+        from azcam_itl.detchars.detchar_ASI6200MM import detchar
+
+        if azcam.db.wd is None:
+            azcam.db.wd = "/data/ASI6200MM"
+
+    elif azcam.db.systemname == "IMX411":
+        from azcam_itl.detchars.detchar_IMX411 import detchar
+
+        if azcam.db.wd is None:
+            azcam.db.wd = "/data/IMX411"
+
+    elif azcam.db.systemname == "OSU4k":
+        from azcam_itl.detchars.detchar_OSU4k import detchar
+        import azcam_console.tools.console_archon
+
+        if azcam.db.wd is None:
+            azcam.db.wd = "/data/OSU4k"
+
+    elif azcam.db.systemname == "ITL4k":
         from azcam_itl.detchars.detchar_ITL4k import detchar
+        import azcam_console.tools.console_archon
 
-        azcam.db.wd = "/data/ITL4k"
-    else:
-        from azcam_itl.detchars.detchar_LVM import detchar
-    import azcam_console.tools.console_archon
-
-    if azcam.db.wd is None:
-        azcam.db.wd = "/data/LVM"
-
-elif azcam.db.systemname == "90prime4k":
-    from azcam_itl.detchars.detchar_90prime4k import detchar
-    import azcam_console.tools.console_archon
+        if azcam.db.wd is None:
+            azcam.db.wd = "/data/ITL4k"
 
     if azcam.db.wd is None:
-        azcam.db.wd = "/data/90prime4k"
+        azcam.db.wd = azcam.db.datafolder
 
-elif azcam.db.systemname == "ASI294":
-    from azcam_itl.detchars.detchar_ASI294 import detchar
+    # par file
+    azcam.db.parameters.read_parfile(parfile)
+    azcam.db.parameters.update_pars("azcamconsole")
 
-    if azcam.db.wd is None:
-        azcam.db.wd = "/data/ZWO/ASI294"
+    # try to change window title
+    try:
+        ctypes.windll.kernel32.SetConsoleTitleW("azcamconsole")
+    except Exception:
+        pass
 
-elif azcam.db.systemname == "ASI6200MM":
-    from azcam_itl.detchars.detchar_ASI6200MM import detchar
 
-    if azcam.db.wd is None:
-        azcam.db.wd = "/data/ASI6200MM"
-
-elif azcam.db.systemname == "IMX411":
-    from azcam_itl.detchars.detchar_IMX411 import detchar
-
-    if azcam.db.wd is None:
-        azcam.db.wd = "/data/IMX411"
-
-elif azcam.db.systemname == "OSU4k":
-    from azcam_itl.detchars.detchar_OSU4k import detchar
-    import azcam_console.tools.console_archon
-
-    if azcam.db.wd is None:
-        azcam.db.wd = "/data/OSU4k"
-
-elif azcam.db.systemname == "ITL4k":
-    from azcam_itl.detchars.detchar_ITL4k import detchar
-    import azcam_console.tools.console_archon
-
-    if azcam.db.wd is None:
-        azcam.db.wd = "/data/ITL4k"
-
-if azcam.db.wd is None:
-    azcam.db.wd = azcam.db.datafolder
-
-# par file
-azcam.db.parameters.read_parfile(parfile)
-azcam.db.parameters.update_pars("azcamconsole")
-
-# cli commands
+setup()
 from azcam.cli import *
-
-# try to change window title
-try:
-    ctypes.windll.kernel32.SetConsoleTitleW("azcamconsole")
-except Exception:
-    pass

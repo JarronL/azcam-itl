@@ -1,5 +1,5 @@
 """
-azcam server script for ITL systems.
+azcamserver config for ITL systems.
 
 Command line options:
   -system LVM
@@ -19,7 +19,7 @@ import azcam_server.shortcuts
 from azcam_server.cmdserver import CommandServer
 from azcam.logger import check_for_remote_logger
 from azcam_server.webserver.fastapi_server import WebServer
-from azcam_server.tools.observe import Observe
+from azcam_server.tools.queue import Queue
 from azcam_webtools.status.status import Status
 from azcam_webtools.exptool.exptool import Exptool
 from azcam.scripts import loadscripts
@@ -52,135 +52,140 @@ try:
 except ValueError:
     cmdport = 2402
 
-# ****************************************************************
-# configuration
-# ****************************************************************
 
-# optional config script
-if configuration is not None:
-    run_path(configuration)
-    systemname = azcam.db.systemname  # may overwrite systemname
+def setup():
+    global systemname, datafolder, configuration, cmdport
 
-# optionally select system with menu
-menu_options = {
-    "DESI": "DESI",
-    "QHY174 CMOS camera": "QHY174",
-    # "LVM": "LVM",
-    "ZWO ASI6200MM CMOS camera": "ASI6200MM",
-    "ZWO ASI294MM CMOS camera": "ASI294MM",
-    "Moravian IMX411 CMOS camera": "IMX411",
-    # "OSU4k": "OSU4k",
-    # "ITL6k": "ITL6k",
-    # "90prime4k": "90prime4k",
-    # "Magellan Guider": "magguider",
-    # "SO Guider": "soguider",
-    "None": "NoSystem",
-}
+    # optional config script
+    if configuration is not None:
+        run_path(configuration)
+        systemname = azcam.db.systemname  # may overwrite systemname
 
-if systemname == "menu":
-    systemname = azcam.utils.show_menu(menu_options)
-else:
-    systemname = systemname
-azcam.db.systemname = systemname
-azcam.db.systemfolder = os.path.dirname(__file__)
-azcam.db.systemfolder = azcam.utils.fix_path(azcam.db.systemfolder)
+    # optionally select system with menu
+    menu_options = {
+        "DESI": "DESI",
+        "QHY174 CMOS camera": "QHY174",
+        # "LVM": "LVM",
+        "ZWO ASI6200MM CMOS camera": "ASI6200MM",
+        "ZWO ASI294MM CMOS camera": "ASI294MM",
+        "Moravian IMX411 CMOS camera": "IMX411",
+        # "OSU4k": "OSU4k",
+        # "ITL6k": "ITL6k",
+        # "90prime4k": "90prime4k",
+        # "Magellan Guider": "magguider",
+        # "SO Guider": "soguider",
+        "None": "NoSystem",
+    }
 
-if datafolder is None:
-    droot = os.environ.get("AZCAM_DATAROOT")
-    if droot is None:
-        if os.name == "posix":
-            droot = os.environ.get("HOME")
-        else:
-            droot = "/"
-        azcam.db.datafolder = os.path.join(os.path.realpath(droot), "data", azcam.db.systemname)
+    if systemname == "menu":
+        systemname = azcam.utils.show_menu(menu_options)
     else:
-        azcam.db.datafolder = os.path.join(os.path.realpath(droot), azcam.db.systemname)
-else:
-    azcam.db.datafolder = os.path.realpath(datafolder)
+        systemname = systemname
+    azcam.db.systemname = systemname
+    azcam.db.systemfolder = os.path.dirname(__file__)
+    azcam.db.systemfolder = azcam.utils.fix_path(azcam.db.systemfolder)
 
-azcam.db.servermode = azcam.db.systemname
-azcam.db.verbosity = 2
+    if datafolder is None:
+        droot = os.environ.get("AZCAM_DATAROOT")
+        if droot is None:
+            if os.name == "posix":
+                droot = os.environ.get("HOME")
+            else:
+                droot = "/"
+            azcam.db.datafolder = os.path.join(
+                os.path.realpath(droot), "data", azcam.db.systemname
+            )
+        else:
+            azcam.db.datafolder = os.path.join(
+                os.path.realpath(droot), azcam.db.systemname
+            )
+    else:
+        azcam.db.datafolder = os.path.realpath(datafolder)
 
-# ****************************************************************
-# logging
-# ****************************************************************
-logfile = os.path.join(azcam.db.datafolder, "logs", "server.log")
-if check_for_remote_logger():
-    azcam.db.logger.start_logging(logtype="23", logfile=logfile)
-else:
-    azcam.db.logger.start_logging(logtype="13", logfile=logfile)
-azcam.log(f"Configuring {azcam.db.systemname}")
+    azcam.db.servermode = azcam.db.systemname
+    azcam.db.verbosity = 2
 
-# define command server
-cmdserver = CommandServer()
-cmdserver.port = cmdport
-cmdserver.logcommands = 0
+    # ****************************************************************
+    # logging
+    # ****************************************************************
+    logfile = os.path.join(azcam.db.datafolder, "logs", "server.log")
+    if check_for_remote_logger():
+        azcam.db.logger.start_logging(logtype="23", logfile=logfile)
+    else:
+        azcam.db.logger.start_logging(logtype="13", logfile=logfile)
+    azcam.log(f"Configuring {azcam.db.systemname}")
 
-# ****************************************************************
-# load system-specific code
-# ****************************************************************
-if azcam.db.systemname != "NoSystem":
+    # define command server
+    cmdserver = CommandServer()
+    cmdserver.port = cmdport
+    cmdserver.logcommands = 0
+
+    # ****************************************************************
+    # load system-specific code
+    # ****************************************************************
+    if azcam.db.systemname != "NoSystem":
+        try:
+            importlib.import_module(f"azcam_itl.configs.config_server_{systemname}")
+        except Exception as e:
+            azcam.log(f"Error loading config_server_{systemname}: {e}")
+
+    # ****************************************************************
+    # scripts
+    # ****************************************************************
+    azcam.log("Loading scripts")
+    loadscripts(["azcam_itl.scripts.server"])
+
+    # ****************************************************************
+    # observe
+    # ****************************************************************
+    queue = Queue()
+
+    # ****************************************************************
+    # web server
+    # ****************************************************************
+    if 1:
+        webserver = WebServer()
+        webserver.port = 2403
+        webserver.logcommands = 0
+        webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
+        webserver.message = f"for host {azcam.db.hostname}"
+        webserver.datafolder = azcam.db.datafolder
+        webserver.start()
+
+        webstatus = Status()
+        webstatus.message = "Status for ITL systems"
+        webstatus.initialize()
+
+        exptool = Exptool()
+        exptool.initialize()
+
+        azcam.log("Started webserver applications")
+
+    # ****************************************************************
+    # parameter file
+    # ****************************************************************
+    parfile = os.path.join(
+        azcam.db.datafolder,
+        "parameters",
+        f"parameters_server_{azcam.db.systemname}.ini",
+    )
+    azcam.db.parameters.read_parfile(parfile)
+    azcam.db.parameters.update_pars("azcamserver")
+
+    # ****************************************************************
+    # start command server
+    # ****************************************************************
+    azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
+    cmdserver.start()
+
+    # ****************************************************************
+    # try to change window title
+    # ****************************************************************
     try:
-        importlib.import_module(f"azcam_itl.configs.config_server_{systemname}")
-    except Exception as e:
-        azcam.log(f"Error loading config_server_{systemname}: {e}")
+        ctypes.windll.kernel32.SetConsoleTitleW("azcamserver")
+    except Exception:
+        pass
 
-# ****************************************************************
-# scripts
-# ****************************************************************
-azcam.log("Loading scripts")
-loadscripts(["azcam_itl.scripts.server"])
 
-# ****************************************************************
-# observe
-# ****************************************************************
-observer = Observe()
-
-# ****************************************************************
-# web server
-# ****************************************************************
-if 1:
-    webserver = WebServer()
-    webserver.port = 2403
-    webserver.logcommands = 0
-    webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
-    webserver.message = f"for host {azcam.db.hostname}"
-    webserver.datafolder = azcam.db.datafolder
-    webserver.start()
-
-    webstatus = Status()
-    webstatus.message = "Status for ITL systems"
-    webstatus.initialize()
-
-    exptool = Exptool()
-    exptool.initialize()
-
-    azcam.log("Started webserver applications")
-
-# ****************************************************************
-# parameter file
-# ****************************************************************
-parfile = os.path.join(
-    azcam.db.datafolder, "parameters", f"parameters_server_{azcam.db.systemname}.ini"
-)
-azcam.db.parameters.read_parfile(parfile)
-azcam.db.parameters.update_pars("azcamserver")
-
-# ****************************************************************
-# start command server
-# ****************************************************************
-azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
-cmdserver.start()
-
-# ****************************************************************
-# cli commands
-# ****************************************************************
+setup()
 from azcam.cli import *
-
-# ****************************************************************
-# try to change window title
-# ****************************************************************
-try:
-    ctypes.windll.kernel32.SetConsoleTitleW("azcamserver")
-except Exception:
-    pass

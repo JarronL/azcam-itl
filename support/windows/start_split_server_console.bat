@@ -1,8 +1,8 @@
 @echo off
 
 Rem Start azcamserver and azcamconsole in split Windows Terminal panes.
-
 Rem May need to run as admin on some systems.
+Rem Best practice is to copy this file to Desktop and edit size and position.
 
 SET OPTIONS= --size 180,30 --pos 20,750
 
