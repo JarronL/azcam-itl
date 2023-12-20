@@ -18,7 +18,7 @@ class IMX411DetChar(DetChar):
         super().__init__()
 
         self.imsnap_scale = 1.0
-        self.start_temperature = +10.0
+        self.start_temperature = 0.0
 
         self.operator = ""
         self.itl_sn = ""

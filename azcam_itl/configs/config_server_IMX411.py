@@ -21,7 +21,9 @@ try:
     controller.nx = 14208
     controller.ny = 10656
     controller.initialize()
-    controller.camera.Gain = 3000
+    # gains around 1 e/DN
+    # controller.camera.Gain = 3000  # 2x2
+    controller.camera.Gain = 1  # unbinned
 except Exception as e:
     print(e)
     print("could not initialize camera")
@@ -56,7 +58,7 @@ instrument = InstrumentQB()
 # temperature controller
 # ****************************************************************
 tempcon = TempConASCOM()
-tempcon.control_temperature = -10.0
+tempcon.control_temperature = 0.0
 tempcon.initialize()
 
 # ****************************************************************
