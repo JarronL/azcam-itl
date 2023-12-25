@@ -14,15 +14,17 @@ import ctypes
 from runpy import run_path
 
 import azcam
+from azcam.logger import check_for_remote_logger
+from azcam.scripts import loadscripts
+
 import azcam_server.server
 import azcam_server.shortcuts
 from azcam_server.cmdserver import CommandServer
-from azcam.logger import check_for_remote_logger
-from azcam_server.webserver.fastapi_server import WebServer
 from azcam_server.tools.queue import Queue
+
+from azcam_webtools.webserver.fastapi_server import WebServer
 from azcam_webtools.status.status import Status
 from azcam_webtools.exptool.exptool import Exptool
-from azcam.scripts import loadscripts
 
 # from azcam_monitor.monitorinterface import AzCamMonitorInterface
 
@@ -129,7 +131,7 @@ def setup():
     # ****************************************************************
     # scripts
     # ****************************************************************
-    azcam.log("Loading scripts")
+    azcam.log("Loading azcam_itl.scripts.server")
     loadscripts(["azcam_itl.scripts.server"])
 
     # ****************************************************************

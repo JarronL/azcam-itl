@@ -13,17 +13,18 @@ import ctypes
 from runpy import run_path
 
 import azcam
+from azcam.scripts import loadscripts
+
 import azcam_console.console
 import azcam_console.shortcuts
 import azcam_console.tools.console_tools
 import azcam_console.scripts
 from azcam_console.tools.ds9display import Ds9Display
 from azcam_console.tools.focus import FocusConsole
+
 from azcam_testers import load_testers
 
-
 from azcam_itl import itlutils
-from azcam.scripts import loadscripts
 import azcam_itl.shortcuts_itl
 
 from azcam_observe.observe_cli.observe_cli import ObserveCli
@@ -130,7 +131,7 @@ def setup():
     # ****************************************************************
     # scripts
     # ****************************************************************
-    azcam.log("Loading scripts")
+    azcam.log("Loading scripts: azcam_itl.scripts, azcam_console.scripts")
     loadscripts(["azcam_itl.scripts", "azcam_console.scripts"])
 
     # try to connect to azcamserver
