@@ -25,6 +25,9 @@ from azcam_server.tools.queue import Queue
 from azcam_webtools.webserver.fastapi_server import WebServer
 from azcam_webtools.status.status import Status
 from azcam_webtools.exptool.exptool import Exptool
+from azcam.scripts import loadscripts
+from azcam_monitor.monitorinterface import AzCamMonitorInterface
+
 
 # from azcam_monitor.monitorinterface import AzCamMonitorInterface
 
@@ -159,6 +162,13 @@ def setup():
         exptool.initialize()
 
         azcam.log("Started webserver applications")
+
+    # ****************************************************************
+    # azcammonitor
+    # ****************************************************************
+    monitor = AzCamMonitorInterface()
+    # monitor.proc_path = "/data/mont4k/bin/start_server_mont4k.bat"
+    monitor.register()
 
     # ****************************************************************
     # parameter file
