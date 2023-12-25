@@ -126,10 +126,7 @@ def setup():
     # load system-specific code
     # ****************************************************************
     if azcam.db.systemname != "NoSystem":
-        try:
-            importlib.import_module(f"azcam_itl.configs.config_server_{systemname}")
-        except Exception as e:
-            azcam.log(f"Error loading config_server_{systemname}: {e}")
+        importlib.import_module(f"azcam_itl.configs.config_server_{systemname}")
 
     # ****************************************************************
     # scripts
