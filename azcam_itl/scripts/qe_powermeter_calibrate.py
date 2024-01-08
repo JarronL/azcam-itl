@@ -33,20 +33,22 @@ def qe_powermeter_calibrate(wavelengths):
 
     # Iterate through wavelengths and obtain readings
     for wave in wavelengths:
+        instrument.set_wavelength(wave)
+        time.sleep(2)
+
         # instrument.comps_off()
         instrument.set_shutter(0)
-        instrument.set_wavelength(wave)
         time.sleep(4)
         flux_close = server.command(f"instrument.get_power {wave}")
+        flux_close = float(flux_close)
 
         # instrument.comps_on()
         instrument.set_shutter(1)
-        time.sleep(2)
+        time.sleep(4)
         flux_open = server.command(f"instrument.get_power {wave}")
+        flux_open = float(flux_open)
 
         # convert to floats
-        flux_close = float(flux_close)
-        flux_open = float(flux_open)
         flux = flux_open - flux_close
 
         s = f"{wave:.0f}\t\t{flux:1.3e}\t{flux_open:1.3e}\t{flux_close:1.3e}"
@@ -63,9 +65,7 @@ def qe_powermeter_calibrate(wavelengths):
     with open("flux_cal.txt", "w+") as datafile:
         datafile.write("# " + data_txt_hdr + "\n")
         for i, wave in enumerate(wavelengths):
-            data_txt_line = (
-                f"{wave:.0f}\t{fluxes[i]:1.3e}\t{fluxes_open[i]:1.3e}\t{fluxes_close[i]:1.3e}"
-            )
+            data_txt_line = f"{wave:.0f}\t{fluxes[i]:1.3e}\t{fluxes_open[i]:1.3e}\t{fluxes_close[i]:1.3e}"
             datafile.write(data_txt_line + "\n")
 
     return

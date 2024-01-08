@@ -556,7 +556,7 @@ linearity.zero_correct = 1
 linearity.use_weights = 1
 
 # QE
-qe.cal_scale = 0.985
+qe.cal_scale = 1.178
 qe.global_scale = 1.0
 qe.pixel_area = 0.00376**2
 qe.flux_cal_folder = "/data/IMX411"

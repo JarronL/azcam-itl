@@ -30,19 +30,6 @@ except Exception as e:
 
 # ASCOM GainMax is 4030
 
-# gain 10, binned 2x2, 3.0 e/DN
-# gain 2000, binned 2x2, 1.6 e/DN
-
-# gain 0, offset 10 (100DN) was used for unbinned, 0.76 e/DN
-# gain 10, offset 10 (100DN) was used for unbinned, 0.76 e/DN
-# gain 1000, offset 10 (100DN) was used for unbinned, 0.59 e/DN
-
-
-# gain 1, offset 10 (100DN) was used for unbinned, 0.8 e/DN
-# gain 1, offset 10 (100DN) was used for 2x2, 3.2 e/DN
-# gain 10, offset 10 (100DN) was used for 2x2, 2.7 e/DN
-# gain 100, offset 10 (100DN) was used for 2x2, 1.0 e/DN
-
 # ****************************************************************
 # add remote commands to server
 # ****************************************************************
