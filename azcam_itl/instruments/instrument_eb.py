@@ -34,8 +34,8 @@ class InstrumentEB(Instrument):
             "green": 3,
             "orange": 4,
             "red": 5,
-            "IR": 6,
-            "UV": 7,
+            "ir": 6,
+            "uv": 7,
         }
 
         # current state
@@ -48,8 +48,8 @@ class InstrumentEB(Instrument):
             "green": "FFFNFFFF",
             "orange": "FFFFNFFF",
             "red": "FFFFFNFF",
-            "IR": "FFFFFFNF",
-            "UV": "FFFFFFFN",
+            "ir": "FFFFFFNF",
+            "uv": "FFFFFFFN",
         }
 
         self.led_pins = {
@@ -59,8 +59,8 @@ class InstrumentEB(Instrument):
             3: "green",
             4: "orange",
             5: "red",
-            6: "IR",
-            7: "UV",
+            6: "ir",
+            7: "uv",
         }
 
         self.led_color_places = {
@@ -70,8 +70,8 @@ class InstrumentEB(Instrument):
             "green": 3,
             "orange": 4,
             "red": 5,
-            "IR": 6,
-            "UV": 7,
+            "ir": 6,
+            "uv": 7,
         }
 
         # focus stage control
@@ -282,7 +282,6 @@ class InstrumentEB(Instrument):
 
         # send string over socket
         client_socket.connect(arduino_address)
-        print(f"Arduino command: {output}")
         client_socket.send(output.encode())
         client_socket.close()
 
@@ -519,7 +518,7 @@ class InstrumentEB(Instrument):
 
         reply = self.filters.get_filters()
 
-        return reply[1:]
+        return reply
 
     def get_filter(self, filter_id=0):
         """
@@ -568,7 +567,7 @@ class FilterWheelEB(object):
 
     def __init__(self):
         self.mock = 0
-        self.verbose = 1
+        self.verbose = 0
 
         self.filter_wavelengths = {
             "art1": 1,  # clear with opaque artwork
@@ -606,7 +605,6 @@ class FilterWheelEB(object):
             # self.fw = self.rm.open_resource("COM3")
 
         reply = self.fw.query("RST")
-        print(reply)
 
         self.initialized = True
 
@@ -673,8 +671,12 @@ class InstrumentEBXXX(Instrument):
 
         self.pressure_ids = [0, 1]  # [0, 1, 2, 4]
         self.pressure0 = pressure_mks900.PressureController("COM3")  # EB MKS controller
-        self.pressure1 = pressure_vgc501.PressureController("COM4")  # EB ethernet mapped Pfeiffer
-        self.pressure2 = pressure_vgc501.PressureController("COM11")  # EB ethernet mapped Agilent
+        self.pressure1 = pressure_vgc501.PressureController(
+            "COM4"
+        )  # EB ethernet mapped Pfeiffer
+        self.pressure2 = pressure_vgc501.PressureController(
+            "COM11"
+        )  # EB ethernet mapped Agilent
         self.wavelength = ""  # wavelengths are LED strings like "green"
         self.valid_wavelengths = ["UV", "violet", "green", "orange", "red", "IR"]
         self.wavelengthLeds = {
