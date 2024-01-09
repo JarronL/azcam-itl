@@ -26,10 +26,6 @@ from azcam_webtools.webserver.fastapi_server import WebServer
 from azcam_webtools.status.status import Status
 from azcam_webtools.exptool.exptool import Exptool
 from azcam.scripts import loadscripts
-from azcam_monitor.monitorinterface import AzCamMonitorInterface
-
-
-# from azcam_monitor.monitorinterface import AzCamMonitorInterface
 
 import azcam_itl.shortcuts_itl
 
@@ -166,9 +162,10 @@ def setup():
     # ****************************************************************
     # azcammonitor
     # ****************************************************************
-    monitor = AzCamMonitorInterface()
-    # monitor.proc_path = "/data/mont4k/bin/start_server_mont4k.bat"
-    monitor.register()
+    azcam.db.monitor.proc_path = (
+        "/azcam/azcam-itl/support/windows/start_server_ASI294.bat"
+    )
+    azcam.db.monitor.register()
 
     # ****************************************************************
     # parameter file
