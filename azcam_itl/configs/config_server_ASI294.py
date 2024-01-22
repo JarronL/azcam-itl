@@ -5,14 +5,10 @@ import azcam
 from azcam_itl.detectors import detector_asi294
 from azcam_server.tools.ascom.controller_ascom import ControllerASCOM
 from azcam_server.tools.ascom.exposure_ascom import ExposureASCOM
-from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
 from azcam.header import System
 from azcam_server.tools.tempcon import TempCon
 from azcam_server.tools.ds9display import Ds9Display
 from azcam_server.tools.sendimage import SendImage
-
-from azcam_itl.instruments.instrument_qb import InstrumentQB
-from azcam_itl.instruments.instrument_eb import InstrumentEB
 
 # ****************************************************************
 # controller
@@ -46,19 +42,10 @@ self.camera.Offset = 10
 azcam.db.par_table["cmos_gain"] = "controller.camera.Gain"
 
 # ****************************************************************
-# instrument
-# ****************************************************************
-# instrument = Instrument()
-# instrument = InstrumentQB()
-instrument = InstrumentEB()
-# instrument.initialize()
-
-# ****************************************************************
 # temperature controller
 # ****************************************************************
-tempcon = TempConASCOM()
-tempcon.control_temperature = -20
-tempcon.initialize()
+azcam.db.tools["tempcon"].control_temperature = -20
+azcam.db.tools["tempcon"].initialize()
 
 # ****************************************************************
 # exposure

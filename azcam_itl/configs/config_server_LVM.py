@@ -5,17 +5,12 @@ from azcam.header import System
 from azcam_server.tools.ds9display import Ds9Display
 from azcam_server.tools.archon.controller_archon import ControllerArchon
 from azcam_server.tools.archon.exposure_archon import ExposureArchon
-from azcam_server.tools.tempcon_cryocon24 import TempConCryoCon24
-from azcam_server.tools.archon.tempcon_archon import TempConArchon
 
 from azcam_itl.detectors import (
     detector_sta4850,
     detector_sta4850_2amps_side,
     detector_sta4850_2amps_top,
 )
-from azcam_itl.instruments.instrument_qb import InstrumentQB
-from azcam_itl.instruments.instrument_eb import InstrumentEB
-from azcam_itl.instruments.instrument_arduino import InstrumentArduino
 
 # optional configuration options
 LVM_2amps = azcam.db.get("LVM_2amps")
@@ -32,12 +27,7 @@ if LVM_webserver is None:
 # instrument
 # ****************************************************************
 if LVM_science:
-    instrument = InstrumentEB()
-    instrument.pressure_ids = [0, 1]
-    azcam.log(f"Instrument is Electron Bench")
-else:
-    instrument = InstrumentQB()
-    azcam.log(f"Instrument is Quantum Bench")
+    azcam.db.tools["instrument"].pressure_ids = [0, 1]
 
 # ****************************************************************
 # controller
@@ -52,22 +42,9 @@ else:
 # ****************************************************************
 # temperature controller
 # ****************************************************************
+azcam.db.tools["tempcon"].control_temperature = -110.0
 if LVM_science:
-    tempcon = TempConArchon()
     controller.heater_board_installed = 1
-else:
-    tempcon = TempConCryoCon24()
-    tempcon.host = "10.0.0.44"  # QB
-    tempcon.control_temperature = -110.0
-    tempcon.init_commands = [
-        "input A:units C",
-        "input B:units C",
-        "loop 1:type pid",
-        "input A:isenix 2",
-        "input B:isenix 2",
-        "loop 1:range mid",
-        "loop 1:maxpwr 100",
-    ]
 
 # ****************************************************************
 # exposure

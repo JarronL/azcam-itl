@@ -5,28 +5,8 @@ from azcam.header import System
 from azcam_server.tools.ds9display import Ds9Display
 from azcam_server.tools.archon.controller_archon import ControllerArchon
 from azcam_server.tools.archon.exposure_archon import ExposureArchon
-from azcam_server.tools.tempcon_cryocon24 import TempConCryoCon24
-from azcam_server.tools.tempcon import TempCon
-from azcam_server.tools.instrument import Instrument
 
 from azcam_itl.detectors import detector_sta4850, detector_sta4850_2amps_top
-from azcam_itl.instruments.instrument_qb import InstrumentQB
-from azcam_itl.instruments.instrument_eb import InstrumentEB
-
-INSTRUMENT = "QB"  # None, EB, QB
-
-# ****************************************************************
-# instrument
-# ****************************************************************
-if INSTRUMENT is None:
-    instrument = Instrument()
-elif INSTRUMENT == "EB":
-    instrument = InstrumentEB()
-    instrument.pressure_ids = [0, 1]
-    azcam.log(f"Instrument is Electron Bench")
-elif INSTRUMENT == "QB":
-    instrument = InstrumentQB()
-    azcam.log(f"Instrument is Quantum Bench")
 
 # ****************************************************************
 # controller
@@ -38,35 +18,10 @@ controller.camserver.host = "10.0.2.12"  # ITL3
 # ****************************************************************
 # temperature controller
 # ****************************************************************
-if INSTRUMENT is None:
-    tempcon = TempCon()
-elif INSTRUMENT == "EB":
-    tempcon = TempConCryoCon24()
-    tempcon.host = "10.0.0.45"  # EB
-    tempcon.control_temperature = -100.0
-    tempcon.init_commands = [
-        "input A:units C",
-        "input B:units C",
-        "loop 1:type pid",
-        "input A:isenix 2",
-        "input B:isenix 2",
-        "loop 1:range mid",
-        "loop 1:maxpwr 100",
-    ]
-elif INSTRUMENT == "QB":
-    tempcon = TempConCryoCon24()
-    tempcon.host = "10.0.0.44"  # QB
-    tempcon.control_temperature = -100.0
-    tempcon.temperature_ids = [2, 0]  # custom
-    tempcon.init_commands = [
-        "input A:units C",
-        "input B:units C",
-        "loop 1:type pid",
-        "input A:isenix 2",
-        "input B:isenix 2",
-        "loop 1:range mid",
-        "loop 1:maxpwr 100",
-    ]
+tempcon = azcam.db.tools["tempcon"]
+tempcon.control_temperature = -100.0
+if tempcon.host == "cryoconqb":
+    tempcon.temperature_ids = [2, 0]
 
 # ****************************************************************
 # exposure
@@ -77,6 +32,14 @@ exposure.fileconverter.set_detector_config(detector_sta4850_2amps_top)
 exposure.filetype = exposure.filetypes[filetype]
 exposure.image.filetype = exposure.filetypes[filetype]
 exposure.add_extensions = 0
+exposure.image.focalplane.gains = [
+    6.0,
+    6.0,
+    6.0,
+    6.0,
+]
+exposure.image.focalplane.rdnoises = [0.0, 0.0, 0.0, 0.0]
+
 
 # ****************************************************************
 # detector

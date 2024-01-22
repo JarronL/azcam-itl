@@ -2,7 +2,6 @@ import os
 import sys
 
 import azcam
-from azcam_server.tools.instrument import Instrument
 from azcam_server.tools.mag.controller_mag import ControllerMag
 from azcam_server.tools.mag.exposure_mag import ExposureMag
 from azcam_server.tools.mag.tempcon_mag import TempConMag
@@ -44,11 +43,6 @@ azcam.log("Using guide camera:", guider_address, guider_port)
 controller = ControllerMag()
 controller.camserver.set_server(guider_address, guider_port)
 controller.timing_file = os.path.join(azcam.db.datafolder, "dspcode/gcam_ccd57.s")
-
-# ****************************************************************
-# instrument
-# ****************************************************************
-instrument = Instrument()
 
 # ****************************************************************
 # temperature controller

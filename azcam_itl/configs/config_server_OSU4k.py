@@ -9,7 +9,6 @@ from azcam_server.tools.archon.tempcon_archon import TempConArchon
 from azcam_server.tools.ds9display import Ds9Display
 
 from azcam_itl.detectors import detector_sta0500
-from azcam_itl.instruments.instrument_bb import InstrumentBB
 
 # ****************************************************************
 # controller
@@ -18,12 +17,6 @@ controller = ControllerArchon()
 controller.camserver.port = 4242
 controller.camserver.host = "10.0.0.2"
 controller.heater_board_installed = 1
-
-# ****************************************************************
-# instrument
-# ****************************************************************
-instrument = InstrumentBB()
-azcam.log(f"Instrument is Boson Bench")
 
 # ****************************************************************
 # temperature controller

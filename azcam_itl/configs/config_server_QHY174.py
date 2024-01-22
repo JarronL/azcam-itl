@@ -6,12 +6,9 @@ from azcam.header import System
 from azcam_server.tools.ascom.controller_ascom import ControllerASCOM
 from azcam_server.tools.ascom.exposure_ascom import ExposureASCOM
 from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
-from azcam_server.tools.instrument import Instrument
-from azcam_server.tools.tempcon import TempCon
 from azcam_server.tools.ds9display import Ds9Display
 
 from azcam_itl.detectors import detector_qhy174
-from azcam_itl.instruments.instrument_qb import InstrumentQB
 
 # ****************************************************************
 # controller
@@ -42,20 +39,11 @@ self.camera.Gain = 480  # 0.02 e/DN, 3.8 e noise  # not well behaved for high ga
  """
 
 # ****************************************************************
-# instrument
-# ****************************************************************
-# instrument = Instrument()
-instrument = InstrumentQB()
-
-# ****************************************************************
 # temperature controller
 # ****************************************************************
 tempcon = TempConASCOM()
 tempcon.control_temperature = -20
-try:
-    tempcon.initialize()
-except Exception:
-    pass
+tempcon.initialize()
 
 # ****************************************************************
 # exposure

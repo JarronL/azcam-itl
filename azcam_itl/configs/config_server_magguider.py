@@ -37,10 +37,6 @@ print("Using:", guider_address, guider_port)
 controller = ControllerMag()
 controller.camserver.set_server(guider_address, guider_port)
 controller.timing_file = os.path.join(azcam.db.datafolder, "dspcode", "gcam_ccd57.s")
-# ****************************************************************
-# instrument
-# ****************************************************************
-instrument = Instrument()
 
 # ****************************************************************
 # temperature controller

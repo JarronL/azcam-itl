@@ -122,7 +122,9 @@ class PrimeFocus4kDetChar(DetChar):
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam_console.utils.make_file_folder("report", 1, 1)
+        currentfolder, reportfolder = azcam_console.utils.make_file_folder(
+            "report", 1, 1
+        )
         azcam.utils.curdir(reportfolder)
         azcam.db.parameters.set_par("imagefolder", reportfolder)
 
@@ -423,7 +425,9 @@ class PrimeFocus4kDetChar(DetChar):
         # load tools and read their datafiles if not valid
         for name in self.report_names:
             try:
-                datafile = os.path.join(self.report_folder, self.report_files[name] + ".txt")
+                datafile = os.path.join(
+                    self.report_folder, self.report_files[name] + ".txt"
+                )
                 print("Reading datafile for tool %s: %s" % (name, datafile))
                 azcam.db.tools(name).read_datafile(datafile)
             except Exception as message:
@@ -549,11 +553,11 @@ azcam.db.tools["gain"].exposure_time = 1.0
 azcam.db.tools["gain"].wavelength = 450
 azcam.db.tools["gain"].video_processor_gain = 4 * [12.0]
 azcam.db.tools["gain"].readnoise_spec = 4.0
-azcam.db.tools["gain"].system_noise_correction = system_noise_correction
+azcam.db.tools["gain"].system_noise_correction = []
 
 # fe55
 azcam.db.tools["fe55"].number_images_acquire = 1
-azcam.db.tools["fe55"].system_noise_correction = system_noise_correction
+azcam.db.tools["fe55"].system_noise_correction = []
 azcam.db.tools["fe55"].gain_estimate = 4 * [2.6]
 azcam.db.tools["fe55"].exposure_time = 30.0
 azcam.db.tools["fe55"].neighborhood_size = 5
@@ -594,7 +598,23 @@ azcam.db.tools["superflat"].fit_order = 3
 
 # ptc
 azcam.db.tools["ptc"].wavelength = 550
-azcam.db.tools["ptc"].exposure_times = [1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+azcam.db.tools["ptc"].exposure_times = [
+    1,
+    2,
+    3,
+    5,
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+]
 azcam.db.tools["ptc"].gain_range = [1.0, 4.0]
 azcam.db.tools["ptc"].fit_max = 60000
 azcam.db.tools["ptc"].fit_line = 1
@@ -621,7 +641,9 @@ azcam.db.tools["dark"].overscan_correct = 1  # correct with overscan region
 azcam.db.tools["dark"].zero_correct = 1  # correct including debiased residuals
 azcam.db.tools["dark"].fit_order = 3
 azcam.db.tools["dark"].mean_dark_spec = 20.0 / 3600.0  # e/pix/sec
-azcam.db.tools["dark"].bright_pixel_reject = 10.0 * azcam.db.tools["dark"].mean_dark_spec
+azcam.db.tools["dark"].bright_pixel_reject = (
+    10.0 * azcam.db.tools["dark"].mean_dark_spec
+)
 azcam.db.tools["dark"].dark_fraction = -1  # fraction of pixel less than dark_limit
 azcam.db.tools["dark"].dark_limit = -1  # e/pix/hr
 azcam.db.tools["dark"].report_dark_per_hour = True  # report DC per hour

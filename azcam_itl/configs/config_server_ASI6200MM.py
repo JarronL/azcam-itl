@@ -3,13 +3,10 @@ import os
 import azcam
 from azcam_server.tools.ascom.controller_ascom import ControllerASCOM
 from azcam_server.tools.ascom.exposure_ascom import ExposureASCOM
-from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
 from azcam.header import System
 from azcam_server.tools.ds9display import Ds9Display
 
 from azcam_itl.detectors import detector_asi6200MM
-from azcam_itl.instruments.instrument_qb import InstrumentQB
-from azcam_itl.instruments.instrument_eb import InstrumentEB
 
 # ****************************************************************
 # controller
@@ -39,20 +36,8 @@ except Exception as e:
 # ****************************************************************
 azcam.db.par_table["cmos_gain"] = "controller.camera.Gain"
 
-# ****************************************************************
-# instrument
-# ****************************************************************
-if 0:
-    instrument = InstrumentQB()
-else:
-    instrument = InstrumentEB()
-
-# ****************************************************************
-# temperature controller
-# ****************************************************************
-tempcon = TempConASCOM()
-tempcon.control_temperature = -10.0
-tempcon.initialize()
+azcam.db.tools["tempcon"].control_temperature = -10.0
+azcam.db.tools["tempcon"].initialize()
 
 # ****************************************************************
 # exposure

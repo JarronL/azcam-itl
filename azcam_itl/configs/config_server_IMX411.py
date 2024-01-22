@@ -3,12 +3,10 @@ import os
 import azcam
 from azcam_server.tools.ascom.controller_ascom import ControllerASCOM
 from azcam_server.tools.ascom.exposure_ascom import ExposureASCOM
-from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
 from azcam.header import System
 from azcam_server.tools.ds9display import Ds9Display
 
 from azcam_itl.detectors import detector_imx411
-from azcam_itl.instruments.instrument_qb import InstrumentQB
 
 # ****************************************************************
 # controller
@@ -34,19 +32,6 @@ except Exception as e:
 # add remote commands to server
 # ****************************************************************
 azcam.db.par_table["cmos_gain"] = "controller.camera.Gain"
-
-# ****************************************************************
-# instrument
-# ****************************************************************
-# instrument = Instrument()
-instrument = InstrumentQB()
-
-# ****************************************************************
-# temperature controller
-# ****************************************************************
-tempcon = TempConASCOM()
-tempcon.control_temperature = 0.0
-tempcon.initialize()
 
 # ****************************************************************
 # exposure

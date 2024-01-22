@@ -21,12 +21,20 @@ import azcam_server.server
 import azcam_server.shortcuts
 from azcam_server.cmdserver import CommandServer
 from azcam_server.tools.queue import Queue
+from azcam_server.tools.tempcon_cryocon24 import TempConCryoCon24
+from azcam_server.tools.tempcon import TempCon
 
 from azcam_webtools.webserver.fastapi_server import WebServer
 from azcam_webtools.status.status import Status
 from azcam_webtools.exptool.exptool import Exptool
 from azcam.scripts import loadscripts
 
+from azcam_server.tools.instrument import Instrument
+from azcam_itl.instruments.instrument_qb import InstrumentQB
+from azcam_itl.instruments.instrument_eb import InstrumentEB
+from azcam_itl.instruments.instrument_arduino import InstrumentArduino
+
+from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
 import azcam_itl.shortcuts_itl
 
 # ****************************************************************
@@ -52,6 +60,11 @@ try:
     cmdport = int(sys.argv[i + 1])
 except ValueError:
     cmdport = 2402
+try:
+    i = sys.argv.index("-instrument")
+    instflag = sys.argv[i + 1]
+except ValueError:
+    instflag = None
 
 
 def setup():
@@ -120,6 +133,55 @@ def setup():
     cmdserver = CommandServer()
     cmdserver.port = cmdport
     cmdserver.logcommands = 0
+
+    # ****************************************************************
+    # instrument
+    # ****************************************************************
+    if instflag is None:
+        instrument = Instrument()
+    elif instflag == "EB":
+        instrument = InstrumentEB()
+        instrument.pressure_ids = [0, 1]
+        azcam.log(f"Instrument is Electron Bench")
+    elif instflag == "QB":
+        instrument = InstrumentQB()
+        azcam.log(f"Instrument is Quantum Bench")
+    elif instflag == "ASCOM":
+        instrument = InstrumentArduino()
+
+    # ****************************************************************
+    # temperature controller
+    # ****************************************************************
+    if instflag == "EB":
+        tempcon = TempConCryoCon24()
+        tempcon.host = "cryoconeb"  # EB
+        tempcon.control_temperature = -100.0
+        tempcon.init_commands = [
+            "input A:units C",
+            "input B:units C",
+            "loop 1:type pid",
+            "input A:isenix 2",
+            "input B:isenix 2",
+            "loop 1:range mid",
+            "loop 1:maxpwr 100",
+        ]
+    elif instflag == "QB":
+        tempcon = TempConCryoCon24()
+        tempcon.host = "cryoconqb"  # QB
+        tempcon.control_temperature = -100.0
+        tempcon.init_commands = [
+            "input A:units C",
+            "input B:units C",
+            "loop 1:type pid",
+            "input A:isenix 2",
+            "input B:isenix 2",
+            "loop 1:range mid",
+            "loop 1:maxpwr 100",
+        ]
+    elif instflag == "ASCOM":
+        tempcon = TempConASCOM()
+    else:
+        tempcon = TempCon()  # may be overwritten
 
     # ****************************************************************
     # load system-specific code

@@ -3,12 +3,10 @@ import os
 import azcam
 from azcam_server.tools.ascom.controller_ascom import ControllerASCOM
 from azcam_server.tools.ascom.exposure_ascom import ExposureASCOM
-from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
 from azcam.header import System
 from azcam_server.tools.ds9display import Ds9Display
 
 from azcam_itl.detectors import detectors_asi2600MM
-from azcam_itl.instruments.instrument_qb import InstrumentQB
 
 # ****************************************************************
 # controller
@@ -42,21 +40,8 @@ self.camera.Gain = 60   # 0.40 e/DN, 3.5 e noise
 self.camera.Gain = 20   # 0.60 e/DN, 3.5 e noise
 """
 
-# ****************************************************************
-# instrument
-# ****************************************************************
-# instrument = Instrument()
-instrument = InstrumentQB()
-
-# ****************************************************************
-# temperature controller
-# ****************************************************************
-tempcon = TempConASCOM()
-tempcon.control_temperature = -20
-try:
-    tempcon.initialize()
-except Exception:
-    pass
+azcam.db.tools["tempcon"].control_temperature = -20
+azcam.db.tools["tempcon"].initialize()
 
 # ****************************************************************
 # exposure

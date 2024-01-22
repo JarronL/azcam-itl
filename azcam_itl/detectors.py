@@ -568,6 +568,7 @@ detector_sta4850_2amps_top = {
         "im1",
         "im2",
     ],
+    "amp_cfg": [0, 1],
 }
 
 
