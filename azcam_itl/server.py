@@ -180,6 +180,7 @@ def setup():
         ]
     elif instflag == "ASCOM":
         tempcon = TempConASCOM()
+        tempcon.control_temperature = 0.0
     else:
         tempcon = TempCon()  # may be overwritten
 

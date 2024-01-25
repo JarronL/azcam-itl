@@ -18,10 +18,7 @@ controller.camserver.host = "10.0.2.12"  # ITL3
 # ****************************************************************
 # temperature controller
 # ****************************************************************
-tempcon = azcam.db.tools["tempcon"]
-tempcon.control_temperature = -100.0
-if tempcon.host == "cryoconqb":
-    tempcon.temperature_ids = [2, 0]
+azcam.db.tools["tempcon"].temperature_ids = [2, 0]
 
 # ****************************************************************
 # exposure
