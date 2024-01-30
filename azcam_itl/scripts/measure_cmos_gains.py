@@ -89,7 +89,7 @@ class MeasureCmosGains(object):
         for gain_setting in gain_settings:
             # set gain here
             azcam.log(f"Settin camera gain to {gain_setting}")
-            azcam.db.tools["parameters"].set_par("cmos_gain", gain_setting)
+            azcam.db.parameters.set_par("cmos_gain", gain_setting)
 
             # measure gain
             try:

@@ -1,16 +1,15 @@
 """
-azcamserver config for ITL systems.
+Setup method for ITL azcamserver.
 
-Command line options:
-  -system LVM
-  -configure /data/LVM/config_LVM.py
-  -datafolder path_to_datafolder
+Usage example:
+  python -i -m azcam_itl.server -- -system LVM
+    or -- -configure /data/LVM/config_LVM.py
+    or -- -datafolder path_to_datafolder
 """
 
 import importlib
 import os
 import sys
-import ctypes
 from runpy import run_path
 
 import azcam
@@ -37,38 +36,34 @@ from azcam_itl.instruments.instrument_arduino import InstrumentArduino
 from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
 import azcam_itl.shortcuts_itl
 
-# ****************************************************************
-# parse command line arguments
-# ****************************************************************
-try:
-    i = sys.argv.index("-system")
-    systemname = sys.argv[i + 1]
-except ValueError:
-    systemname = "menu"
-try:
-    i = sys.argv.index("-datafolder")
-    datafolder = sys.argv[i + 1]
-except ValueError:
-    datafolder = None
-try:
-    i = sys.argv.index("-configure")
-    configuration = sys.argv[i + 1]
-except ValueError:
-    configuration = None
-try:
-    i = sys.argv.index("-cmdport")
-    cmdport = int(sys.argv[i + 1])
-except ValueError:
-    cmdport = 2402
-try:
-    i = sys.argv.index("-instrument")
-    instflag = sys.argv[i + 1]
-except ValueError:
-    instflag = None
-
 
 def setup():
-    global systemname, datafolder, configuration, cmdport
+    # parse command line arguments
+    try:
+        i = sys.argv.index("-system")
+        systemname = sys.argv[i + 1]
+    except ValueError:
+        systemname = "menu"
+    try:
+        i = sys.argv.index("-datafolder")
+        datafolder = sys.argv[i + 1]
+    except ValueError:
+        datafolder = None
+    try:
+        i = sys.argv.index("-configure")
+        configuration = sys.argv[i + 1]
+    except ValueError:
+        configuration = None
+    try:
+        i = sys.argv.index("-cmdport")
+        cmdport = int(sys.argv[i + 1])
+    except ValueError:
+        cmdport = 2402
+    try:
+        i = sys.argv.index("-instrument")
+        instflag = sys.argv[i + 1]
+    except ValueError:
+        instflag = None
 
     # optional config script
     if configuration is not None:
@@ -119,9 +114,7 @@ def setup():
     azcam.db.servermode = azcam.db.systemname
     azcam.db.verbosity = 2
 
-    # ****************************************************************
     # logging
-    # ****************************************************************
     logfile = os.path.join(azcam.db.datafolder, "logs", "server.log")
     if check_for_remote_logger():
         azcam.db.logger.start_logging(logtype="23", logfile=logfile)
@@ -134,9 +127,7 @@ def setup():
     cmdserver.port = cmdport
     cmdserver.logcommands = 0
 
-    # ****************************************************************
     # instrument
-    # ****************************************************************
     if instflag is None:
         instrument = Instrument()
     elif instflag == "EB":
@@ -149,9 +140,7 @@ def setup():
     elif instflag == "ASCOM":
         instrument = InstrumentArduino()
 
-    # ****************************************************************
     # temperature controller
-    # ****************************************************************
     if instflag == "EB":
         tempcon = TempConCryoCon24()
         tempcon.host = "cryoconeb"  # EB
@@ -184,26 +173,18 @@ def setup():
     else:
         tempcon = TempCon()  # may be overwritten
 
-    # ****************************************************************
     # load system-specific code
-    # ****************************************************************
     if azcam.db.systemname != "NoSystem":
         importlib.import_module(f"azcam_itl.configs.config_server_{systemname}")
 
-    # ****************************************************************
     # scripts
-    # ****************************************************************
     azcam.log("Loading azcam_itl.scripts.server")
     loadscripts(["azcam_itl.scripts.server"])
 
-    # ****************************************************************
     # observe
-    # ****************************************************************
     queue = Queue()
 
-    # ****************************************************************
     # web server
-    # ****************************************************************
     if 1:
         webserver = WebServer()
         webserver.port = 2403
@@ -222,17 +203,13 @@ def setup():
 
         azcam.log("Started webserver applications")
 
-    # ****************************************************************
     # azcammonitor
-    # ****************************************************************
     azcam.db.monitor.proc_path = (
         "/azcam/azcam-itl/support/windows/start_server_ASI294.bat"
     )
     azcam.db.monitor.register()
 
-    # ****************************************************************
     # parameter file
-    # ****************************************************************
     parfile = os.path.join(
         azcam.db.datafolder,
         "parameters",
@@ -241,20 +218,11 @@ def setup():
     azcam.db.parameters.read_parfile(parfile)
     azcam.db.parameters.update_pars("azcamserver")
 
-    # ****************************************************************
     # start command server
-    # ****************************************************************
     azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
     cmdserver.start()
 
-    # ****************************************************************
-    # try to change window title
-    # ****************************************************************
-    try:
-        ctypes.windll.kernel32.SetConsoleTitleW("azcamserver")
-    except Exception:
-        pass
 
-
+# start
 setup()
 from azcam.cli import *

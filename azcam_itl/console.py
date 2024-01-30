@@ -1,15 +1,14 @@
 """
-azcamconsole config for ITL detchar systems
+Setup method for ITL azcamconsole.
 
-Command line options:
-  -system LVM
-  -configure /data/LVM/config_LVM.py
-  -datafolder path_to_datafolder
+Usage example:
+  python -i -m azcam_itl.console -- -system LVM
+    or -- -configure /data/LVM/config_LVM.py
+    or -- -datafolder path_to_datafolder
 """
 
 import os
 import sys
-import ctypes
 from runpy import run_path
 
 import azcam
@@ -29,31 +28,29 @@ import azcam_itl.shortcuts_itl
 
 from azcam_observe.observe_cli.observe_cli import ObserveCli
 
-# parse command line arguments
-try:
-    i = sys.argv.index("-system")
-    systemname = sys.argv[i + 1]
-except ValueError:
-    systemname = "menu"
-try:
-    i = sys.argv.index("-datafolder")
-    datafolder = sys.argv[i + 1]
-except ValueError:
-    datafolder = None
-try:
-    i = sys.argv.index("-configure")
-    configuration = sys.argv[i + 1]  # may overwrite systemname
-except ValueError:
-    configuration = None
-try:
-    i = sys.argv.index("-cmdport")
-    cmdport = int(sys.argv[i + 1])
-except ValueError:
-    cmdport = 2402
-
 
 def setup():
-    global systemname, datafolder, configuration, cmdport
+    # parse command line arguments
+    try:
+        i = sys.argv.index("-system")
+        systemname = sys.argv[i + 1]
+    except ValueError:
+        systemname = "menu"
+    try:
+        i = sys.argv.index("-datafolder")
+        datafolder = sys.argv[i + 1]
+    except ValueError:
+        datafolder = None
+    try:
+        i = sys.argv.index("-configure")
+        configuration = sys.argv[i + 1]  # may overwrite systemname
+    except ValueError:
+        configuration = None
+    try:
+        i = sys.argv.index("-cmdport")
+        cmdport = int(sys.argv[i + 1])
+    except ValueError:
+        cmdport = 2402
 
     azcam.db.systemname = systemname
 
@@ -118,19 +115,13 @@ def setup():
     create_console_tools()
     focus = FocusConsole()
 
-    # ****************************************************************
     # testers
-    # ****************************************************************
     load_testers()
 
-    # ****************************************************************
     # ObserveCli
-    # ****************************************************************
     observe = ObserveCli()
 
-    # ****************************************************************
     # scripts
-    # ****************************************************************
     azcam.log("Loading scripts: azcam_itl.scripts, azcam_console.scripts")
     loadscripts(["azcam_itl.scripts", "azcam_console.scripts"])
 
@@ -207,12 +198,7 @@ def setup():
     azcam.db.parameters.read_parfile(parfile)
     azcam.db.parameters.update_pars("azcamconsole")
 
-    # try to change window title
-    try:
-        ctypes.windll.kernel32.SetConsoleTitleW("azcamconsole")
-    except Exception:
-        pass
 
-
+# start
 setup()
 from azcam.cli import *
