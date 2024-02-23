@@ -82,7 +82,7 @@ class PrimeFocus4kDetChar(DetChar):
             "gain": "gain/gain",
             "dark": "dark/dark",
             "brightdefects": "dark/brightdefects",
-            "darkdefects": "superflat1/darkdefects",
+            "darkdefects": "superflat/darkdefects",
             "defects": "defects/defects",
             "fe55": "fe55/fe55",
             "linearity": "linearity/linearity",
@@ -278,8 +278,8 @@ class PrimeFocus4kDetChar(DetChar):
         if self.use_fe55_gain:
             azcam.db.tools["gain"].fe55_gain()
 
-        # superflat1 (no masks)
-        azcam.utils.curdir("superflat1")
+        # superflat (no masks)
+        azcam.utils.curdir("superflat")
         azcam.db.tools["superflat"].analyze()
         azcam.utils.curdir(rootfolder)
 
@@ -305,7 +305,7 @@ class PrimeFocus4kDetChar(DetChar):
         azcam.db.tools["defects"].copy_data_files()
         azcam.utils.curdir(rootfolder)
 
-        azcam.utils.curdir("superflat1")
+        azcam.utils.curdir("superflat")
         azcam.db.tools["defects"].analyze_dark_defects()
         azcam.db.tools["defects"].copy_data_files()
         azcam.utils.curdir(rootfolder)
@@ -406,7 +406,7 @@ class PrimeFocus4kDetChar(DetChar):
         lines.append("")
 
         # add superflat image
-        f1 = os.path.abspath("./superflat1/superflatimage.png")
+        f1 = os.path.abspath("./superflat/superflatimage.png")
         s = f"<img src={f1} width=350>"
         lines.append(s)
         lines.append("")

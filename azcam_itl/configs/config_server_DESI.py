@@ -3,28 +3,39 @@ import os
 import azcam
 from azcam.header import System
 from azcam_server.tools.archon.controller_archon import ControllerArchon
-from azcam_server.tools.arc.exposure_arc import ExposureArc
+from azcam_server.tools.archon.exposure_archon import ExposureArchon
 from azcam_server.tools.ds9display import Ds9Display
 from azcam_server.tools.focus import Focus
 
 from azcam_itl.detectors import detector_sta4150_4amp, detector_sta4150_2amp_left
-
-FOURAMPS = 1
 
 # ****************************************************************
 # controller
 # ****************************************************************
 controller = ControllerArchon()
 controller.camserver.port = 4242
-controller.camserver.host = "10.0.2.12"  # ITL3
+controller.camserver.host = "10.0.2.11"  # ITL2
 
 # ****************************************************************
 # exposure
 # ****************************************************************
-exposure = ExposureArc()
+exposure = ExposureArchon()
+exposure.fileconverter.set_detector_config(detector_sta4150_4amp)
 filetype = "MEF"
 exposure.filetype = exposure.filetypes[filetype]
 exposure.image.filetype = exposure.filetypes[filetype]
+exposure.add_extensions = 0
+exposure.image.focalplane.gains = [
+    2.0,
+    2.0,
+    2.0,
+    2.0,
+]
+exposure.image.focalplane.rdnoises = [0.0, 0.0, 0.0, 0.0]
+
+tempcon = azcam.db.tools["tempcon"]
+tempcon.control_temperature = -110.0
+tempcon.temperature_ids = [3, 1]  # camtemp, dewtemp for ITL2
 
 # ****************************************************************
 # system header
@@ -36,10 +47,7 @@ system.set_keyword("DEWAR", "ITL6", "Dewar name")
 # ****************************************************************
 # detector
 # ****************************************************************
-if FOURAMPS:
-    exposure.set_detpars(detector_sta4150_4amp)
-else:
-    exposure.set_detpars(detector_sta4150_2amp_left)
+exposure.set_detpars(detector_sta4150_4amp)
 
 # ****************************************************************
 # define display

@@ -87,7 +87,7 @@ class ITL4kDetChar(DetChar):
             "gain": "gain/gain",
             "dark": "dark/dark",
             "brightdefects": "dark/brightdefects",
-            "darkdefects": "superflat1/darkdefects",
+            "darkdefects": "superflat/darkdefects",
             "defects": "defects/defects",
             "fe55": "fe55/fe55",
             "linearity": "linearity/linearity",
@@ -127,7 +127,9 @@ class ITL4kDetChar(DetChar):
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam_console.utils.make_file_folder("report", 1, 1)
+        currentfolder, reportfolder = azcam_console.utils.make_file_folder(
+            "report", 1, 1
+        )
         azcam.utils.curdir(reportfolder)
         azcam.db.parameters.set_par("imagefolder", reportfolder)
 
@@ -282,8 +284,8 @@ class ITL4kDetChar(DetChar):
         if self.use_fe55_gain:
             azcam.db.tools["gain"].fe55_gain()
 
-        # superflat1 (no masks)
-        azcam.utils.curdir("superflat1")
+        # superflat (no masks)
+        azcam.utils.curdir("superflat")
         azcam.db.tools["superflat"].analyze()
         azcam.utils.curdir(rootfolder)
 
@@ -309,7 +311,7 @@ class ITL4kDetChar(DetChar):
         azcam.db.tools["defects"].copy_data_files()
         azcam.utils.curdir(rootfolder)
 
-        azcam.utils.curdir("superflat1")
+        azcam.utils.curdir("superflat")
         azcam.db.tools["defects"].analyze_dark_defects()
         azcam.db.tools["defects"].copy_data_files()
         azcam.utils.curdir(rootfolder)
@@ -415,7 +417,7 @@ class ITL4kDetChar(DetChar):
         lines.append("")
 
         # add superflat image
-        f1 = os.path.abspath("./superflat1/superflatimage.png")
+        f1 = os.path.abspath("./superflat/superflatimage.png")
         s = f"<img src={f1} width=350>"
         lines.append(s)
         lines.append("")
@@ -434,7 +436,9 @@ class ITL4kDetChar(DetChar):
         # load tools and read their datafiles if not valid
         for name in self.report_names:
             try:
-                datafile = os.path.join(self.report_folder, self.report_files[name] + ".txt")
+                datafile = os.path.join(
+                    self.report_folder, self.report_files[name] + ".txt"
+                )
                 print("Reading datafile for tool %s: %s" % (name, datafile))
                 azcam.db.tools(name).read_datafile(datafile)
             except Exception as message:
@@ -683,10 +687,40 @@ azcam.db.tools["superflat"].fit_order = 3
 # ptc
 if detchar.LVM_nearir:
     azcam.db.tools["ptc"].wavelength = 750
-    azcam.db.tools["ptc"].exposure_times = [1, 3, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110]
+    azcam.db.tools["ptc"].exposure_times = [
+        1,
+        3,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+    ]
 else:
     azcam.db.tools["ptc"].wavelength = 550
-    azcam.db.tools["ptc"].exposure_times = [1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+    azcam.db.tools["ptc"].exposure_times = [
+        1,
+        2,
+        3,
+        5,
+        10,
+        15,
+        20,
+        25,
+        30,
+        35,
+        40,
+        45,
+        50,
+        55,
+        60,
+    ]
 azcam.db.tools["ptc"].gain_range = [1.0, 4.0]
 azcam.db.tools["ptc"].fit_max = 60000
 azcam.db.tools["ptc"].fit_line = 1

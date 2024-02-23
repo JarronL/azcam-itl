@@ -239,7 +239,7 @@ class IMX411DetChar(DetChar):
         print("")
 
         # analyze superflats
-        azcam.utils.curdir("superflat1")
+        azcam.utils.curdir("superflat")
         superflat.analyze()
         azcam.utils.curdir(rootfolder)
         print("")
@@ -270,7 +270,7 @@ class IMX411DetChar(DetChar):
         azcam.utils.curdir(rootfolder)
 
         defects.flat_filename = superflat.superflat_filename
-        azcam.utils.curdir("superflat1")
+        azcam.utils.curdir("superflat")
         defects.analyze_dark_defects()
         defects.copy_data_files()
         azcam.utils.curdir(rootfolder)
@@ -360,10 +360,10 @@ class IMX411DetChar(DetChar):
         lines.append("")
 
         # add superflat image
-        f1 = os.path.abspath("./superflat1/superflatimage.png")
+        f1 = os.path.abspath("./superflat/superflatimage.png")
         s = f"<img src={f1} width=350>"
         lines.append(s)
-        # lines.append(f"![Superflat Image]({os.path.abspath('./superflat1/superflatimage.png')})  ")
+        # lines.append(f"![Superflat Image]({os.path.abspath('./superflat/superflatimage.png')})  ")
         lines.append("")
         lines.append("*Superflat Image.*")
         # lines.append("")
