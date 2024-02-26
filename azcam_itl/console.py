@@ -12,6 +12,7 @@ import sys
 from runpy import run_path
 
 import azcam
+from azcam import exceptions
 from azcam.scripts import loadscripts
 
 import azcam_console.console

@@ -11,6 +11,7 @@ import time
 import pyvisa  # for filter wheel
 
 import azcam
+from azcam import exceptions
 from azcam_server.tools.instrument import Instrument
 from azcam_itl.instruments import pressure_mks900
 from azcam_itl.instruments.pollux import PolluxCtrl  # SMC-Pollux stages
@@ -97,7 +98,7 @@ class InstrumentFlex(Instrument):
             return
 
         if not self.enabled:
-            azcam.AzcamWarning(f"{self.description} is not enabled")
+            exceptions.warning(f"{self.description} is not enabled")
             return
 
         self.initialize_filters()
@@ -142,7 +143,7 @@ class InstrumentFlex(Instrument):
         elif keyword == "FILTER":
             reply = self.get_filter()
         else:
-            raise azcam.AzcamError("invalid keyword")
+            raise exceptions.AzcamError("invalid keyword")
 
         # store value in Header
         self.set_keyword(keyword, reply)
@@ -523,7 +524,7 @@ class InstrumentFlex(Instrument):
         elif focus_type == "step":
             self._step_focus(FocusPosition, focus_id)
         else:
-            raise azcam.AzcamError("invalid focus_type")
+            raise exceptions.AzcamError("invalid focus_type")
 
         return
 

@@ -26,6 +26,7 @@ from azcam_server.tools.tempcon import TempCon
 from azcam_webtools.webserver.fastapi_server import WebServer
 from azcam_webtools.status.status import Status
 from azcam_webtools.exptool.exptool import Exptool
+
 from azcam.scripts import loadscripts
 
 from azcam_server.tools.instrument import Instrument
@@ -120,6 +121,7 @@ def setup():
         azcam.db.logger.start_logging(logtype="23", logfile=logfile)
     else:
         azcam.db.logger.start_logging(logtype="13", logfile=logfile)
+
     azcam.log(f"Configuring {azcam.db.systemname}")
 
     # define command server
@@ -194,11 +196,11 @@ def setup():
         webserver.datafolder = azcam.db.datafolder
         webserver.start()
 
-        webstatus = Status()
+        webstatus = Status(webserver)
         webstatus.message = "Status for ITL systems"
         webstatus.initialize()
 
-        exptool = Exptool()
+        exptool = Exptool(webserver)
         exptool.initialize()
 
         azcam.log("Started webserver applications")

@@ -4,6 +4,7 @@ import threading
 import serial
 
 import azcam
+from azcam import exceptions
 
 
 class FilterControllerBB(object):
@@ -166,7 +167,9 @@ class FilterControllerBB(object):
 
                     if loop > 10:
                         self.close_ports()
-                        raise azcam.AzcamError(f"Could not read filter {(portnum + 1)}")
+                        raise exceptions.AzcamError(
+                            f"Could not read filter {(portnum + 1)}"
+                        )
 
                 if self.verbosity > 1:
                     print("Filter? reply", reply.strip())
@@ -286,7 +289,7 @@ class FilterControllerBB(object):
         elif wave == "-1":
             filts = self.filter_wavelengths["dark"]
         else:
-            raise azcam.AzcamError(f"invalid filter wavelength: {wavelength}")
+            raise exceptions.AzcamError(f"invalid filter wavelength: {wavelength}")
 
         self.move_filters(filts[0], filts[1])
 
@@ -309,7 +312,7 @@ class FilterControllerBB(object):
                 break
 
         if not found:
-            raise azcam.AzcamError("invalid wavelength read")
+            raise exceptions.AzcamError("invalid wavelength read")
 
         if wave.isnumeric():
             wave = int(wave)

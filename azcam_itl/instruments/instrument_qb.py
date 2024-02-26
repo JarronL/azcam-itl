@@ -1,6 +1,7 @@
 import time
 
 import azcam
+from azcam import exceptions
 import azcam.sockets
 from azcam_server.tools.instrument import Instrument
 from azcam_itl.instruments.ms257 import MS257
@@ -35,7 +36,7 @@ class InstrumentQB(Instrument):
             return
 
         if not self.enabled:
-            azcam.AzcamWarning(f"{self.description} is not enabled")
+            exceptions.warning(f"{self.description} is not enabled")
             return
 
         try:
@@ -191,7 +192,7 @@ class InstrumentQB(Instrument):
             self._set_filter1({str(f2)}, 2)
             self.Filter2 = f2
         else:
-            raise azcam.AzcamError("bad filter_id in set_filter")
+            raise exceptions.AzcamError("bad filter_id in set_filter")
 
         time.sleep(2)
 

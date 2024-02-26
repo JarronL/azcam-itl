@@ -4,6 +4,7 @@ import socket
 import pyvisa
 
 import azcam
+from azcam import exceptions
 from azcam_server.tools.instrument import Instrument
 from azcam_itl.instruments import pressure_vgc501
 from azcam_itl.instruments import pressure_mks900
@@ -94,7 +95,7 @@ class InstrumentEB(Instrument):
             return
 
         if not self.enabled:
-            azcam.AzcamWarning(f"{self.description} is not enabled")
+            exceptions.warning(f"{self.description} is not enabled")
             return
 
         # init arduino for LEDs and shutter control
@@ -141,7 +142,7 @@ class InstrumentEB(Instrument):
         elif keyword == "FILTER":
             reply = self.get_filter()
         else:
-            raise azcam.AzcamError("invalid keyword")
+            raise exceptions.AzcamError("invalid keyword")
 
         # store value in Header
         self.set_keyword(keyword, reply)
@@ -404,7 +405,7 @@ class InstrumentEB(Instrument):
         """
 
         if AxisID not in self.pollux.valid_axes:
-            raise azcam.AzcamError(f"focus axis {AxisID} not supported")
+            raise exceptions.AzcamError(f"focus axis {AxisID} not supported")
 
         self.pollux.go_home(AxisID)
 
@@ -412,7 +413,7 @@ class InstrumentEB(Instrument):
 
     def get_focus(self, AxisID=1, wait=1):
         if AxisID not in self.pollux.valid_axes:
-            raise azcam.AzcamError(f"focus axis {AxisID} not supported")
+            raise exceptions.AzcamError(f"focus axis {AxisID} not supported")
 
         reply = self.pollux.get_pos(AxisID, wait)
 
@@ -423,7 +424,7 @@ class InstrumentEB(Instrument):
 
     def set_focus(self, FocusPosition, AxisID=1, focus_type="absolute"):
         if AxisID not in self.pollux.valid_axes:
-            raise azcam.AzcamError(f"focus axis {AxisID} not supported")
+            raise exceptions.AzcamError(f"focus axis {AxisID} not supported")
 
         FocusPosition = float(FocusPosition)
         focus_id = int(AxisID)
@@ -433,13 +434,13 @@ class InstrumentEB(Instrument):
         elif focus_type == "step":
             self._step_focus(FocusPosition, focus_id)
         else:
-            raise azcam.AzcamError("invalid focus_type")
+            raise exceptions.AzcamError("invalid focus_type")
 
         return
 
     def _set_focus(self, Position, AxisID=1):
         if AxisID not in self.pollux.valid_axes:
-            raise azcam.AzcamError(f"focus axis {AxisID} not supported")
+            raise exceptions.AzcamError(f"focus axis {AxisID} not supported")
 
         Position = float(Position)
         self.pollux.move_absolute(AxisID, Position)
@@ -448,7 +449,7 @@ class InstrumentEB(Instrument):
 
     def _step_focus(self, PositionChange, AxisID=1):
         if AxisID not in self.pollux.valid_axes:
-            raise azcam.AzcamError(f"focus axis {AxisID} not supported")
+            raise exceptions.AzcamError(f"focus axis {AxisID} not supported")
 
         PositionChange = float(PositionChange)
         self.pollux.move_relative(AxisID, PositionChange)

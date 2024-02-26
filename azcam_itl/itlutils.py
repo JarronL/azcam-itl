@@ -19,6 +19,7 @@ from email.mime.text import MIMEText
 import keyring
 
 import azcam
+from azcam import exceptions
 import azcam.image
 import azcam_console
 
@@ -63,9 +64,11 @@ def archive(foldername="", filetype="tar"):
     """
 
     if foldername == "":
-        reply = azcam_console.utils.file_browser("", "folder", "Select folder to archive")
+        reply = azcam_console.utils.file_browser(
+            "", "folder", "Select folder to archive"
+        )
         if reply == []:
-            raise azcam.AzcamError("no folder or file selected")
+            raise exceptions.AzcamError("no folder or file selected")
         else:
             foldername = reply[0]
 
@@ -87,7 +90,7 @@ def archive(foldername="", filetype="tar"):
         filename = filename + ".zip"
 
     else:
-        raise azcam.AzcamError("unsupported archive file type")
+        raise exceptions.AzcamError("unsupported archive file type")
 
     return filename
 

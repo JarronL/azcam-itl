@@ -1,6 +1,7 @@
 import serial
 
 import azcam
+from azcam import exceptions
 
 
 class ShutterControllerClass(object):
@@ -58,7 +59,7 @@ class ShutterControllerClass(object):
                 )
             except Exception as message:
                 azcam.log(message)
-                raise azcam.AzcamError("could not open shutter serial port")
+                raise exceptions.AzcamError("could not open shutter serial port")
 
         return
 
