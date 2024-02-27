@@ -23,9 +23,9 @@ from azcam_server.tools.queue import Queue
 from azcam_server.tools.tempcon_cryocon24 import TempConCryoCon24
 from azcam_server.tools.tempcon import TempCon
 
-from azcam_webtools.webserver.fastapi_server import WebServer
-from azcam_webtools.status.status import Status
-from azcam_webtools.exptool.exptool import Exptool
+from azcam_server.webtools.webserver.fastapi_server import WebServer
+from azcam_server.webtools.status.status import Status
+from azcam_server.webtools.exptool.exptool import Exptool
 
 from azcam.scripts import loadscripts
 
