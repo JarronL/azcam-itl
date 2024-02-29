@@ -94,23 +94,7 @@ def setup():
     azcam.db.systemname = systemname
     azcam.db.systemfolder = os.path.dirname(__file__)
     azcam.db.systemfolder = azcam.utils.fix_path(azcam.db.systemfolder)
-
-    if datafolder is None:
-        droot = os.environ.get("AZCAM_DATAROOT")
-        if droot is None:
-            if os.name == "posix":
-                droot = os.environ.get("HOME")
-            else:
-                droot = "/"
-            azcam.db.datafolder = os.path.join(
-                os.path.realpath(droot), "data", azcam.db.systemname
-            )
-        else:
-            azcam.db.datafolder = os.path.join(
-                os.path.realpath(droot), azcam.db.systemname
-            )
-    else:
-        azcam.db.datafolder = os.path.realpath(datafolder)
+    azcam.db.datafolder = azcam.utils.get_datafolder(datafolder)
 
     azcam.db.servermode = azcam.db.systemname
     azcam.db.verbosity = 2
