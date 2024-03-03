@@ -19,9 +19,10 @@ from email.mime.text import MIMEText
 import keyring
 
 import azcam
+import azcam.utils
 from azcam import exceptions
 import azcam.image
-import azcam_console
+import azcam.console
 
 
 def cleanup_files(folder=None):
@@ -64,7 +65,7 @@ def archive(foldername="", filetype="tar"):
     """
 
     if foldername == "":
-        reply = azcam_console.utils.file_browser(
+        reply = azcam.console.utils.file_browser(
             "", "folder", "Select folder to archive"
         )
         if reply == []:

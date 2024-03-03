@@ -12,7 +12,7 @@ import pyvisa  # for filter wheel
 
 import azcam
 from azcam import exceptions
-from azcam_server.tools.instrument import Instrument
+from azcam.server.tools.instrument import Instrument
 from azcam_itl.instruments import pressure_mks900
 from azcam_itl.instruments.pollux import PolluxCtrl  # SMC-Pollux stages
 

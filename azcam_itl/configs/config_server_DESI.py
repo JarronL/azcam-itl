@@ -2,10 +2,10 @@ import os
 
 import azcam
 from azcam.header import System
-from azcam_server.tools.archon.controller_archon import ControllerArchon
-from azcam_server.tools.archon.exposure_archon import ExposureArchon
-from azcam_server.tools.ds9display import Ds9Display
-from azcam_server.tools.focus import Focus
+from azcam.server.tools.archon.controller_archon import ControllerArchon
+from azcam.server.tools.archon.exposure_archon import ExposureArchon
+from azcam.server.tools.ds9display import Ds9Display
+from azcam.server.tools.focus import Focus
 
 from azcam_itl.detectors import detector_sta4150_4amp, detector_sta4150_2amp_left
 

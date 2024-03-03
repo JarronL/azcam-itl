@@ -4,6 +4,7 @@ import time
 from statistics import mean
 
 import azcam
+import azcam.utils
 
 
 class GetPressures(object):

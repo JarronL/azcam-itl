@@ -1,6 +1,7 @@
 import serial
 
 import azcam
+import azcam.utils
 
 
 class PressureController(object):

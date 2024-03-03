@@ -12,17 +12,16 @@ import sys
 from runpy import run_path
 
 import azcam
-from azcam import exceptions
+import azcam.utils
+import azcam.console.console
+import azcam.console.shortcuts
+import azcam.console.tools.console_tools
+import azcam.console.scripts
+from azcam.console.tools.ds9display import Ds9Display
+from azcam.console.tools.focus import FocusConsole
+
+from azcam.testers.testers import load_testers
 from azcam.scripts import loadscripts
-
-import azcam_console.console
-import azcam_console.shortcuts
-import azcam_console.tools.console_tools
-import azcam_console.scripts
-from azcam_console.tools.ds9display import Ds9Display
-from azcam_console.tools.focus import FocusConsole
-
-from azcam_testers import load_testers
 
 from azcam_itl import itlutils
 import azcam_itl.shortcuts_itl
@@ -31,6 +30,7 @@ from azcam_observe.observe_cli.observe_cli import ObserveCli
 
 
 def setup():
+    global azcam
     # parse command line arguments
     try:
         i = sys.argv.index("-system")
@@ -95,7 +95,7 @@ def setup():
     # dthread.start()  # thread just for speed
 
     # console tools
-    from azcam_console.tools import create_console_tools
+    from azcam.console.tools import create_console_tools
 
     create_console_tools()
     focus = FocusConsole()
@@ -107,8 +107,8 @@ def setup():
     observe = ObserveCli()
 
     # scripts
-    azcam.log("Loading scripts: azcam_itl.scripts, azcam_console.scripts")
-    loadscripts(["azcam_itl.scripts", "azcam_console.scripts"])
+    azcam.log("Loading scripts: azcam_itl.scripts, azcam.console.scripts")
+    loadscripts(["azcam_itl.scripts", "azcam.console.scripts"])
 
     # try to connect to azcamserver
     connected = azcam.db.tools["server"].connect(port=cmdport)  # default host and port
@@ -120,7 +120,7 @@ def setup():
     # system-specific
     if azcam.db.systemname == "DESI":
         from azcam_itl.detchars.detchar_DESI import detchar
-        import azcam_console.tools.console_arc
+        import azcam.console.tools.console_arc
 
         if azcam.db.wd is None:
             azcam.db.wd = "/data/DESI"
@@ -132,14 +132,14 @@ def setup():
             azcam.db.wd = "/data/ITL4k"
         else:
             from azcam_itl.detchars.detchar_LVM import detchar
-        import azcam_console.tools.console_archon
+        import azcam.console.tools.console_archon
 
         if azcam.db.wd is None:
             azcam.db.wd = "/data/LVM"
 
     elif azcam.db.systemname == "90prime4k":
         from azcam_itl.detchars.detchar_90prime4k import detchar
-        import azcam_console.tools.console_archon
+        import azcam.console.tools.console_archon
 
         if azcam.db.wd is None:
             azcam.db.wd = "/data/90prime4k"
@@ -164,14 +164,14 @@ def setup():
 
     elif azcam.db.systemname == "OSU4k":
         from azcam_itl.detchars.detchar_OSU4k import detchar
-        import azcam_console.tools.console_archon
+        import azcam.console.tools.console_archon
 
         if azcam.db.wd is None:
             azcam.db.wd = "/data/OSU4k"
 
     elif azcam.db.systemname == "ITL4k":
         from azcam_itl.detchars.detchar_ITL4k import detchar
-        import azcam_console.tools.console_archon
+        import azcam.console.tools.console_archon
 
         if azcam.db.wd is None:
             azcam.db.wd = "/data/ITL4k"

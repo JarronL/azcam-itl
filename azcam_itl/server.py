@@ -13,28 +13,29 @@ import sys
 from runpy import run_path
 
 import azcam
+import azcam.utils
 from azcam.logger import check_for_remote_logger
 from azcam.scripts import loadscripts
 
-import azcam_server.server
-import azcam_server.shortcuts
-from azcam_server.cmdserver import CommandServer
-from azcam_server.tools.queue import Queue
-from azcam_server.tools.tempcon_cryocon24 import TempConCryoCon24
-from azcam_server.tools.tempcon import TempCon
+import azcam.server.server
+import azcam.server.shortcuts
+from azcam.server.cmdserver import CommandServer
+from azcam.server.tools.queue import Queue
+from azcam.server.tools.tempcon_cryocon24 import TempConCryoCon24
+from azcam.server.tools.tempcon import TempCon
 
-from azcam_server.webtools.webserver.fastapi_server import WebServer
-from azcam_server.webtools.status.status import Status
-from azcam_server.webtools.exptool.exptool import Exptool
+from azcam.server.webtools.webserver.fastapi_server import WebServer
+from azcam.server.webtools.status.status import Status
+from azcam.server.webtools.exptool.exptool import Exptool
 
 from azcam.scripts import loadscripts
 
-from azcam_server.tools.instrument import Instrument
+from azcam.server.tools.instrument import Instrument
 from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam_itl.instruments.instrument_eb import InstrumentEB
 from azcam_itl.instruments.instrument_arduino import InstrumentArduino
 
-from azcam_server.tools.ascom.tempcon_ascom import TempConASCOM
+from azcam.server.tools.ascom.tempcon_ascom import TempConASCOM
 import azcam_itl.shortcuts_itl
 
 

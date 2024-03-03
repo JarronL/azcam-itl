@@ -6,6 +6,7 @@ import datetime
 import sys
 
 import azcam
+import azcam.utils
 
 
 def plot_pressure_temperature(delay=1.0):

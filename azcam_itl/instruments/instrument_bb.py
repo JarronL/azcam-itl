@@ -8,7 +8,7 @@ from pydantic import validate_arguments
 
 import azcam
 from azcam import exceptions
-from azcam_server.tools.instrument import Instrument
+from azcam.server.tools.instrument import Instrument
 
 from azcam_itl.instruments import keithley_6482
 

@@ -3,12 +3,12 @@ import sys
 
 import azcam
 from azcam_itl.detectors import detector_asi294
-from azcam_server.tools.ascom.controller_ascom import ControllerASCOM
-from azcam_server.tools.ascom.exposure_ascom import ExposureASCOM
+from azcam.server.tools.ascom.controller_ascom import ControllerASCOM
+from azcam.server.tools.ascom.exposure_ascom import ExposureASCOM
 from azcam.header import System
-from azcam_server.tools.tempcon import TempCon
-from azcam_server.tools.ds9display import Ds9Display
-from azcam_server.tools.sendimage import SendImage
+from azcam.server.tools.tempcon import TempCon
+from azcam.server.tools.ds9display import Ds9Display
+from azcam.server.tools.sendimage import SendImage
 
 # ****************************************************************
 # controller

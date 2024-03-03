@@ -3,7 +3,7 @@ import time
 import serial
 
 import azcam
-from azcam.utils import check_keyboard
+import azcam.utils
 
 
 class PressureController(object):
@@ -212,7 +212,7 @@ class PressureController(object):
                 break
             print(f"Reading: {counter}: {p:0.2e} Torr")
             counter += 1
-            if check_keyboard(0) == "q":
+            if azcam.utils.check_keyboard(0) == "q":
                 break
 
         return p

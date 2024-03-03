@@ -11,8 +11,9 @@ import time
 import keyring
 
 import azcam
-import azcam_console
-from azcam_testers.tools.detchar import DetChar
+import azcam.utils
+import azcam.console
+from azcam.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
@@ -81,7 +82,7 @@ class ASI6200MMDetChar(DetChar):
             dark,
             defects,
             dark,
-        ) = azcam_console.utils.get_tools(
+        ) = azcam.console.utils.get_tools(
             [
                 "gain",
                 "bias",
@@ -94,7 +95,7 @@ class ASI6200MMDetChar(DetChar):
                 "dark",
             ]
         )
-        exposure, tempcon = azcam_console.utils.get_tools(
+        exposure, tempcon = azcam.console.utils.get_tools(
             [
                 "exposure",
                 "tempcon",
@@ -131,7 +132,7 @@ class ASI6200MMDetChar(DetChar):
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam_console.utils.make_file_folder(
+        currentfolder, reportfolder = azcam.console.utils.make_file_folder(
             "report", 1, 1
         )  # start with report1
         azcam.utils.curdir(reportfolder)
@@ -208,7 +209,7 @@ class ASI6200MMDetChar(DetChar):
             dark,
             defects,
             linearity,
-        ) = azcam_console.utils.get_tools(
+        ) = azcam.console.utils.get_tools(
             [
                 "exposure",
                 "gain",
@@ -479,7 +480,7 @@ class ASI6200MMDetChar(DetChar):
 
         # copy files to new folder and archive
         azcam.log(f"copying dataset to {idstring}")
-        currentfolder, newfolder = azcam_console.utils.make_file_folder(idstring)
+        currentfolder, newfolder = azcam.console.utils.make_file_folder(idstring)
 
         copy_files = glob.glob("*.pdf")
         for f in copy_files:
@@ -527,7 +528,7 @@ detchar = ASI6200MMDetChar()
     defects,
     linearity,
     prnu,
-) = azcam_console.utils.get_tools(
+) = azcam.console.utils.get_tools(
     [
         "exposure",
         "gain",
@@ -547,8 +548,8 @@ detchar.start_temperature = +10.0
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
-# azcam_console.utils.set_image_roi([[4000, 4100, 3000, 3100], [4000, 4100, 3000, 3100]])
-azcam_console.utils.set_image_roi([[1000, 1100, 1000, 1100], [1000, 1100, 1000, 1100]])
+# azcam.console.utils.set_image_roi([[4000, 4100, 3000, 3100], [4000, 4100, 3000, 3100]])
+azcam.console.utils.set_image_roi([[1000, 1100, 1000, 1100], [1000, 1100, 1000, 1100]])
 
 # detcal
 detcal.wavelengths = [

@@ -8,8 +8,9 @@ import time
 from astropy.io import fits as pyfits
 
 import azcam
-import azcam_console
-from azcam_testers.tools.detchar import DetChar
+import azcam.utils
+import azcam.console
+from azcam.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
@@ -127,7 +128,7 @@ class ITL4kDetChar(DetChar):
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam_console.utils.make_file_folder(
+        currentfolder, reportfolder = azcam.console.utils.make_file_folder(
             "report", 1, 1
         )
         azcam.utils.curdir(reportfolder)
@@ -471,7 +472,7 @@ class ITL4kDetChar(DetChar):
 
         # find first bias image for header info
         azcam.utils.curdir("bias")
-        filename = azcam_console.utils.find_file_in_sequence("bias")[0]
+        filename = azcam.console.utils.find_file_in_sequence("bias")[0]
         azcam.utils.curdir("..")
 
         try:
@@ -618,7 +619,7 @@ detchar.LVM_2amps = azcam.db.get("LVM_2amps")
 detchar.LVM_nearir = azcam.db.get("LVM_nearir")
 
 # detchar
-azcam_console.utils.set_image_roi([[1800, 1900, 1800, 1900], [2042, 2058, 1500, 1800]])
+azcam.console.utils.set_image_roi([[1800, 1900, 1800, 1900], [2042, 2058, 1500, 1800]])
 
 azcam.db.start_temperature = -100.0
 

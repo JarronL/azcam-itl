@@ -6,7 +6,8 @@ import datetime
 import sys
 
 import azcam
-from azcam_console.plot import plt
+import azcam.utils
+from azcam.console.plot import plt
 
 # import seaborn
 # seaborn.set_theme(style="ticks", font_scale=1.25)
@@ -63,7 +64,9 @@ def get_pressure_temperature(delay=1.0, start_offset=0):
             camtemps.append(camtemp)
             dewtemps.append(dewtemp)
 
-            azcam.log(f"{secs1:.0f}\t{p1:.02e}\t{p2:.02e}\t{camtemp:.01f}\t{dewtemp:.01f}\t\t{s}")
+            azcam.log(
+                f"{secs1:.0f}\t{p1:.02e}\t{p2:.02e}\t{camtemp:.01f}\t{dewtemp:.01f}\t\t{s}"
+            )
 
             ax1.plot(times, pressures1, azcam.plot.style_lines[0])
             ax1.plot(times, pressures2, azcam.plot.style_lines[1])

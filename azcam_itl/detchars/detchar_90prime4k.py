@@ -6,8 +6,9 @@ import subprocess
 import time
 
 import azcam
-import azcam_console
-from azcam_testers.tools.detchar import DetChar
+import azcam.utils
+import azcam.console
+from azcam.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
@@ -122,7 +123,7 @@ class PrimeFocus4kDetChar(DetChar):
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam_console.utils.make_file_folder(
+        currentfolder, reportfolder = azcam.console.utils.make_file_folder(
             "report", 1, 1
         )
         azcam.utils.curdir(reportfolder)
@@ -450,7 +451,7 @@ class PrimeFocus4kDetChar(DetChar):
 
         # find first bias image for header info
         azcam.utils.curdir("bias")
-        filename = azcam_console.utils.find_file_in_sequence("bias")[0]
+        filename = azcam.console.utils.find_file_in_sequence("bias")[0]
         azcam.utils.curdir("..")
 
         # system info
@@ -537,7 +538,7 @@ class PrimeFocus4kDetChar(DetChar):
 detchar = PrimeFocus4kDetChar()
 
 # detchar
-azcam_console.utils.set_image_roi([[1800, 1900, 1800, 1900], [2042, 2058, 1500, 1800]])
+azcam.console.utils.set_image_roi([[1800, 1900, 1800, 1900], [2042, 2058, 1500, 1800]])
 
 azcam.db.start_temperature = -115.0
 

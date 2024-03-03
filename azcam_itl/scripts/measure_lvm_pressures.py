@@ -2,6 +2,7 @@ import datetime
 import time
 from statistics import mean
 import azcam
+import azcam.utils
 
 import datetime as dt
 import matplotlib.pyplot as plt
