@@ -18,7 +18,7 @@ controller.camserver.host = "10.0.2.12"  # ITL3
 # ****************************************************************
 # temperature controller
 # ****************************************************************
-azcam.db.tools["tempcon"].temperature_ids = [2, 0]
+azcam.db.tools["tempcon"].temperature_ids = [2, 0]  # ITL3
 
 # ****************************************************************
 # exposure

@@ -35,7 +35,7 @@ exposure.image.focalplane.rdnoises = [0.0, 0.0, 0.0, 0.0]
 
 tempcon = azcam.db.tools["tempcon"]
 tempcon.control_temperature = -110.0
-tempcon.temperature_ids = [3, 1]  # camtemp, dewtemp for ITL2
+tempcon.temperature_ids = [3, 1]  # ITL2
 
 # ****************************************************************
 # system header
