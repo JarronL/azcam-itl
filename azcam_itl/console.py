@@ -26,7 +26,7 @@ from azcam.scripts import loadscripts
 from azcam_itl import itlutils
 import azcam_itl.shortcuts_itl
 
-from azcam_observe.observe_cli.observe_cli import ObserveCli
+from azcam.observe.observe_cli.observe_cli import ObserveCli
 
 
 def setup():
