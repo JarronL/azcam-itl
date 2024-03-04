@@ -1,25 +1,19 @@
 [project]
 dependencies = [
-    "numpy",
     "ipython",
     "rich",
-    "matplotlib",
     "keyring",
     "pyserial",
     "pyvisa",
     "opencv-python-headless",
-    "pyside6",
-    "azcam-testers",
     "azcam",
-    "azcam-server",
-    "azcam-console",
 ]
 name = "azcam-itl"
-version = "23.0"
+version = "24.0"
 description = "Azcam extension for ITL systems"
 license = { file = "LICENSE" }
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 keywords = ["ccd", "imaging", "astronomy", "sensors"]
 authors = [{ name = "Michael Lesser" }, { email = "mlesser@arizona.edu" }]
 [project.urls]
