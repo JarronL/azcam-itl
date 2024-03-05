@@ -81,7 +81,7 @@ def get_pressure_temperature(delay=1.0, start_offset=0):
             datafile.flush()
 
             if 1:
-                azcam.plot.plt.tight_layout()
+                plt.tight_layout()
 
             if azcam.utils.check_keyboard() == "q":
                 break
