@@ -7,7 +7,7 @@ import time
 from pydantic import validate_arguments
 
 import azcam
-from azcam import exceptions
+import azcam.exceptions
 from azcam.server.tools.instrument import Instrument
 
 from azcam_itl.instruments import keithley_6482
@@ -96,7 +96,7 @@ class InstrumentBB(Instrument):
             return
 
         if not self.enabled:
-            exceptions.warning(f"{self.description} is not enabled")
+            azcam.exceptions.warning(f"{self.description} is not enabled")
             return
 
         try:
@@ -280,7 +280,7 @@ class InstrumentBB(Instrument):
         elif current_id == 1:
             return reply[1]
         else:
-            raise exceptions.AzcamError("bad current_id value")
+            raise azcam.exceptions.AzCamError("bad current_id value")
 
     # ***************************************************************************
     # pressure
@@ -385,7 +385,7 @@ class InstrumentBB(Instrument):
             return mean_power
 
         elif self.newport_pm.status != "Connected":
-            raise exceptions.AzcamError("Cannot connect to Newport power meter")
+            raise azcam.exceptions.AzCamError("Cannot connect to Newport power meter")
 
     def get_focus(self, focus_id=0):
         return 123

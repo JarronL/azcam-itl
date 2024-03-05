@@ -20,7 +20,7 @@ import keyring
 
 import azcam
 import azcam.utils
-from azcam import exceptions
+import azcam.exceptions
 import azcam.image
 import azcam.console
 
@@ -69,7 +69,7 @@ def archive(foldername="", filetype="tar"):
             "", "folder", "Select folder to archive"
         )
         if reply == []:
-            raise exceptions.AzcamError("no folder or file selected")
+            raise azcam.exceptions.AzCamError("no folder or file selected")
         else:
             foldername = reply[0]
 
@@ -91,7 +91,7 @@ def archive(foldername="", filetype="tar"):
         filename = filename + ".zip"
 
     else:
-        raise exceptions.AzcamError("unsupported archive file type")
+        raise azcam.exceptions.AzCamError("unsupported archive file type")
 
     return filename
 

@@ -13,7 +13,7 @@ import time
 import serial
 
 import azcam
-from azcam import exceptions
+import azcam.exceptions
 
 
 class PolluxCtrl(object):
@@ -160,7 +160,7 @@ class PolluxCtrl(object):
                 return
 
         else:
-            raise exceptions.AzcamError("Pollux serial port not open")
+            raise azcam.exceptions.AzCamError("Pollux serial port not open")
 
     def get_reply(self):
         """

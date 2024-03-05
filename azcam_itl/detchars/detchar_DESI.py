@@ -6,7 +6,7 @@ import shutil
 
 import azcam
 import azcam.utils
-from azcam import exceptions
+import azcam.exceptions
 import azcam.console
 from azcam.testers.detchar import DetChar
 from azcam_itl import itlutils
@@ -76,7 +76,7 @@ class DesiDetCharClass(DetChar):
         # Identification
         # ****************************************************************
         if self.itl_id == "":
-            exceptions.warning("Unspecified sensor ID")
+            azcam.exceptions.warning("Unspecified sensor ID")
             self.itl_id = ""
             self.package_id = ""
         else:

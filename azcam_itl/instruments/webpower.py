@@ -4,7 +4,7 @@ import subprocess
 import keyring
 
 import azcam
-from azcam import exceptions
+import azcam.exceptions
 
 
 class WebPowerClass(object):
@@ -25,7 +25,7 @@ class WebPowerClass(object):
             self.batchfile = f1
             self.batchfile_folder = os.path.dirname(self.batchfile)
         else:
-            raise exceptions.AzcamError("could not find outlet control program")
+            raise azcam.exceptions.AzCamError("could not find outlet control program")
 
     def initialize(self):
         """

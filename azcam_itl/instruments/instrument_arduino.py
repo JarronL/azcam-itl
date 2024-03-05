@@ -6,7 +6,7 @@ import socket
 import time
 
 import azcam
-from azcam import exceptions
+import azcam.exceptions
 from azcam.server.tools.instrument import Instrument
 
 
@@ -81,7 +81,7 @@ class InstrumentArduino(Instrument):
             return
 
         if not self.enabled:
-            exceptions.warning(f"{self.description} is not enabled")
+            azcam.exceptions.warning(f"{self.description} is not enabled")
             return
 
         self.initialize_arduino()
@@ -115,7 +115,7 @@ class InstrumentArduino(Instrument):
         if keyword == "WAVLNGTH":
             reply = self.get_wavelength()
         else:
-            raise exceptions.AzcamError("invalid keyword")
+            raise azcam.exceptions.AzCamError("invalid keyword")
 
         # store value in Header
         self.set_keyword(keyword, reply)

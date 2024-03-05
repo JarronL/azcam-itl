@@ -3,7 +3,7 @@ import time
 import serial
 
 import azcam
-from azcam import exceptions
+import azcam.exceptions
 
 
 class PressureController(object):
@@ -54,7 +54,7 @@ class PressureController(object):
                 )
             except Exception as message:
                 azcam.log(message)
-                exceptions.AzcamError("could not open pressure serial port")
+                azcam.exceptions.AzCamError("could not open pressure serial port")
 
         return
 
