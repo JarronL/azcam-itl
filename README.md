@@ -10,5 +10,5 @@ Download the code (usually into the *azcam* root folder such as `c:\azcam`) and 
 cd /azcam
 git clone https://github.com/mplesser/azcam-itl
 cd azcam-itl
-pip install .
+pip install -e .
 ```
