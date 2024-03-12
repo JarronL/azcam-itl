@@ -2,16 +2,15 @@
 *shortcuts* contains keyboard shortcuts for ITL systems.
 """
 
-
 import azcam
 
 
 def ws():
     """Shortcut to toggle webserver status logging to console."""
 
-    old = azcam.db.tools["webserver"].logstatus
+    old = azcam.db.webserver.logstatus
     new = not old
-    azcam.db.tools["webserver"].logstatus = new
+    azcam.db.webserver.logstatus = new
     print("webserver logststatus is now %s" % ("ON" if new else "OFF"))
 
     return
