@@ -143,7 +143,7 @@ class InstrumentFlex(Instrument):
         elif keyword == "FILTER":
             reply = self.get_filter()
         else:
-            raise azcam.exceptions.AzCamError("invalid keyword")
+            raise azcam.exceptions.AzcamError("invalid keyword")
 
         # store value in Header
         self.set_keyword(keyword, reply)
@@ -524,7 +524,7 @@ class InstrumentFlex(Instrument):
         elif focus_type == "step":
             self._step_focus(FocusPosition, focus_id)
         else:
-            raise azcam.exceptions.AzCamError("invalid focus_type")
+            raise azcam.exceptions.AzcamError("invalid focus_type")
 
         return
 

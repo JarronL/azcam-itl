@@ -69,7 +69,7 @@ def archive(foldername="", filetype="tar"):
             "", "folder", "Select folder to archive"
         )
         if reply == []:
-            raise azcam.exceptions.AzCamError("no folder or file selected")
+            raise azcam.exceptions.AzcamError("no folder or file selected")
         else:
             foldername = reply[0]
 
@@ -91,7 +91,7 @@ def archive(foldername="", filetype="tar"):
         filename = filename + ".zip"
 
     else:
-        raise azcam.exceptions.AzCamError("unsupported archive file type")
+        raise azcam.exceptions.AzcamError("unsupported archive file type")
 
     return filename
 

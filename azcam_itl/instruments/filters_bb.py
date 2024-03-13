@@ -167,7 +167,7 @@ class FilterControllerBB(object):
 
                     if loop > 10:
                         self.close_ports()
-                        raise azcam.exceptions.AzCamError(
+                        raise azcam.exceptions.AzcamError(
                             f"Could not read filter {(portnum + 1)}"
                         )
 
@@ -289,7 +289,7 @@ class FilterControllerBB(object):
         elif wave == "-1":
             filts = self.filter_wavelengths["dark"]
         else:
-            raise azcam.exceptions.AzCamError(
+            raise azcam.exceptions.AzcamError(
                 f"invalid filter wavelength: {wavelength}"
             )
 
@@ -314,7 +314,7 @@ class FilterControllerBB(object):
                 break
 
         if not found:
-            raise azcam.exceptions.AzCamError("invalid wavelength read")
+            raise azcam.exceptions.AzcamError("invalid wavelength read")
 
         if wave.isnumeric():
             wave = int(wave)

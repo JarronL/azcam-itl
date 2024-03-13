@@ -115,7 +115,7 @@ class InstrumentArduino(Instrument):
         if keyword == "WAVLNGTH":
             reply = self.get_wavelength()
         else:
-            raise azcam.exceptions.AzCamError("invalid keyword")
+            raise azcam.exceptions.AzcamError("invalid keyword")
 
         # store value in Header
         self.set_keyword(keyword, reply)

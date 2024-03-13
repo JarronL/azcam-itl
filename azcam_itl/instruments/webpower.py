@@ -25,7 +25,7 @@ class WebPowerClass(object):
             self.batchfile = f1
             self.batchfile_folder = os.path.dirname(self.batchfile)
         else:
-            raise azcam.exceptions.AzCamError("could not find outlet control program")
+            raise azcam.exceptions.AzcamError("could not find outlet control program")
 
     def initialize(self):
         """

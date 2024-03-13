@@ -54,7 +54,7 @@ class PressureController(object):
                 )
             except Exception as message:
                 azcam.log(message)
-                azcam.exceptions.AzCamError("could not open pressure serial port")
+                azcam.exceptions.AzcamError("could not open pressure serial port")
 
         return
 

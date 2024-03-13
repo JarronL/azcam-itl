@@ -192,7 +192,7 @@ class InstrumentQB(Instrument):
             self._set_filter1({str(f2)}, 2)
             self.Filter2 = f2
         else:
-            raise azcam.exceptions.AzCamError("bad filter_id in set_filter")
+            raise azcam.exceptions.AzcamError("bad filter_id in set_filter")
 
         time.sleep(2)
 

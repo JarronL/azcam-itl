@@ -59,7 +59,7 @@ class ShutterControllerClass(object):
                 )
             except Exception as message:
                 azcam.log(message)
-                raise azcam.exceptions.AzCamError("could not open shutter serial port")
+                raise azcam.exceptions.AzcamError("could not open shutter serial port")
 
         return
 
