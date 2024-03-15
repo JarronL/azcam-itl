@@ -30,12 +30,6 @@ class ITL4kDetChar(DetChar):
         self.report_folder = ""  # top of report folder tree
         self.start_delay = 5  # aquisition starting delay in seconds
 
-        self.author = ""
-        self.itl_sn = -1
-        self.itl_id = ""
-        self.system = ""
-        self.customer = ""
-        self.dewar = ""
         self.device_type = ""
         self.backside_bias = 0.0
 
@@ -96,6 +90,50 @@ class ITL4kDetChar(DetChar):
             "prnu": "prnu/prnu",
             "qe": "qe/qe",
         }
+
+    def setup(self, itl_id=""):
+        """
+        Set up configuration for analysis.
+        Start in the report folder.
+        """
+
+        self.itl_id = azcam.utils.prompt("Enter sensor ID", itl_id)
+
+        self.summary_report_name = f"SummaryReport_{self.itl_id}"
+        self.report_name = f"ITL4k_{self.itl_id}.pdf"
+
+        # system info
+        self.customer = "ITL"
+        self.system = "ITL3"
+        self.operator = "Michael Lesser"
+
+        # ****************************************************************
+        # Identification
+        # ****************************************************************
+        self.lot = azcam.utils.prompt("Enter lot")
+        self.device_type = azcam.utils.prompt("Enter device type")
+        self.wafer = azcam.utils.prompt("Enter wafer")
+        self.die = azcam.utils.prompt("Enter die")
+        self.itl_id = azcam.utils.prompt("Enter ITL ID")
+
+        self.summary_lines = []
+        self.summary_lines.append("# ITL4k Detector Characterization Report")
+
+        self.summary_lines.append("|||")
+        self.summary_lines.append("|:---|:---|")
+        self.summary_lines.append(f"|Customer       |{self.customer}|")
+        self.summary_lines.append(f"|ITL System     |ITL3|")
+        self.summary_lines.append(f"|ITL ID         |{self.itl_id}|")
+        self.summary_lines.append(f"|Type           |{self.device_type}|")
+        self.summary_lines.append(f"|Lot            |{self.lot}|")
+        self.summary_lines.append(f"|Wafer          |{self.wafer}|")
+        self.summary_lines.append(f"|Die            |{self.die}|")
+        self.summary_lines.append(f"|Operator       |{self.operator}|")
+        self.summary_lines.append(f"|System         |{self.system}|")
+
+        self.is_setup = 1
+
+        return
 
     def acquire(self, SN="prompt"):
         """
@@ -204,55 +242,10 @@ class ITL4kDetChar(DetChar):
 
         # send email notice
         finishedtime = datetime.datetime.strftime(datetime.datetime.now(), "%H:%M:%S")
-        message = f"Script finished for SN{self.itl_sn} today at {finishedtime}"
+        message = f"Script finished for SN{self.itl_id} today at {finishedtime}"
         itlutils.mailto("mlesser@arizona.edu", "LVM acquire script finished", message)
 
         print("Acquisition sequence finished")
-
-        return
-
-    def prepare(self):
-        """
-        Prepare for data sequences with calibrations.
-        """
-
-        # setup for headers but should already be done by .acquire()
-        if not self.is_setup:
-            self.setup_acquire()
-
-        # save pars to be changed
-        impars = {}
-        azcam.db.parameters.save_imagepars(impars)
-        currentfolder = azcam.utils.curdir()
-
-        # uniform image sequence numbers
-        azcam.db.parameters.set_par("imagesequencenumber", 1)
-
-        # clear device after reset delay
-        print("Delaying start for %.0f seconds (to settle)..." % self.start_delay)
-        time.sleep(self.start_delay)
-        print("Flush detector")
-        azcam.db.tools["exposure"].test(0)
-
-        # gain sequence - do this before detcal
-        if 0:
-            try:
-                azcam.db.tools["gain"].find()
-            except Exception:
-                azcam.db.parameters.restore_imagepars(impars)
-                azcam.utils.curdir(currentfolder)
-                return
-
-        # detcal sequence - multiple NDs used
-        if 0:
-            try:
-                azcam.db.tools["detcal"].calibrate()
-            except Exception:
-                azcam.db.parameters.restore_imagepars(impars)
-                azcam.utils.curdir(currentfolder)
-                return
-
-        self.is_prepared = 1
 
         return
 
@@ -333,99 +326,10 @@ class ITL4kDetChar(DetChar):
         azcam.utils.curdir(rootfolder)
 
         # make report
-        self.report_summary()
-        self.report()
+        self.make_summary_report()
+        self.make_report()
 
         print("Analysis sequence finished")
-
-        return
-
-    def report(self):
-        """
-        Make detector characterization report.
-        Run setup() first.
-        """
-
-        if not self.is_setup:
-            self.setup_analyze()
-
-        folder = azcam.utils.curdir()
-        self.report_folder = folder
-        report_name = "%s_ID%s_SN%d.pdf" % (self.report_name, self.itl_id, self.itl_sn)
-
-        print("")
-        print("Generating SN%s Report" % self.itl_sn)
-        print("")
-
-        # *********************************************
-        # Combine PDF report files for each tool
-        # *********************************************
-        if self.SummaryPdfFile is None:
-            rfiles = []
-        else:
-            rfiles = [self.SummaryPdfFile]
-        for r in self.report_names:  # add pdf extension
-            f1 = self.report_files[r] + ".pdf"
-            f1 = os.path.abspath(f1)
-            if os.path.exists(f1):
-                rfiles.append(f1)
-            else:
-                print("Report file not found: %s" % f1)
-
-        self.merge_pdf(rfiles, report_name)
-
-        # open report
-        with open(os.devnull, "w") as fnull:
-            s = report_name
-            subprocess.Popen(s, shell=True, cwd=folder, stdout=fnull, stderr=fnull)
-            fnull.close()
-
-        return
-
-    def report_summary(self):
-        """
-        Create a ID and summary report.
-        """
-
-        if not self.is_setup:
-            self.setup_analyze()
-
-        if len(self.report_comment) == 0:
-            self.report_comment = azcam.utils.prompt("Enter report comment")
-
-        # get current date
-        self.report_date = datetime.datetime.now().strftime("%b-%d-%Y")
-
-        lines = []
-
-        lines.append("# ITL4k Detector Characterization Report")
-        lines.append("")
-        lines.append("|    |    |")
-        lines.append("|:---|:---|")
-        lines.append("|**Identification**||")
-        lines.append(f"|Customer       |{self.customer}|")
-        lines.append(f"|ITL System     |ITL3|")
-        lines.append(f"|ITL ID         |{self.itl_id}|")
-        lines.append(f"|ITL SN         |{int(self.itl_sn)}|")
-        lines.append(f"|Type           |{self.device_type}|")
-        lines.append(f"|Lot            |{self.lot}|")
-        lines.append(f"|Wafer          |{self.wafer}|")
-        lines.append(f"|Die            |{self.die}|")
-        lines.append(f"|Report Date    |{self.report_date}|")
-        lines.append(f"|Author         |{self.author}|")
-        lines.append(f"|System         |{self.dewar}|")
-        lines.append(f"|Comment        |{self.report_comment}|")
-        lines.append("")
-
-        # add superflat image
-        f1 = os.path.abspath("./superflat/superflatimage.png")
-        s = f"<img src={f1} width=350>"
-        lines.append(s)
-        lines.append("")
-        lines.append("*Superflat Image.*")
-
-        # Make report files
-        self.write_report(self.summary_report_file, lines)
 
         return
 
@@ -445,112 +349,6 @@ class ITL4kDetChar(DetChar):
             except Exception as message:
                 print("ERROR", name, message)
                 continue
-
-        return
-
-    def setup_analyze(self, EO=1):
-        """
-        Set up configuration for analysis.
-        Start in the report folder.
-        """
-
-        s = azcam.utils.curdir()
-        try:
-            x = s.index("/sn")
-            if x > 0:
-                sn = s[x + 3 : x + 8]
-            else:
-                sn = 0
-        except ValueError:
-            sn = 0
-
-        itlsn = azcam.utils.prompt("Enter sensor serial number (integer)", sn)
-        self.itl_sn = itlsn
-
-        self.summary_report_file = f"SummaryReport_SN{self.itl_sn}"
-        self.SummaryPdfFile = f"{self.summary_report_file}.pdf"
-
-        # find first bias image for header info
-        azcam.utils.curdir("bias")
-        filename = azcam.console.utils.find_file_in_sequence("bias")[0]
-        azcam.utils.curdir("..")
-
-        try:
-            bb = pyfits.getheader(filename)["BACKBIAS"]
-        except KeyError:
-            bb = 0
-        self.backside_bias = float(bb)
-
-        # system info
-        self.customer = "ITL"
-        self.report_name = "ITL_EO_Report"
-        self.system = "QuantumBench"
-        self.dewar = "ITL3"
-        self.author = "Michael Lesser"
-
-        # ****************************************************************
-        # Identification
-        # ****************************************************************
-        self.itl_sn = int(itlsn)
-        if self.itl_sn == 0 or self.itl_sn == -1:
-            print("WARNING - Unspecified detector serial number")
-            self.itl_sn = 0
-            self.itl_id = "0"
-        else:
-            # get ID number in format NNN (package ID)
-            self.lot = azcam.utils.prompt("Enter lot")
-            self.device_type = azcam.utils.prompt("Enter device type")
-            self.wafer = azcam.utils.prompt("Enter wafer")
-            self.die = azcam.utils.prompt("Enter die")
-            self.itl_id = azcam.utils.prompt("Enter ITL ID")
-
-        self.is_setup = 1
-
-        return
-
-    def setup_acquire(self):
-        """
-        Set up configuration for acquisition.
-        Used for console and also tries to set server configuration.
-        """
-
-        self.backside_bias = 0  # get from header
-
-        # system info
-        self.customer = "ITL"
-        self.report_name = "ITL_EO_Report"
-        self.system = "QuantumBench"
-        azcam.db.tools["qe"].plot_title = "STA4850 Quantum Efficiency"
-        self.dewar = "ITL2"
-        self.author = "Michael Lesser"
-
-        # ****************************************************************
-        # Identification
-        # ****************************************************************
-        s = azcam.utils.curdir()
-        try:
-            x = s.index("/sn")
-            if x > 0:
-                sn = s[x + 3 : x + 8]
-            else:
-                sn = 0
-        except ValueError:
-            sn = 0
-        itlsn = azcam.utils.prompt("Enter sensor serial number (integer)", sn)
-        self.itl_sn = int(itlsn)
-        # self.itl_sn = int(azcam.utils.prompt("Enter ITL serial number"))
-        if self.itl_sn in [0, -1]:
-            print("WARNING - Unspecified detector serial number")
-            self.itl_sn = 0
-            self.itl_id = "0"
-        else:
-            self.lot = azcam.utils.prompt("Enter lot")
-            self.device_type = azcam.utils.prompt("Enter device type")
-            self.wafer = azcam.utils.prompt("Enter wafer")
-            self.die = azcam.utils.prompt("Enter die")
-            self.itl_id = azcam.utils.prompt("Enter ITL ID")
-
-        self.is_setup = 1
 
         return
 

@@ -122,59 +122,34 @@ def setup():
         from azcam_itl.detchars.detchar_DESI import detchar
         import azcam.console.tools.console_arc
 
-        if azcam.db.wd is None:
-            azcam.db.wd = "/data/DESI"
-
     elif azcam.db.systemname == "LVM":
         if 0:  # azcam.db.LVM_itl4k:
             from azcam_itl.detchars.detchar_ITL4k import detchar
 
-            azcam.db.wd = "/data/ITL4k"
         else:
             from azcam_itl.detchars.detchar_LVM import detchar
         import azcam.console.tools.console_archon
-
-        if azcam.db.wd is None:
-            azcam.db.wd = "/data/LVM"
 
     elif azcam.db.systemname == "90prime4k":
         from azcam_itl.detchars.detchar_90prime4k import detchar
         import azcam.console.tools.console_archon
 
-        if azcam.db.wd is None:
-            azcam.db.wd = "/data/90prime4k"
-
     elif azcam.db.systemname == "ASI294":
         from azcam_itl.detchars.detchar_ASI294 import detchar
-
-        if azcam.db.wd is None:
-            azcam.db.wd = "/data/ZWO/ASI294"
 
     elif azcam.db.systemname == "ASI6200MM":
         from azcam_itl.detchars.detchar_ASI6200MM import detchar
 
-        if azcam.db.wd is None:
-            azcam.db.wd = "/data/ASI6200MM"
-
     elif azcam.db.systemname == "IMX411":
         from azcam_itl.detchars.detchar_IMX411 import detchar
-
-        if azcam.db.wd is None:
-            azcam.db.wd = "/data/IMX411"
 
     elif azcam.db.systemname == "OSU4k":
         from azcam_itl.detchars.detchar_OSU4k import detchar
         import azcam.console.tools.console_archon
 
-        if azcam.db.wd is None:
-            azcam.db.wd = "/data/OSU4k"
-
     elif azcam.db.systemname == "ITL4k":
         from azcam_itl.detchars.detchar_ITL4k import detchar
         import azcam.console.tools.console_archon
-
-        if azcam.db.wd is None:
-            azcam.db.wd = "/data/ITL4k"
 
     if azcam.db.wd is None:
         azcam.db.wd = azcam.db.datafolder

@@ -20,25 +20,14 @@ class DesiDetCharClass(DetChar):
     def __init__(self):
         super().__init__()
 
-        self.itl_id = -1
-        self.package_id = ""
-
-        self.system = ""
-        self.customer = ""
-        self.dewar = ""
         self.device_type = ""
-
         self.lot = "UNKNOWN"
         self.wafer = "UNKNOWN"
         self.die = "UNKNOWN"
-        self.report_date = ""
-        self.report_comment = ""
 
         self.start_delay = 5  # acuisition starting delay in seconds
 
         # report parameters
-        self.report_file = ""
-
         self.report_names = [
             "gain",
             "prnu",
@@ -60,7 +49,8 @@ class DesiDetCharClass(DetChar):
             "qe": "qe/qe",
         }
 
-    def setup(self):
+    def setup(self, itl_id=""):
+
         s = azcam.utils.curdir()
         try:
             x = s.index("DIEID-")
@@ -87,11 +77,26 @@ class DesiDetCharClass(DetChar):
 
         # fixed info
         self.customer = "LBNL"
-        self.system = "DESI"
-        self.dewar = "ITL2"
+        self.system = "ITL2"
         self.die = 1
 
-        self.summary_report_file = f"SummaryReport_{self.itl_id}"
+        self.summary_lines = []
+        self.summary_lines.append("# DESI Sensor Characterization Report")
+
+        self.summary_lines.append("|||")
+        self.summary_lines.append("|:---|:---|")
+        self.summary_lines.append(f"|Customer       |LBNL|")
+        self.summary_lines.append(f"|ITL System     |DESI|")
+        self.summary_lines.append(f"|ITL Package    |{self.package_id}|")
+        self.summary_lines.append(f"|ITL ID         |{self.itl_id}|")
+        self.summary_lines.append(f"|Type           |STA4150|")
+        self.summary_lines.append(f"|Lot            |{self.lot}|")
+        self.summary_lines.append(f"|Wafer          |{int(self.wafer):02d}|")
+        self.summary_lines.append(f"|Die            |{int(self.die)}|")
+        self.summary_lines.append(f"|Operator       |M. Lesser|")
+        self.summary_lines.append(f"|System         |ITL2|")
+
+        self.summary_report_name = f"SummaryReport_{self.itl_id}"
 
         self.is_setup = 1
 
@@ -328,87 +333,8 @@ class DesiDetCharClass(DetChar):
         print("")
 
         # report
-        try:
-            self.report()
-        except Exception:
-            pass
-
-        return
-
-    def report(self):
-        """
-        Make detector characterization report.
-        Run setup() first.
-        """
-
-        if not self.is_setup:
-            self.setup()
-
-        folder = azcam.utils.curdir()
-        self.report_folder = folder
-        report_name = f"DESI_report_{self.itl_id}.pdf"
-
-        print("")
-        print(f"Generating {self.itl_id} Report")
-        print("")
-
-        # *********************************************
-        # Combine PDF report files for each tool
-        # *********************************************
-        rfiles = [self.summary_report_file + ".pdf"]
-        for r in self.report_names:  # add pdf extension
-            f1 = self.report_files[r] + ".pdf"
-            f1 = os.path.abspath(f1)
-            if os.path.exists(f1):
-                rfiles.append(f1)
-            else:
-                print("Report file not found: %s" % f1)
-        self.merge_pdf(rfiles, report_name)
-
-        # open report
-        with open(os.devnull, "w") as fnull:
-            s = "%s" % self.report_file
-            subprocess.Popen(s, shell=True, cwd=folder, stdout=fnull, stderr=fnull)
-            fnull.close()
-
-        return
-
-    def report_summary(self):
-        """
-        Create a ID and summary report.
-        """
-
-        if not self.is_setup:
-            self.setup()
-
-        if len(self.report_comment) == 0:
-            self.report_comment = azcam.utils.prompt("Enter report comment")
-
-        # get current date
-        self.report_date = datetime.datetime.now().strftime("%b-%d-%Y")
-
-        lines = []
-
-        lines.append("# DESI Sensor Characterization Report")
-        lines.append("")
-        lines.append("|    |    |")
-        lines.append("|:---|:---|")
-        lines.append(f"|Customer       |LBNL|")
-        lines.append(f"|ITL System     |DESI|")
-        lines.append(f"|ITL Package    |{self.package_id}|")
-        lines.append(f"|ITL ID         |{self.itl_id}|")
-        lines.append(f"|Type           |STA4150|")
-        lines.append(f"|Lot            |{self.lot}|")
-        lines.append(f"|Wafer          |{int(self.wafer):02d}|")
-        lines.append(f"|Die            |{int(self.die)}|")
-        lines.append(f"|Report Date    |{self.report_date}|")
-        lines.append(f"|Operator       |M. Lesser|")
-        lines.append(f"|System         |ITL2|")
-        lines.append(f"|Comment        |{self.report_comment}|")
-        lines.append("")
-
-        # Make report files
-        self.write_report(self.summary_report_file, lines)
+        self.make_summary_report()
+        self.make_report()
 
         return
 

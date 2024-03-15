@@ -22,7 +22,7 @@ class IMX411DetChar(DetChar):
         self.start_temperature = 0.0
 
         self.operator = ""
-        self.itl_sn = ""
+        self.itl_id = ""
 
         self.system = ""
         self.customer = ""
@@ -35,8 +35,6 @@ class IMX411DetChar(DetChar):
 
         # report parameters
         self.create_html = 1
-        self.report_file = ""
-        self.summary_report_file = "SummaryReport"
         self.report_names = [
             "bias",
             "gain",
@@ -58,7 +56,33 @@ class IMX411DetChar(DetChar):
             "defects": "defects/defects",
         }
 
-    def acquire(self, itlsn="unknown"):
+    def setup(self, itl_id=""None""):
+
+        self.itl_id = azcam.utils.prompt("Enter report ID", itl_id)
+
+        # sponsor/report info
+        self.customer = "UArizona"
+        self.system = "IMX411"
+
+        self.summary_report_name = f"SummaryReport_{self.itl_id}"
+        self.report_name = f"IMX411_{self.itl_id}.pdf"
+
+        self.summary_lines = []
+        self.summary_lines.append("# ITL Sensor Characterization Report")
+
+        self.summary_lines.append("|||")
+        self.summary_lines.append("|:---|:---|")
+        self.summary_lines.append(f"|Customer       |UArizona|")
+        self.summary_lines.append(f"|Project        |Oracle Search Sensor-2|")
+        self.summary_lines.append(f"|System         |Sony IMX455|")
+        self.summary_lines.append(f"|Camera SN      |{self.itl_id}|")
+        self.summary_lines.append(f"|Author         |{self.operator}|")
+
+        self.is_setup = 1
+
+        return
+
+    def acquire(self, itl_id=""):
         """
         Acquire sensor characterization data.
         """
@@ -67,7 +91,7 @@ class IMX411DetChar(DetChar):
         print("")
 
         if not self.is_setup:
-            self.setup(itlsn)
+            self.setup(itl_id)
 
         (
             gain,
@@ -103,7 +127,7 @@ class IMX411DetChar(DetChar):
         # wait for temperature
         # *************************************************************************
         if self.start_temperature != -1000:
-            print(f"Waiting for staer tempertare: {self.start_temperature:.01f}")
+            print(f"Waiting for start tempertare: {self.start_temperature:.01f}")
             while True:
                 t = tempcon.get_temperatures()[0]
                 print(f"Current temperature: {t:.01f}")
@@ -112,7 +136,7 @@ class IMX411DetChar(DetChar):
                 else:
                     time.sleep(10)
 
-        print(f"Testing device {itlsn}")
+        print(f"Testing device {self.itl_id}")
 
         # *************************************************************************
         # save current image parameters
@@ -294,97 +318,8 @@ class IMX411DetChar(DetChar):
         print("")
 
         # make report
-        self.report_summary()
-        self.report()
-
-        return
-
-    def report(self):
-        """
-        Make sensor characterization report.
-        Run setup() first.
-        """
-
-        if not self.is_setup:
-            self.setup()
-
-        folder = azcam.utils.curdir()
-        self.report_folder = folder
-        report_name = f"IMX411_report_{self.report_id}.pdf"
-
-        print("")
-        print(f"Generating report for {self.report_id}")
-        print("")
-
-        # *********************************************
-        # Combine PDF report files for each tool
-        # *********************************************
-        rfiles = [self.summary_report_file + ".pdf"]
-        for r in self.report_names:  # add pdf extension
-            f1 = self.report_files[r] + ".pdf"
-            f1 = os.path.abspath(f1)
-            if os.path.exists(f1):
-                rfiles.append(f1)
-            else:
-                print(f"Report file not found: {f1}")
-        self.merge_pdf(rfiles, report_name)
-
-        # open report
-        with open(os.devnull, "w") as fnull:
-            s = f"{self.report_file}"
-            subprocess.Popen(s, shell=True, cwd=folder, stdout=fnull, stderr=fnull)
-            fnull.close()
-
-        return
-
-    def report_summary(self):
-        """
-        Create a ID and summary report.
-        """
-        # get current date
-        self.report_date = datetime.datetime.now().strftime("%b-%d-%Y")
-
-        lines = []
-
-        lines.append("# ITL Sensor Characterization Report")
-        lines.append("")
-        lines.append("|||")
-        lines.append("|:---|:---|")
-        lines.append("|**Identification**||")
-        lines.append(f"|Customer       |UArizona|")
-        lines.append(f"|Project        |Oracle Search Sensor-2|")
-        lines.append(f"|System         |Sony IMX455|")
-        lines.append(f"|Camera SN      |{self.itl_sn}|")
-        lines.append(f"|Report ID      |{self.report_id}|")
-        lines.append(f"|Report Date    |{self.report_date}|")
-        lines.append(f"|Author         |{self.operator}|")
-        lines.append("")
-
-        # add superflat image
-        f1 = os.path.abspath("./superflat/superflatimage.png")
-        s = f"<img src={f1} width=350>"
-        lines.append(s)
-        # lines.append(f"![Superflat Image]({os.path.abspath('./superflat/superflatimage.png')})  ")
-        lines.append("")
-        lines.append("*Superflat Image.*")
-        # lines.append("")
-
-        # Make report files
-        self.write_report(self.summary_report_file, lines)
-
-        return
-
-    def setup(self, report_id=None):
-        self.report_id = azcam.utils.prompt("Enter report ID", report_id)
-
-        # sponsor/report info
-        self.customer = "UArizona"
-        self.system = "IMX411"
-        self.itl_sn = ""
-        qe.plot_title = "IMX411 Quantum Efficiency"
-        self.report_file = f"IMX411_{self.report_id}.pdf"
-
-        self.is_setup = 1
+        self.make_summary_report()
+        self.make_report()
 
         return
 

@@ -25,19 +25,11 @@ class PrimeFocus4kDetChar(DetChar):
         self.report_folder = ""  # top of report folder tree
         self.start_delay = 5  # aquisition starting delay in seconds
 
-        self.author = ""
-        self.itl_sn = -1
-        self.itl_id = ""
-        self.system = ""
-        self.customer = ""
-        self.dewar = ""
         self.device_type = ""
         self.backside_bias = 0.0
-
         self.lot = "UNKNOWN"
         self.wafer = "UNKNOWN"
         self.die = "UNKNOWN"
-        self.report_date = ""
 
         self.is_prepared = 0
 
@@ -91,6 +83,39 @@ class PrimeFocus4kDetChar(DetChar):
             "prnu": "prnu/prnu",
             "qe": "qe/qe",
         }
+
+    def setup(self, itl_id=""):
+
+        self.itl_id = azcam.utils.prompt("Enter cameras ID", itl_sn)
+        self.operator = azcam.utils.prompt("Enter you initals", "mpl")
+
+        # sponsor/report info
+        self.customer = "UArizona"
+        self.system = "ITL3"
+
+        self.summary_report_name = f"SummaryReport_{self.itl_id}"
+        self.report_name = f"90prime4k_{self.itl_id}.pdf"
+
+        if self.operator.lower() == "mpl":
+            self.operator = "Michael Lesser"
+        else:
+            self.operator = ""
+
+        self.summary_lines = []
+        self.summary_lines.append("# 90Prime4k Sensor Characterization Report")
+
+        self.summary_lines.append("|||")
+        self.summary_lines.append("|:---|:---|")
+        self.summary_lines.append(f"|Customer       |{self.customer}|")
+        self.summary_lines.append(f"|ITL Package    |{self.package_id}|")
+        self.summary_lines.append(f"|ITL ID         |{self.itl_id}|")
+        self.summary_lines.append(f"|Type           |STA4850|")
+        self.summary_lines.append(f"|System         |{self.system}|")
+        self.summary_lines.append(f"|Operator       |{self.operator}|")
+
+        self.is_setup = True
+
+        return
 
     def acquire(self, SN="prompt"):
         """
@@ -198,7 +223,7 @@ class PrimeFocus4kDetChar(DetChar):
 
         # send email notice
         finishedtime = datetime.datetime.strftime(datetime.datetime.now(), "%H:%M:%S")
-        message = f"Script finished for SN{self.itl_sn} today at {finishedtime}"
+        message = f"Script finished for SN{self.itl_id} today at {finishedtime}"
         itlutils.mailto("mlesser@arizona.edu", "LVM acquire script finished", message)
 
         print("Acquisition sequence finished")
@@ -327,94 +352,10 @@ class PrimeFocus4kDetChar(DetChar):
         azcam.utils.curdir(rootfolder)
 
         # make report
-        self.report_summary()
-        self.report()
+        self.make_summary_report()
+        self.make_report()
 
         print("Analysis sequence finished")
-
-        return
-
-    def report(self):
-        """
-        Make detector characterization report.
-        Run setup() first.
-        """
-
-        if not self.is_setup:
-            self.setup_analyze()
-
-        folder = azcam.utils.curdir()
-        self.report_folder = folder
-        report_name = "%s_ID%s_SN%d.pdf" % (self.report_name, self.itl_id, self.itl_sn)
-
-        print("")
-        print("Generating SN%s Report" % self.itl_sn)
-        print("")
-
-        # *********************************************
-        # Combine PDF report files for each tool
-        # *********************************************
-        if self.SummaryPdfFile is None:
-            rfiles = []
-        else:
-            rfiles = [self.SummaryPdfFile]
-        for r in self.report_names:  # add pdf extension
-            f1 = self.report_files[r] + ".pdf"
-            f1 = os.path.abspath(f1)
-            if os.path.exists(f1):
-                rfiles.append(f1)
-            else:
-                print("Report file not found: %s" % f1)
-
-        self.merge_pdf(rfiles, report_name)
-
-        # open report
-        with open(os.devnull, "w") as fnull:
-            s = report_name
-            subprocess.Popen(s, shell=True, cwd=folder, stdout=fnull, stderr=fnull)
-            fnull.close()
-
-        return
-
-    def report_summary(self):
-        """
-        Create a ID and summary report.
-        """
-
-        if not self.is_setup:
-            self.setup_analyze()
-
-        if len(self.report_comment) == 0:
-            self.report_comment = azcam.utils.prompt("Enter report comment")
-
-        # get current date
-        self.report_date = datetime.datetime.now().strftime("%b-%d-%Y")
-
-        lines = []
-
-        lines.append("# 90prime Detector Characterization Report")
-        lines.append("")
-        lines.append("|    |    |")
-        lines.append("|:---|:---|")
-        lines.append("|**Identification**||")
-        lines.append(f"|Customer       |UArizona|")
-        lines.append(f"|ITL System     |90prime|")
-        lines.append(f"|ITL ID         |{self.itl_id}|")
-        lines.append(f"|Report Date    |{self.report_date}|")
-        lines.append(f"|Author         |{self.author}|")
-        lines.append(f"|System         |{self.dewar}|")
-        lines.append(f"|Comment        |{self.report_comment}|")
-        lines.append("")
-
-        # add superflat image
-        f1 = os.path.abspath("./superflat/superflatimage.png")
-        s = f"<img src={f1} width=350>"
-        lines.append(s)
-        lines.append("")
-        lines.append("*Superflat Image.*")
-
-        # Make report files
-        self.write_report(self.summary_report_file, lines)
 
         return
 
@@ -434,46 +375,6 @@ class PrimeFocus4kDetChar(DetChar):
             except Exception as message:
                 print("ERROR", name, message)
                 continue
-
-        return
-
-    def setup_analyze(self, EO=1):
-        """
-        Set up configuration for analysis.
-        Start in the report folder.
-        """
-
-        itlid = azcam.utils.prompt("Enter sensor ID")
-        self.itl_id = itlid
-
-        self.summary_report_file = f"SummaryReport_{self.itl_id}"
-        self.SummaryPdfFile = f"{self.summary_report_file}.pdf"
-
-        # find first bias image for header info
-        azcam.utils.curdir("bias")
-        filename = azcam.console.utils.find_file_in_sequence("bias")[0]
-        azcam.utils.curdir("..")
-
-        # system info
-        self.report_name = "90prime_EO_Report"
-        self.system = "90prime"
-        self.dewar = "ITL3"
-        self.author = "Michael Lesser"
-
-        self.is_setup = 1
-
-        return
-
-    def setup_acquire(self):
-        """
-        Set up configuration for acquisition.
-        Used for console and also tries to set server configuration.
-        """
-
-        itlid = azcam.utils.prompt("Enter sensor ID")
-        self.itl_id = itlid
-
-        self.is_setup = 1
 
         return
 
