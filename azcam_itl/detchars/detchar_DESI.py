@@ -492,7 +492,9 @@ azcam.db.tools["linearity"].zero_correct = 0
 azcam.db.tools["linearity"].grade_sensor = 1
 
 # QE
-qe.cal_scale = 0.955
+# qe.cal_scale = 0.955
+# calibrated with dewar window and cal fixture
+qe.cal_scale = 1.0
 qe.global_scale = 1.0
 qe.flush_before_exposure = 1
 qe.use_edge_mask = 1
@@ -530,9 +532,13 @@ qe.exposure_levels = {
 }
 qe.exposure_times = {}
 qe.window_trans = {
-    300: 0.92,
-    1000: 0.92,
+    300: 1.0,
+    1000: 1.0,
 }
+# qe.window_trans = {
+#     300: 0.92,
+#     1000: 0.92,
+# }
 
 # prnu
 prnu.allowable_deviation_from_mean = 0.1
