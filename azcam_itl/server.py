@@ -2,7 +2,7 @@
 Setup method for ITL azcamserver.
 
 Usage example:
-  python -i -m azcam_itl.server -- -system LVM
+  python -i -m azcam_itl.server -- -system LVM -instrument QB -tempcon EB
     or -- -configure /data/LVM/config_LVM.py
     or -- -datafolder path_to_datafolder
 """
@@ -66,6 +66,11 @@ def setup():
         instflag = sys.argv[i + 1]
     except ValueError:
         instflag = None
+    try:
+        i = sys.argv.index("-tempcon")
+        tempflag = sys.argv[i + 1]
+    except ValueError:
+        tempflag = None
 
     # optional config script
     if configuration is not None:
@@ -128,7 +133,9 @@ def setup():
         instrument = InstrumentArduino()
 
     # temperature controller
-    if instflag == "EB":
+    if tempflag is None:
+        tempflag = instflag
+    if tempflag == "EB":
         tempcon = TempConCryoCon24()
         tempcon.host = "cryoconeb"  # EB
         tempcon.control_temperature = -100.0
@@ -141,7 +148,7 @@ def setup():
             "loop 1:range mid",
             "loop 1:maxpwr 100",
         ]
-    elif instflag == "QB":
+    elif tempflag == "QB":
         tempcon = TempConCryoCon24()
         tempcon.host = "cryoconqb"  # QB
         tempcon.control_temperature = -100.0
@@ -154,7 +161,7 @@ def setup():
             "loop 1:range mid",
             "loop 1:maxpwr 100",
         ]
-    elif instflag == "ASCOM":
+    elif tempflag == "ASCOM":
         tempcon = TempConASCOM()
         tempcon.control_temperature = 0.0
     else:

@@ -91,8 +91,8 @@ class DesiDetCharClass(DetChar):
         self.summary_lines.append(f"|ITL ID         |{self.itl_id}|")
         self.summary_lines.append(f"|Type           |STA4150|")
         self.summary_lines.append(f"|Lot            |{self.lot}|")
-        self.summary_lines.append(f"|Wafer          |{int(self.wafer):02d}|")
-        self.summary_lines.append(f"|Die            |{int(self.die)}|")
+        self.summary_lines.append(f"|Wafer          |{self.wafer}|")
+        self.summary_lines.append(f"|Die            |{self.die}|")
         self.summary_lines.append(f"|Operator       |M. Lesser|")
         self.summary_lines.append(f"|System         |ITL2|")
 
@@ -501,7 +501,7 @@ qe.use_edge_mask = 1
 qe.pixel_area = 0.015 * 0.015
 qe.flux_cal_folder = "/data/DESI"
 qe.plot_title = "DESI Quantum Efficiency"
-qe.plot_limits = [[290.0, 900.0], [0.0, 100.0]]
+qe.plot_limits = [[300.0, 900.0], [0.0, 100.0]]
 qe.qeroi = []
 qe.use_exposure_levels = 1
 qe.grade_sensor = 0
