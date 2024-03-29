@@ -462,7 +462,7 @@ superflat.grade_sensor = 0
 ptc.wavelength = 500
 ptc.gain_range = [0.0, 2.0]
 ptc.overscan_correct = 1
-ptc.flush_before_exposure = 0
+ptc.flush_before_exposure = 1
 ptc.exposure_levels = [
     1000,
     2000,
@@ -495,7 +495,7 @@ azcam.db.tools["linearity"].grade_sensor = 1
 # qe.cal_scale = 0.955
 # calibrated with dewar window and cal fixture
 qe.cal_scale = 1.0
-qe.global_scale = 1.0
+qe.global_scale = 0.88  # 27mar24
 qe.flush_before_exposure = 1
 qe.use_edge_mask = 1
 qe.pixel_area = 0.015 * 0.015
@@ -550,7 +550,7 @@ prnu.grade_sensor = 0
 
 # fe55
 fe55.number_images_acquire = 1
-fe55.exposure_time = 120.0
+fe55.exposure_time = 60.0
 fe55.neighborhood_size = 5
 fe55.fit_psf = 0
 fe55.threshold = 400
