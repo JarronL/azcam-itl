@@ -76,6 +76,7 @@ class DesiDetCharClass(DetChar):
             self.lot = azcam.utils.prompt("Enter lot", "227599")
             self.device_type = "STA4150"
             self.package_id = azcam.utils.prompt("Enter package ID")
+        self.report_name = f"CharacterizationReport_{self.itl_id}"
 
         # fixed info
         self.customer = "LBNL"
@@ -381,6 +382,7 @@ azcam.console.utils.set_image_roi([[1950, 2000, 400, 450], [2051, 2055, 400, 450
     detcal,
     superflat,
     ptc,
+    linearity,
     qe,
     dark,
     defects,
@@ -394,6 +396,7 @@ azcam.console.utils.set_image_roi([[1950, 2000, 400, 450], [2051, 2055, 400, 450
         "detcal",
         "superflat",
         "ptc",
+        "linearity",
         "qe",
         "dark",
         "defects",
@@ -447,9 +450,9 @@ dark.exposure_time = 500.0
 dark.dark_fraction = -1  # no spec on individual pixels
 dark.mean_dark_spec = 10.0 / 3600
 dark.use_edge_mask = 1  #
-dark.bright_pixel_reject = 5.0  # e/pix/sec clip
+dark.bright_pixel_reject = 0.05  # e/pix/sec clip
 dark.overscan_correct = 1  # flag to overscan correct images
-dark.zero_correct = 1  # flag to correct with bias residuals
+dark.zero_correct = 0  # flag to correct with bias residuals
 dark.report_plots = ["darkimage"]  # plots to include in report
 dark.report_dark_per_hour = 1
 dark.grade_sensor = 1
@@ -482,16 +485,16 @@ ptc.exposure_levels = [
 ptc.grade_sensor = 0
 
 # linearity
-azcam.db.tools["linearity"].wavelength = 500
-azcam.db.tools["linearity"].use_ptc_data = 1
-azcam.db.tools["linearity"].fit_min = 1000.0
-azcam.db.tools["linearity"].fit_max = 55000.0
-azcam.db.tools["linearity"].max_allowed_linearity = 0.01  # max residual for linearity
-azcam.db.tools["linearity"].plot_specifications = 1
-azcam.db.tools["linearity"].plot_limits = [-3.0, +3.0]
-azcam.db.tools["linearity"].overscan_correct = 1
-azcam.db.tools["linearity"].zero_correct = 0
-azcam.db.tools["linearity"].grade_sensor = 1
+linearity.wavelength = 500
+linearity.use_ptc_data = 1
+linearity.fit_min = 1000.0
+linearity.fit_max = 55000.0
+linearity.max_allowed_linearity = 0.01  # max residual for linearity
+linearity.plot_specifications = 1
+linearity.plot_limits = [-3.0, +3.0]
+linearity.overscan_correct = 1
+linearity.zero_correct = 0
+linearity.grade_sensor = 1
 
 # QE
 # qe.cal_scale = 0.955
@@ -508,8 +511,10 @@ qe.qeroi = []
 qe.use_exposure_levels = 1
 qe.grade_sensor = 0
 qe.wavelengths = [350, 400, 450, 500, 550, 600, 650, 700, 750, 800]
+# spec for DESI Blue: 360-400 > 75%, 400-600 > 85%
 qe.qe_specs = {
     350: 0,
+    360: 0,
     400: 0,
     450: 0,
     500: 0,
@@ -560,13 +565,13 @@ fe55.spec_sigma = -1
 fe55.hcte_limit = 0.999_990
 fe55.vcte_limit = 0.999_990
 fe55.spec_by_cte = 1
-fe55.overscan_correct = 1
-fe55.zero_correct = 0
+fe55.overscan_correct = 0
+fe55.zero_correct = 1
+fe55.dark_correct = 0
 fe55.pause_each_channel = 0
 fe55.report_include_plots = 1
 fe55.gain_estimate = []
 fe55.make_plots = ["histogram", "cte"]
-fe55.dark_correct = 0
 fe55.system_noise_correction = 4 * [0.7]
 fe55.plot_files = {
     "hcte": "hcte.png",
@@ -583,7 +588,7 @@ fe55.grade_sensor = 1
 # defects
 defects.use_edge_mask = 1
 defects.edge_size = 13  # from Pat
-defects.allowable_bad_fraction = 0.0001  # % allowed bad pixels
-defects.bright_pixel_reject = 5.0  # e/pix/sec
+defects.allowable_bad_fraction = 0.0001  # allowed bad pixels
+defects.bright_pixel_reject = 0.05  # e/pix/sec
 defects.dark_pixel_reject = 0.50  # reject pixels below this value from mean
 defects.grade_sensor = 1
