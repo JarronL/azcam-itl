@@ -556,6 +556,10 @@ prnu.wavelengths = [350, 400, 500, 600, 700, 800]
 prnu.grade_sensor = 0
 
 # fe55
+fe55.overscan_correct = 0
+fe55.zero_correct = 0
+fe55.dark_correct = 0
+
 fe55.number_images_acquire = 1
 fe55.exposure_time = 60.0
 fe55.neighborhood_size = 5
@@ -565,9 +569,6 @@ fe55.spec_sigma = -1
 fe55.hcte_limit = 0.999_990
 fe55.vcte_limit = 0.999_990
 fe55.spec_by_cte = 1
-fe55.overscan_correct = 0
-fe55.zero_correct = 1
-fe55.dark_correct = 0
 fe55.pause_each_channel = 0
 fe55.report_include_plots = 1
 fe55.gain_estimate = []
