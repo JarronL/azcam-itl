@@ -62,6 +62,8 @@ class DesiDetCharClass(DetChar):
             id = 0
         self.itl_id = azcam.utils.prompt("Enter sensor ID", f"DIEID-{id}")
 
+        lot = azcam.db.parameters.get_par("lot", "detchar")
+
         # ****************************************************************
         # Identification
         # ****************************************************************

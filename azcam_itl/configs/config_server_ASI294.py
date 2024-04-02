@@ -8,7 +8,6 @@ from azcam.server.tools.ascom.exposure_ascom import ExposureASCOM
 from azcam.header import System
 from azcam.server.tools.tempcon import TempCon
 from azcam.server.tools.ds9display import Ds9Display
-from azcam.server.tools.sendimage import SendImage
 
 # ****************************************************************
 # controller
@@ -60,10 +59,9 @@ exposure.image.filename = "/data/asi294/image.fits"  # .bin .fits
 # remote image
 # ****************************************************************
 if 0:
-    sendimage = SendImage()
     remote_imageserver_host = "lesser"
     remote_imageserver_port = 6543
-    sendimage.set_remote_imageserver(
+    exposure.sendimage.set_remote_imageserver(
         remote_imageserver_host,
         remote_imageserver_port,
         "azcam",

@@ -207,10 +207,10 @@ def setup():
     parfile = os.path.join(
         azcam.db.datafolder,
         "parameters",
-        f"parameters_server_{azcam.db.systemname}.ini",
+        f"parameters_{azcam.db.systemname}.ini",
     )
     azcam.db.parameters.read_parfile(parfile)
-    azcam.db.parameters.update_pars("azcamserver")
+    azcam.db.parameters.update_pars()
 
     # start command server
     azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")

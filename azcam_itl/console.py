@@ -77,12 +77,6 @@ def setup():
     azcam.db.systemfolder = azcam.utils.fix_path(os.path.dirname(__file__))
     azcam.db.datafolder = azcam.utils.get_datafolder(datafolder)
 
-    parfile = os.path.join(
-        azcam.db.datafolder,
-        "parameters",
-        f"parameters_console_{azcam.db.systemname}.ini",
-    )
-
     # logging
     logfile = os.path.join(azcam.db.datafolder, "logs", "console.log")
     azcam.db.logger.start_logging(logfile=logfile)
@@ -155,8 +149,13 @@ def setup():
         azcam.db.wd = azcam.db.datafolder
 
     # par file
+    parfile = os.path.join(
+        azcam.db.datafolder,
+        "parameters",
+        f"parameters_{azcam.db.systemname}.ini",
+    )
     azcam.db.parameters.read_parfile(parfile)
-    azcam.db.parameters.update_pars("azcamconsole")
+    azcam.db.parameters.update_pars()
 
 
 # start

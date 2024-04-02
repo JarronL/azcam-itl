@@ -6,7 +6,6 @@ from azcam.server.tools.mag.controller_mag import ControllerMag
 from azcam.server.tools.mag.exposure_mag import ExposureMag
 from azcam.server.tools.mag.tempcon_mag import TempConMag
 from azcam.server.tools.mag.udpinterface import UDPinterface
-from azcam.server.tools.sendimage import SendImage
 
 from azcam_itl.detectors import detector_ccd57
 
@@ -53,7 +52,6 @@ tempcon = TempConMag()
 # exposure
 # ****************************************************************
 exposure = ExposureMag()
-sendimage = SendImage()
 # filetype = "FITS"
 filetype = "BIN"
 exposure.filetype = exposure.filetypes[filetype]
