@@ -55,8 +55,6 @@ class PrimeFocus4kDetChar(DetChar):
 
         self.report_comment = ""
 
-        # report
-        self.report_name = ""  # final report base filename
         # names in proper order
         self.report_names = [
             "qe",

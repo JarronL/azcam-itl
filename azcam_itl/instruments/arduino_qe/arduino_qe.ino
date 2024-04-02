@@ -21,9 +21,13 @@ byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEF
 };
 IPAddress ip(10, 131, 0, 27);
+//IPAddress ip(10, 0, 2, 50);
 //IPAddress myDns(10, 0, 0, 10);
 //IPAddress gateway(10, 0, 0, 1);
-//IPAddress subnet(255, 255, 252, 0);
+IPAddress subnet(255, 255, 255, 128);
+//IPAddress subnet(255, 255, 255, 0);
+
+byte byteRead;
 
 // port 80 default
 EthernetServer server(80);
@@ -93,12 +97,15 @@ void loop() {
 
   // listen for client
   EthernetClient client = server.available();
+  //Serial.print("Ethernet client");
+  //Serial.println(client);
   
   // check for incoming command
   // called only if connection is made
   if (client) {
     
     c = client.read();
+    Serial.print(c);
 
     // command is: Sxxxxxxxx to enter shutter mode
     if (c == 'S') {
@@ -134,6 +141,12 @@ void loop() {
     }
     
   } // end client
+
+  // echo anything from serial port for debug
+  if(Serial.available( )) {
+    byteRead = Serial.read();
+    Serial.write(byteRead);
+  }
 
   // check shutter mode on every loop iteration
   if (shutterMode == 1) {
