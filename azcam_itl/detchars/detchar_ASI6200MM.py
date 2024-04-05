@@ -151,8 +151,6 @@ class ASI6200MMDetChar(DetChar):
         # read most recent detcal info
         # *************************************************************************
         detcal.read_datafile(detcal.data_file)
-        detcal.mean_electrons = {int(k): v for k, v in detcal.mean_electrons.items()}
-        detcal.mean_counts = {int(k): v for k, v in detcal.mean_counts.items()}
 
         # *************************************************************************
         # Create and move to a report folder

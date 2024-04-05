@@ -19,13 +19,18 @@ try:
     controller.initialize()
     controller.nx = 8288
     controller.ny = 5644
-    controller.camera.Gain = 1
-    controller.camera.Offset = 10
+
+    # 2x2, ~1 e/DN, bias ~500 DN
+    controller.camera.Gain = 1  # 120 is medium gain
+    controller.camera.Offset = 8
+
 except Exception as e:
     azcam.log(e)
 
 """
 ZWO ASI294 data
+HCG is automatic when gain above 120
+
 start at 1.0 e/DN
 self.camera.Gain = 150  # 0.68 e/DN, 3.4 e noise
 self.camera.Gain = 120  # 0.88 e/DN, 3.5 e noise
@@ -43,7 +48,7 @@ azcam.db.par_table["cmos_gain"] = "controller.camera.Gain"
 # ****************************************************************
 # temperature controller
 # ****************************************************************
-azcam.db.tools["tempcon"].control_temperature = -20
+azcam.db.tools["tempcon"].control_temperature = +10
 azcam.db.tools["tempcon"].initialize()
 
 # ****************************************************************

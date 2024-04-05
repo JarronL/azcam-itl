@@ -10,6 +10,7 @@ import time
 
 import azcam
 import azcam.console
+import azcam.utils
 from azcam.testers.detchar import DetChar
 from azcam_itl import itlutils
 
@@ -19,7 +20,7 @@ class ASI294DetChar(DetChar):
         super().__init__()
 
         self.imsnap_scale = 1.0
-        self.start_temperature = 25.0
+        self.start_temperature = 10.0
 
         self.start_delay = 5
 
@@ -27,47 +28,48 @@ class ASI294DetChar(DetChar):
         self.create_html = 1
         self.report_names = [
             "gain",
+            "gainmap",
             "prnu",
             "ptc",
             "linearity",
             "qe",
             "dark",
+            "bias",
             "defects",
         ]
         self.report_files = {
             "gain": "gain/gain",
+            "gainmap": "gainmap/gainmap",
             "prnu": "prnu/prnu",
             "ptc": "ptc/ptc",
             "linearity": "ptc/linearity",
             "qe": "qe/qe",
             "dark": "dark/dark",
+            "bias": "bias/bias",
             "defects": "defects/defects",
         }
 
-    def setup(self, itl_sn: str = ""):
+    def setup(self, itl_id="1812911309020900"):
         """
         Setup
         """
 
-        self.itl_id = azcam.utils.prompt("Enter camera ID", itl_sn)
-        self.operator = azcam.utils.prompt("Enter your initals", "mpl")
+        self.itl_id = azcam.utils.prompt("Enter camera ID", itl_id)
 
         # sponsor/report info
-        self.customer = "UArizona"
-        self.system = "ASI294"
+        self.customer = "UASAL"
+        self.system = "ASI294MM-P"
         self.summary_report_name = f"SummaryReport_{self.itl_id}"
-        self.report_name = f"ASI294_{self.itl_id}.pdf"
-
-        if self.operator.lower() == "mpl":
-            self.operator = "Michael Lesser"
+        self.report_name = f"CharacterizationReport__ASI292_{self.itl_id}.pdf"
+        self.operator = "Michael Lesser"
 
         self.summary_lines = []
         self.summary_lines.append("# ITL Camera Characterization Report")
 
         self.summary_lines.append("|||")
         self.summary_lines.append("|:---|:---|")
-        self.summary_lines.append(f"|Customer       |UArizona|")
-        self.summary_lines.append(f"|System         |ZWO ASI294|")
+        self.summary_lines.append(f"|Customer       |UASAL|")
+        self.summary_lines.append(f"|System         |ZWO ASI294MM-P|")
         self.summary_lines.append(f"|ID             |{self.itl_id}|")
         self.summary_lines.append(f"|Operator       |{self.operator}|")
 
@@ -88,6 +90,7 @@ class ASI294DetChar(DetChar):
 
         (
             gain,
+            gainmap,
             bias,
             detcal,
             superflat,
@@ -99,6 +102,7 @@ class ASI294DetChar(DetChar):
         ) = azcam.console.utils.get_tools(
             [
                 "gain",
+                "gainmap",
                 "bias",
                 "detcal",
                 "superflat",
@@ -140,8 +144,6 @@ class ASI294DetChar(DetChar):
         # read most recent detcal info
         # *************************************************************************
         detcal.read_datafile(detcal.data_file)
-        detcal.mean_electrons = {int(k): v for k, v in detcal.mean_electrons.items()}
-        detcal.mean_counts = {int(k): v for k, v in detcal.mean_counts.items()}
 
         # *************************************************************************
         # Create and move to a report folder
@@ -165,11 +167,6 @@ class ASI294DetChar(DetChar):
             exposure.roi_reset()
             exposure.test(0)  # flush
 
-            # clear device after reset delay
-            print("Delaying start for %.0f seconds (to settle)..." % self.start_delay)
-            time.sleep(self.start_delay)
-            exposure.test(0)  # flush
-
             # bias images
             bias.acquire()
             itlutils.imsnap(self.imsnap_scale, "last")
@@ -177,6 +174,9 @@ class ASI294DetChar(DetChar):
             # gain images
             # gain.find()
             gain.acquire()
+
+            # gainmap
+            gainmap.acquire()
 
             # Prnu images
             azcam.db.tools["prnu"].acquire()
@@ -191,7 +191,6 @@ class ASI294DetChar(DetChar):
             qe.acquire()
 
             # Dark signal
-            exposure.test(0)
             dark.acquire()
 
         finally:
@@ -213,6 +212,7 @@ class ASI294DetChar(DetChar):
         (
             exposure,
             gain,
+            gainmap,
             bias,
             detcal,
             superflat,
@@ -224,6 +224,7 @@ class ASI294DetChar(DetChar):
             [
                 "exposure",
                 "gain",
+                "gainmap",
                 "bias",
                 "detcal",
                 "superflat",
@@ -235,7 +236,7 @@ class ASI294DetChar(DetChar):
         )
 
         if not self.is_setup:
-            self.setup(self.itl_id)
+            self.setup()
 
         # analyze bias
         azcam.utils.curdir("bias")
@@ -246,6 +247,12 @@ class ASI294DetChar(DetChar):
         # analyze gain
         azcam.utils.curdir("gain")
         gain.analyze()
+        azcam.utils.curdir(rootfolder)
+        print("")
+
+        # analyze gain map
+        azcam.utils.curdir("gainmap")
+        gainmap.analyze()
         azcam.utils.curdir(rootfolder)
         print("")
 
@@ -284,22 +291,25 @@ class ASI294DetChar(DetChar):
         print("")
 
         # analyze defects
-        azcam.db.tools["defects"].dark_filename = dark.dark_filename
-        azcam.utils.curdir("dark")
-        azcam.db.tools["defects"].analyze_bright_defects()
-        azcam.db.tools["defects"].copy_data_files()
-        azcam.utils.curdir(rootfolder)
+        if defects.grade_dark_defects:
+            defects.dark_filename = dark.dark_filename
+            azcam.utils.curdir("dark")
+            defects.analyze_bright_defects()
+            defects.copy_data_files()
+            azcam.utils.curdir(rootfolder)
 
-        azcam.db.tools["defects"].flat_filename = superflat.superflat_filename
-        azcam.utils.curdir("superflat")
-        azcam.db.tools["defects"].analyze_dark_defects()
-        azcam.db.tools["defects"].copy_data_files()
-        azcam.utils.curdir(rootfolder)
+        if defects.grade_bright_defects:
+            defects.flat_filename = superflat.superflat_filename
+            azcam.utils.curdir("superflat")
+            defects.analyze_dark_defects()
+            defects.copy_data_files()
+            azcam.utils.curdir(rootfolder)
 
-        azcam.utils.curdir("defects")
-        azcam.db.tools["defects"].analyze()
-        azcam.utils.curdir(rootfolder)
-        print("")
+        if defects.grade_dark_defects or defects.grade_bright_defects:
+            azcam.utils.curdir("defects")
+            defects.analyze()
+            azcam.utils.curdir(rootfolder)
+            print("")
 
         # analyze qe
         azcam.utils.curdir("qe")
@@ -394,6 +404,7 @@ detchar = ASI294DetChar()
 (
     exposure,
     gain,
+    gainmap,
     bias,
     detcal,
     superflat,
@@ -407,6 +418,7 @@ detchar = ASI294DetChar()
     [
         "exposure",
         "gain",
+        "gainmap",
         "bias",
         "detcal",
         "superflat",
@@ -419,7 +431,7 @@ detchar = ASI294DetChar()
     ]
 )
 
-detchar.start_temperature = -15.0
+detchar.start_temperature = 20.0
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
@@ -427,45 +439,50 @@ azcam.console.utils.set_image_roi([[500, 600, 500, 600], [500, 600, 500, 600]])
 
 # detcal
 detcal.wavelengths = [
-    350,
     400,
+    425,
     450,
+    475,
     500,
+    525,
     550,
+    575,
     600,
+    625,
     650,
+    675,
     700,
+    725,
     750,
+    775,
     800,
-    850,
-    900,
-    950,
-    1000,
 ]
-# values below for binned values 4x4, 10,000
-bin = 16
+# values below for binned 2x2, ~1 e/DN, ~5,000 DN
 detcal.exposure_times = {
-    350: 30.0 * bin,
-    400: 4.0 * bin,
-    450: 2.0 * bin,
-    500: 2.5 * bin,
-    550: 5.0 * bin,
-    600: 8.0 * bin,
-    650: 10.0 * bin,
-    700: 15.0 * bin,
-    750: 30.0 * bin,
-    800: 45.0 * bin,
-    850: 45.0 * bin,
-    900: 35.0 * bin,
-    950: 110.0 * bin,
-    1000: 175.0 * bin,
+    400: 10.0,
+    425: 7.0,
+    450: 6.0,
+    475: 5.0,
+    500: 5.0,
+    525: 8.0,
+    550: 10.0,
+    575: 10.0,
+    600: 10.0,
+    625: 15.0,
+    650: 18.0,
+    675: 25.0,
+    700: 30.0,
+    725: 40.0,
+    750: 60.0,
+    775: 70.0,
+    800: 100.0,
 }
 detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi294.txt")
 detcal.mean_count_goal = 5000
 detcal.range_factor = 1.2
 
 # bias
-bias.number_images_acquire = 3
+bias.number_images_acquire = 50
 
 # gain
 gain.number_pairs = 1
@@ -473,9 +490,15 @@ gain.exposure_time = 1.0
 gain.wavelength = 500
 gain.video_processor_gain = []
 
+# gainmap
+gainmap.number_bias_images = 20
+gainmap.number_flat_images = 20
+gainmap.exposure_time = 50
+gainmap.wavelength = 500
+
 # dark
-dark.number_images_acquire = 3
-dark.exposure_time = 60.0
+dark.number_images_acquire = 5
+dark.exposure_time = 600.0
 dark.dark_fraction = -1  # no spec on individual pixels
 # dark.mean_dark_spec = 3.0 / 600.0  # blue e/pixel/sec
 # dark.mean_dark_spec = 6.0 / 600.0  # red
@@ -484,20 +507,20 @@ dark.use_edge_mask = 0
 dark.overscan_correct = 0  # flag to overscan correct images
 dark.zero_correct = 1  # flag to correct with bias residuals
 dark.fit_order = 0
-dark.report_dark_per_hour = 1  # report per hour
+dark.report_dark_per_hour = 0  # report per hour
 
 # superflats
-superflat.exposure_levels = [30000]  # electrons
+superflat.exposure_levels = [30000]  # DN
 superflat.wavelength = 500
 superflat.number_images_acquire = [3]
 
 # ptc
 ptc.wavelength = 500
-# ptc.gain_range = [0.75, 1.5]
+ptc.gain_range = [0.5, 1.5]
 ptc.overscan_correct = 0
 ptc.fit_line = True
 ptc.fit_min = 1000
-ptc.fit_max = 63000
+ptc.fit_max = 60000
 ptc.exposure_times = []
 # ptc.max_exposures = 40
 # ptc.number_images_acquire = 40
@@ -535,8 +558,9 @@ ptc.exposure_levels = [
 # linearity
 linearity.wavelength = 500
 linearity.use_ptc_data = 1
-linearity.fit_min = 1000.0
-linearity.fit_max = 10000.0
+linearity.fit_min = 0.10
+linearity.fit_max = 0.90
+linearity.fullwell_estimate = 55000.0  # DN
 linearity.fit_all_data = 0
 linearity.max_allowed_linearity = -1
 linearity.plot_specifications = 1
@@ -547,11 +571,10 @@ linearity.use_weights = 0
 
 # QE
 qe.cal_scale = 0.989  # 30Aug23 measured physically ARB
-# qe.cal_scale = 0.802  # 29aug23 from plot - ARB
-qe.global_scale = 1.0
+qe.global_scale = 0.95  # correction
 qe.pixel_area = 0.002315**2
 qe.flux_cal_folder = "/data/asi294"
-qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]
+qe.plot_limits = [[300.0, 800.0], [0.0, 100.0]]
 qe.plot_title = "ZWO ASI294 Quantum Efficiency"
 qe.qeroi = []
 qe.overscan_correct = 0
@@ -561,23 +584,27 @@ qe.grade_sensor = 0
 qe.create_reports = 1
 qe.use_exposure_levels = 1
 qe.exptime_offset = 0.00
-el = 5000.0
+el = 5000  # DN
 qe.exposure_levels = {
-    350: el,
     400: el,
+    425: el,
     450: el,
+    475: el,
     500: el,
+    525: el,
     550: el,
+    575: el,
     600: el,
+    625: el,
     650: el,
+    675: el,
     700: el,
+    725: el,
     750: el,
+    775: el,
     800: el,
-    850: el,
-    900: el,
-    950: el,
-    1000: el,
 }
+
 if 1:
     qe.window_trans = {
         300: 1.0,
@@ -586,7 +613,6 @@ if 1:
 else:
     # from online plot
     qe.window_trans = {
-        350: 0.25,
         400: 0.95,
         450: 0.99,
         500: 0.99,
@@ -596,9 +622,6 @@ else:
         700: 0.95,
         750: 0.93,
         800: 0.90,
-        850: 0.85,
-        950: 0.78,
-        1000: 0.75,
     }
 
 # prnu
@@ -606,26 +629,19 @@ prnu.root_name = "prnu."
 prnu.use_edge_mask = 0
 prnu.overscan_correct = 0
 prnu.zero_correct = 1
-el = 5000.0
+prnu.mean_count_goal = 3000  # DN
 prnu.exposure_levels = {
-    350: el,
-    400: el,
-    450: el,
-    500: el,
-    550: el,
-    600: el,
-    650: el,
-    700: el,
-    750: el,
-    800: el,
-    850: el,
-    900: el,
-    950: el,
-    1000: el,
+    400: prnu.mean_count_goal,
+    450: prnu.mean_count_goal,
+    500: prnu.mean_count_goal,
+    550: prnu.mean_count_goal,
+    600: prnu.mean_count_goal,
+    650: prnu.mean_count_goal,
+    700: prnu.mean_count_goal,
+    750: prnu.mean_count_goal,
+    800: prnu.mean_count_goal,
 }
-prnu.mean_count_goal = 5000.0
 
 # defects
-defects.use_edge_mask = 0
-defects.bright_pixel_reject = 1  # e/pix/sec
-defects.dark_pixel_reject = 0.80  # below mean
+defects.grade_bright_defects = 0
+defects.grade_dark_defects = 0
