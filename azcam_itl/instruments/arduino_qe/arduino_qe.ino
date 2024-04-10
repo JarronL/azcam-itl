@@ -20,12 +20,12 @@ int shutterMode;  // shutter mode flag
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEF
 };
-IPAddress ip(10, 131, 0, 27);
-//IPAddress ip(10, 0, 2, 50);
+//IPAddress ip(10, 131, 0, 27);
+IPAddress ip(10, 0, 2, 50);
 //IPAddress myDns(10, 0, 0, 10);
 //IPAddress gateway(10, 0, 0, 1);
-IPAddress subnet(255, 255, 255, 128);
-//IPAddress subnet(255, 255, 255, 0);
+//IPAddress subnet(255, 255, 255, 128);
+IPAddress subnet(255, 255, 255, 0);
 
 byte byteRead;
 
@@ -40,7 +40,7 @@ void setup() {
   delay(10); // 10 ms delay;
   
   // define, declare output pins
-  pinMode(9, OUTPUT); // UV - Shutter
+  pinMode(9, OUTPUT); // Oriel Shutter
   pinMode(8, OUTPUT); // IR
   pinMode(7, OUTPUT); // red
   pinMode(6, OUTPUT); // orange
@@ -156,13 +156,13 @@ void loop() {
      //Serial.println(val);
 
      if (val == 1) {
-      //Serial.println("Shutter HIGH: ");
+      //Serial.println("Shutter HIGH (not active): ");
       writeState("NFFFFFFN");
       //writeState(ledstring);
       //Serial.println(ledstring);
      }
      else if (val == 0) {
-      //Serial.println("Shutter LOW: ");
+      //Serial.println("Shutter LOW (active): ");
       writeState("NFFFFFFF");
       //Serial.println(ledstring);
      }
