@@ -205,7 +205,7 @@ class DesiDetCharClass(DetChar):
             dark.acquire()
 
             # Fe55
-            # fe55.acquire()
+            fe55.acquire()
 
         except Exception:
             azcam.db.parameters.restore_imagepars(impars)
@@ -407,20 +407,7 @@ azcam.console.utils.set_image_roi([[1950, 2000, 400, 450], [2051, 2055, 400, 450
 )
 
 # detcal
-detcal.bias_goal = 1000
-detcal.wavelengths = [
-    350,
-    400,
-    450,
-    500,
-    550,
-    600,
-    650,
-    700,
-    750,
-    800,
-]
-detcal.exposure_times = {
+detcal.exposures = {
     350: 4.5,
     400: 2.5,
     400: 2.0,
@@ -458,9 +445,9 @@ dark.report_dark_per_hour = 1
 dark.grade_sensor = 1
 
 # superflats
-superflat.exposure_times = [5.0]  # xxx electrons
+superflat.exposure_time = 5.0
 superflat.wavelength = 500  # used for dark defects
-superflat.number_images_acquire = [3]  # number of images
+superflat.number_images_acquire = 3  # number of images
 superflat.grade_sensor = 0
 
 # ptc
@@ -468,6 +455,7 @@ ptc.wavelength = 500
 ptc.gain_range = [0.0, 2.0]
 ptc.overscan_correct = 1
 ptc.flush_before_exposure = 1
+ptc.use_exposure_levels = 1
 ptc.exposure_levels = [
     1000,
     2000,
@@ -481,7 +469,7 @@ ptc.exposure_levels = [
     55000,
     60000,
     65000,
-]  # in DN
+]  # DN
 ptc.grade_sensor = 0
 
 # linearity

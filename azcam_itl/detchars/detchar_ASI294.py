@@ -437,28 +437,8 @@ detchar.start_temperature = 20.0
 # ***********************************************************************************
 azcam.console.utils.set_image_roi([[500, 600, 500, 600], [500, 600, 500, 600]])
 
-# detcal
-detcal.wavelengths = [
-    400,
-    425,
-    450,
-    475,
-    500,
-    525,
-    550,
-    575,
-    600,
-    625,
-    650,
-    675,
-    700,
-    725,
-    750,
-    775,
-    800,
-]
 # values below for binned 2x2, ~1 e/DN, ~5,000 DN
-detcal.exposure_times = {
+detcal.exposures = {
     400: 10.0,
     425: 7.0,
     450: 6.0,
@@ -510,9 +490,9 @@ dark.fit_order = 0
 dark.report_dark_per_hour = 0  # report per hour
 
 # superflats
-superflat.exposure_levels = [30000]  # DN
+superflat.exposure_level = 30000  # DN
 superflat.wavelength = 500
-superflat.number_images_acquire = [3]
+superflat.number_images_acquire = 3
 
 # ptc
 ptc.wavelength = 500

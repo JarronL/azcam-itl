@@ -485,27 +485,11 @@ detchar.start_temperature = +10.0
 azcam.console.utils.set_image_roi([[1000, 1100, 1000, 1100], [1000, 1100, 1000, 1100]])
 
 # detcal
-detcal.wavelengths = [
-    350,
-    400,
-    450,
-    500,
-    550,
-    600,
-    650,
-    700,
-    750,
-    800,
-    850,
-    900,
-    950,
-    1000,
-]
 # values below estimates for unbinned values, 5000 DN, gain=1, 0.8 e/DN
 ref_gain = 0.8  # reference gain used for dict below
 new_gain = 1.0  # for other settings
 scale = ref_gain / new_gain
-detcal.exposure_times = {
+detcal.exposures = {
     350: 220.0 * scale,
     400: 14.0 * scale,
     450: 10.0 * scale,
@@ -547,9 +531,9 @@ dark.fit_order = 0
 dark.report_dark_per_hour = 1  # report per hour
 
 # superflats
-superflat.exposure_levels = [20000]  # electrons
+superflat.exposure_level = 20000  # electrons
 superflat.wavelength = 500
-superflat.number_images_acquire = [3]
+superflat.number_images_acquire = 3
 superflat.zero_correct = 0
 superflat.overscan_correct = 0
 

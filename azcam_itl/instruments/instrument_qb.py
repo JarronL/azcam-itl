@@ -6,6 +6,7 @@ import azcam.sockets
 from azcam.server.tools.instrument import Instrument
 from azcam_itl.instruments.ms257 import MS257
 from azcam_itl.instruments.newport_1936_R import NewPort_1936r
+from azcam_itl.instruments.arduino_qb import ArduinoQB
 from azcam_itl.instruments import webpower
 
 
@@ -50,6 +51,12 @@ class InstrumentQB(Instrument):
             self.mono.initialize()
         except Exception as e:
             azcam.log(f"could not initialize monochromator {e}")
+
+        try:
+            self.arduino = ArduinoQB()
+            self.arduino.initialize()
+        except Exception as e:
+            azcam.log(f"Could not initialize arduino - {e}")
 
         # QB web power switch instance
         self.power = webpower.WebPowerClass()
@@ -250,3 +257,22 @@ class InstrumentQB(Instrument):
         power = float(reply)
 
         return power
+
+    def set_comps(self, comp_names=["shutter"]):
+        """
+        Set arduino state.
+        """
+
+        self.arduino.set_comps(comp_names)
+
+        return
+
+    def get_all_comps(self):
+        """
+        Return all valid comparison names.
+        Useful for clients to determine which type of comparison exposures are supported.
+        """
+
+        comps = ["Fe55"]
+
+        return comps
