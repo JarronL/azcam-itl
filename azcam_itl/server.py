@@ -207,7 +207,7 @@ def setup():
     parfile = os.path.join(
         azcam.db.datafolder,
         "parameters",
-        f"parameters_{azcam.db.systemname}.ini",
+        f"parameters_server_{azcam.db.systemname}.ini",
     )
     azcam.db.parameters.read_parfile(parfile)
     azcam.db.parameters.update_pars()

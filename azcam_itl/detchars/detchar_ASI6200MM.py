@@ -37,7 +37,6 @@ class ASI6200MMDetChar(DetChar):
         self.start_delay = 5
 
         # report parameters
-        self.create_html = 1
         self.report_names = [
             "bias",
             "gain",

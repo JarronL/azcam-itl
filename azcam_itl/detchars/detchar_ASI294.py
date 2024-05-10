@@ -20,12 +20,11 @@ class ASI294DetChar(DetChar):
         super().__init__()
 
         self.imsnap_scale = 1.0
-        self.start_temperature = 10.0
+        self.start_temperature = -15.0
 
-        self.start_delay = 5
+        self.start_delay = 0
 
         # report parameters
-        self.create_html = 1
         self.report_names = [
             "gain",
             "gainmap",
@@ -49,10 +48,12 @@ class ASI294DetChar(DetChar):
             "defects": "defects/defects",
         }
 
-    def setup(self, itl_id="1812911309020900"):
+    def setup(self, itl_id="2f348f01230009000"):
         """
         Setup
         """
+
+        # itl_id="1812911309020900"
 
         self.itl_id = azcam.utils.prompt("Enter camera ID", itl_id)
 
@@ -60,7 +61,7 @@ class ASI294DetChar(DetChar):
         self.customer = "UASAL"
         self.system = "ASI294MM-P"
         self.summary_report_name = f"SummaryReport_{self.itl_id}"
-        self.report_name = f"CharacterizationReport__ASI292_{self.itl_id}.pdf"
+        self.report_name = f"CharacterizationReport__ASI294_{self.itl_id}.pdf"
         self.operator = "Michael Lesser"
 
         self.summary_lines = []
@@ -239,10 +240,11 @@ class ASI294DetChar(DetChar):
             self.setup()
 
         # analyze bias
-        azcam.utils.curdir("bias")
-        bias.analyze()
-        azcam.utils.curdir(rootfolder)
-        print("")
+        if 0:
+            azcam.utils.curdir("bias")
+            bias.analyze()
+            azcam.utils.curdir(rootfolder)
+            print("")
 
         # analyze gain
         azcam.utils.curdir("gain")
@@ -251,13 +253,14 @@ class ASI294DetChar(DetChar):
         print("")
 
         # analyze gain map
-        azcam.utils.curdir("gainmap")
-        gainmap.analyze()
-        azcam.utils.curdir(rootfolder)
-        print("")
+        if 0:
+            azcam.utils.curdir("gainmap")
+            gainmap.analyze()
+            azcam.utils.curdir(rootfolder)
+            print("")
 
         # analyze superflats
-        azcam.utils.curdir("superflat")
+        azcam.utils.curdir("superflat1")
         try:
             superflat.analyze()
         except Exception:
@@ -437,29 +440,34 @@ detchar.start_temperature = 20.0
 # ***********************************************************************************
 azcam.console.utils.set_image_roi([[500, 600, 500, 600], [500, 600, 500, 600]])
 
-# values below for binned 2x2, ~1 e/DN, ~5,000 DN
+# values below for binned 2x2, Gain=120
+# mult all by 3x
 detcal.exposures = {
-    400: 10.0,
-    425: 7.0,
-    450: 6.0,
-    475: 5.0,
-    500: 5.0,
-    525: 8.0,
-    550: 10.0,
-    575: 10.0,
-    600: 10.0,
-    625: 15.0,
-    650: 18.0,
-    675: 25.0,
-    700: 30.0,
-    725: 40.0,
-    750: 60.0,
-    775: 70.0,
-    800: 100.0,
+    400: 2.0,
+    420: 1.4,
+    440: 1.2,
+    460: 1.5,
+    480: 1.5,
+    500: 1.5,
+    520: 1.6,
+    540: 2.0,
+    560: 2.0,
+    580: 2.0,
+    600: 2.0,
+    620: 3.0,
+    640: 3.0,
+    660: 4.0,
+    680: 5.0,
+    700: 6.0,
+    720: 8.0,
+    740: 10.0,
+    760: 12.0,
+    780: 14.0,
+    800: 20.0,
 }
 detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi294.txt")
-detcal.mean_count_goal = 5000
-detcal.range_factor = 1.2
+detcal.mean_count_goal = 4500
+detcal.range_factor = 1.3
 
 # bias
 bias.number_images_acquire = 50
@@ -467,13 +475,13 @@ bias.number_images_acquire = 50
 # gain
 gain.number_pairs = 1
 gain.exposure_time = 1.0
-gain.wavelength = 500
+gain.wavelength = 400
 gain.video_processor_gain = []
 
 # gainmap
 gainmap.number_bias_images = 20
 gainmap.number_flat_images = 20
-gainmap.exposure_time = 50
+gainmap.exposure_time = 1
 gainmap.wavelength = 500
 
 # dark
@@ -496,7 +504,7 @@ superflat.number_images_acquire = 3
 
 # ptc
 ptc.wavelength = 500
-ptc.gain_range = [0.5, 1.5]
+# ptc.gain_range = [0.1, 0.3]
 ptc.overscan_correct = 0
 ptc.fit_line = True
 ptc.fit_min = 1000
@@ -550,11 +558,11 @@ linearity.zero_correct = 1
 linearity.use_weights = 0
 
 # QE
-qe.cal_scale = 0.989  # 30Aug23 measured physically ARB
-qe.global_scale = 0.95  # correction
+qe.cal_scale = 1.011  # 01May24 measured physically ARB
+qe.global_scale = 1.0  # correction
 qe.pixel_area = 0.002315**2
 qe.flux_cal_folder = "/data/asi294"
-qe.plot_limits = [[300.0, 800.0], [0.0, 100.0]]
+qe.plot_limits = [[400.0, 800.0], [0.0, 100.0]]
 qe.plot_title = "ZWO ASI294 Quantum Efficiency"
 qe.qeroi = []
 qe.overscan_correct = 0
@@ -567,21 +575,25 @@ qe.exptime_offset = 0.00
 el = 5000  # DN
 qe.exposure_levels = {
     400: el,
-    425: el,
-    450: el,
-    475: el,
+    420: el,
+    440: el,
+    460: el,
+    480: el,
     500: el,
-    525: el,
-    550: el,
-    575: el,
+    520: el,
+    540: el,
+    560: el,
+    580: el,
     600: el,
-    625: el,
-    650: el,
-    675: el,
+    620: el,
+    640: el,
+    660: el,
+    680: el,
     700: el,
-    725: el,
-    750: el,
-    775: el,
+    720: el,
+    740: el,
+    760: el,
+    780: el,
     800: el,
 }
 
@@ -594,13 +606,10 @@ else:
     # from online plot
     qe.window_trans = {
         400: 0.95,
-        450: 0.99,
+        440: 0.99,
         500: 0.99,
-        550: 0.99,
-        600: 0.99,
-        650: 0.99,
         700: 0.95,
-        750: 0.93,
+        760: 0.93,
         800: 0.90,
     }
 
@@ -612,13 +621,13 @@ prnu.zero_correct = 1
 prnu.mean_count_goal = 3000  # DN
 prnu.exposure_levels = {
     400: prnu.mean_count_goal,
-    450: prnu.mean_count_goal,
+    460: prnu.mean_count_goal,
     500: prnu.mean_count_goal,
-    550: prnu.mean_count_goal,
+    560: prnu.mean_count_goal,
     600: prnu.mean_count_goal,
-    650: prnu.mean_count_goal,
+    660: prnu.mean_count_goal,
     700: prnu.mean_count_goal,
-    750: prnu.mean_count_goal,
+    760: prnu.mean_count_goal,
     800: prnu.mean_count_goal,
 }
 

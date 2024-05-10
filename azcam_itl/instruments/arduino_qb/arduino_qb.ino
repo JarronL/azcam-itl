@@ -64,7 +64,7 @@ void setup() {
   Serial.println(Ethernet.localIP());
 
   // start in shutterMode, default LED state
-  shutterMode = 1;
+  shutterMode = 0; // was 0
   writeState(ledstate);
 
 } // end setup
@@ -106,18 +106,35 @@ void loop() {
   if (client) {
     
     c = client.read();
+    Serial.print("Read ");
+    Serial.println(c);
     //Serial.print(c);
 
     // command is: S to set pin states for shutter mode
     if (c == 'S') {
-      shutterMode = 1;
+      shutterMode = 0;
+      //shutterMode = 2;
       Serial.println("Entering shutter mode");
     }
     
     //  command is: F to set pin states for Fe-55
     else if (c == 'F') {
-      shutterMode = 0;
+      shutterMode = 1;
       Serial.println("Entering Fe-55 mode: ");
+    }
+
+    //  command is: O to open shutter
+    else if (c == 'O') {
+      shutterMode = 2;
+      writeState("NFFFFFFF");
+      Serial.println("Open shutter");
+    }
+
+    //  command is: C to close shutter
+    else if (c == 'C') {
+      shutterMode = 2;
+      writeState("FFFFFFFN");
+      Serial.println("Close shutter");
     }
 
     else {
@@ -144,8 +161,11 @@ void loop() {
 
   // check shutter mode on every loop iteration
   // this monitors camera shutter signal
-  if (shutterMode == 1) {
+  if (shutterMode == 0) {
      val = digitalRead(shutterInput);  // read the input
+      Serial.print("Input: ");
+      Serial.println(val);
+
      if (val == 1) {
       //Serial.println("Shutter HIGH (not active): ");
       writeState("NFFFFFFN");
@@ -155,7 +175,7 @@ void loop() {
       writeState("NFFFFFFF");
      }
    }
-  else if (shutterMode == 0) {
+  else if (shutterMode == 1) {
      val = digitalRead(shutterInput);  // read the input
      if (val == 1) {
       //Serial.println("Shutter HIGH (not active): ");
@@ -168,6 +188,6 @@ void loop() {
    }
 
    
-   delay(10);
+   delay(100);
   
 } // end main loop

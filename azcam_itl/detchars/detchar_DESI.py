@@ -25,7 +25,8 @@ class DesiDetCharClass(DetChar):
         self.wafer = "UNKNOWN"
         self.die = "UNKNOWN"
 
-        self.start_delay = 5  # acuisition starting delay in seconds
+        self.start_delay = 0
+        self.start_temperature = -1000
 
         # report parameters
         self.report_names = [
@@ -158,6 +159,16 @@ class DesiDetCharClass(DetChar):
             ]
         )
         exposure = azcam.db.tools["exposure"]
+
+        # wait for temperature
+        if self.start_temperature != -1000:
+            while True:
+                t = azcam.db.tools["tempcon"].get_temperatures()[0]
+                print("Current temperature: %.1f" % t)
+                if t <= self.start_temperature + 0.5:
+                    break
+                else:
+                    time.sleep(10)
 
         # clear sensor
         print("Clear sensor")

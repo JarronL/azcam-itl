@@ -10,6 +10,11 @@ class MS257(object):
     Class for Newport MS257 monochromator.
     """
 
+    """
+    Grating 1: 77743 -  600 lpm, 225 blaze, 200 - 400 nm
+    Grating 2: 77744 - 600 lpm, 370 nm blaze, 270 - 1000 nm
+    """
+
     def __init__(self, port="COM12"):
         self.MonoShutterState = -1
         self.CurrentWavelength = -1
@@ -44,9 +49,9 @@ class MS257(object):
         if reset:
             cmd = "!GW  400"
             self.mono.query(cmd).strip()
-            cmd = "!FILT1 0"  # auto filter
+            cmd = "!FILT1 1"  # auto filter was 0
             self.mono.query(cmd).strip()
-            cmd = "!FILT2 0"  # auto filter
+            cmd = "!FILT2 1"  # auto filter was 0
             self.mono.query(cmd).strip()
 
         return

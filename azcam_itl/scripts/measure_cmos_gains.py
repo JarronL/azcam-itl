@@ -78,11 +78,11 @@ class MeasureCmosGains(object):
         self.y2_plot = []
 
         plt.sca(self.ax1)
-        plt.ylim(0, 3)
+        plt.ylim(0, 1.5)
         plt.xticks(rotation=45, ha="right")
 
         plt.sca(self.ax2)
-        plt.ylim(0, 4)
+        plt.ylim(0, 8)
         plt.xlim(0, max(gain_settings))
         plt.xticks(rotation=45, ha="right")
 
