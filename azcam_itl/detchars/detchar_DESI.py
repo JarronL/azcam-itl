@@ -418,18 +418,30 @@ azcam.console.utils.set_image_roi([[1950, 2000, 400, 450], [2051, 2055, 400, 450
 )
 
 # detcal
+# detcal.exposures = {
+#     350: 4.5,
+#     400: 2.5,
+#     500: 1.5,
+#     550: 1.5,
+#     600: 1.5,
+#     600: 2.0,
+#     700: 3.0,
+#     750: 4.0,
+#     800: 6,
+# }
 detcal.exposures = {
-    350: 4.5,
-    400: 2.5,
-    400: 2.0,
-    500: 1.5,
-    550: 1.5,
-    600: 1.5,
-    600: 2.0,
-    700: 3.0,
-    750: 4.0,
-    800: 6,
+    350: 38,
+    400: 13,
+    450: 10,
+    500: 6,
+    550: 6,
+    600: 6,
+    650: 6,
+    700: 10,
+    750: 13,
+    800: 20,
 }
+
 detcal.data_file = f"{azcam.db.datafolder}/detcal_desi.txt"
 
 # bias
@@ -457,7 +469,8 @@ dark.grade_sensor = 1
 
 # superflats
 superflat.exposure_time = 5.0
-superflat.wavelength = 500  # used for dark defects
+# superflat.wavelength = 400  # blue - dark defects
+superflat.wavelength = 600  # red - dark defects
 superflat.number_images_acquire = 3  # number of images
 superflat.grade_sensor = 0
 

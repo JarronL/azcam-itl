@@ -14,7 +14,7 @@ from azcam_itl.detectors import detector_sta4150_4amp, detector_sta4150_2amp_lef
 # ****************************************************************
 controller = ControllerArchon()
 controller.camserver.port = 4242
-controller.camserver.host = "10.0.2.11"  # ITL2
+controller.camserver.host = "10.0.0.11"  # ITL2
 
 # ****************************************************************
 # exposure
