@@ -9,9 +9,9 @@ import subprocess
 import time
 
 import azcam
-import azcam.console
+import azcam_console.console
 import azcam.utils
-from azcam.testers.detchar import DetChar
+from azcam_console.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
@@ -99,7 +99,7 @@ class ASI294DetChar(DetChar):
             dark,
             defects,
             dark,
-        ) = azcam.console.utils.get_tools(
+        ) = azcam_console.utils.get_tools(
             [
                 "gain",
                 "gainmap",
@@ -113,7 +113,7 @@ class ASI294DetChar(DetChar):
                 "dark",
             ]
         )
-        exposure, tempcon = azcam.console.utils.get_tools(
+        exposure, tempcon = azcam_console.utils.get_tools(
             [
                 "exposure",
                 "tempcon",
@@ -148,7 +148,7 @@ class ASI294DetChar(DetChar):
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam.console.utils.make_file_folder(
+        currentfolder, reportfolder = azcam_console.utils.make_file_folder(
             "report", 1, 1
         )  # start with report1
         azcam.utils.curdir(reportfolder)
@@ -220,7 +220,7 @@ class ASI294DetChar(DetChar):
             qe,
             dark,
             defects,
-        ) = azcam.console.utils.get_tools(
+        ) = azcam_console.utils.get_tools(
             [
                 "exposure",
                 "gain",
@@ -414,7 +414,7 @@ detchar = ASI294DetChar()
     defects,
     linearity,
     prnu,
-) = azcam.console.utils.get_tools(
+) = azcam_console.utils.get_tools(
     [
         "exposure",
         "gain",
@@ -435,7 +435,7 @@ detchar.start_temperature = 20.0
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
-azcam.console.utils.set_image_roi([[500, 600, 500, 600], [500, 600, 500, 600]])
+azcam_console.utils.set_image_roi([[500, 600, 500, 600], [500, 600, 500, 600]])
 
 # values below for binned 2x2, ~1 e/DN, ~5,000 DN
 detcal.exposures = {

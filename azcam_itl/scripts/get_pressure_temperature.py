@@ -7,7 +7,7 @@ import sys
 
 import azcam
 import azcam.utils
-from azcam.console.plot import plt
+from azcam_console.plot import plt
 
 # import seaborn
 # seaborn.set_theme(style="ticks", font_scale=1.25)

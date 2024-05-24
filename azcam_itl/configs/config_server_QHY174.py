@@ -3,10 +3,9 @@ import sys
 
 import azcam
 from azcam.header import System
-from azcam.server.tools.ascom.controller_ascom import ControllerASCOM
-from azcam.server.tools.ascom.exposure_ascom import ExposureASCOM
-from azcam.server.tools.ascom.tempcon_ascom import TempConASCOM
-from azcam.server.tools.ds9display import Ds9Display
+from azcam.tools.ascom.controller_ascom import ControllerASCOM
+from azcam.tools.ascom.exposure_ascom import ExposureASCOM
+from azcam.tools.ascom.tempcon_ascom import TempConASCOM
 
 from azcam_itl.detectors import detector_qhy174
 
@@ -67,8 +66,3 @@ try:
     exposure.set_detpars(detector_qhy174)
 except Exception:
     pass
-
-# ****************************************************************
-# define display
-# ****************************************************************
-display = Ds9Display()

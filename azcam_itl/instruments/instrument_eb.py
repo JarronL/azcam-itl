@@ -5,7 +5,7 @@ import pyvisa
 
 import azcam
 import azcam.exceptions
-from azcam.server.tools.instrument import Instrument
+from azcam.tools.instrument import Instrument
 from azcam_itl.instruments import pressure_vgc501
 from azcam_itl.instruments import pressure_mks900
 from azcam_itl.instruments import webpower

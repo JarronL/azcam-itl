@@ -7,9 +7,10 @@ dependencies = [
     "pyvisa",
     "opencv-python-headless",
     "azcam",
+    "azcam_console",
 ]
 name = "azcam-itl"
-version = "24.0"
+version = "24.1"
 description = "Azcam extension for ITL systems"
 license = { file = "LICENSE" }
 readme = "README.md"

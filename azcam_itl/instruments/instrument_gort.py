@@ -1,7 +1,7 @@
 import serial
 
 import azcam
-from azcam.server.tools.instrument import Instrument
+from azcam.tools.instrument import Instrument
 
 from azcam_itl.instruments import pressure_vgc401
 from azcam_itl.instruments import webpower
