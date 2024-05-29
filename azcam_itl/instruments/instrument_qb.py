@@ -9,6 +9,8 @@ from azcam_itl.instruments.newport_1936_R import NewPort_1936r
 from azcam_itl.instruments.arduino_qb import ArduinoQB
 from azcam_itl.instruments import webpower
 
+from azcam_itl.instruments import pressure_mks900
+
 
 class InstrumentQB(Instrument):
     """
@@ -58,6 +60,11 @@ class InstrumentQB(Instrument):
         except Exception as e:
             azcam.log(f"Could not initialize arduino - {e}")
 
+        try:
+            self.pressure = pressure_mks900.PressureController("COM9")  # COM9 on QB
+        except Exception as e:
+            azcam.log(f"Could not initialize pressure - {e}")
+
         # QB web power switch instance
         self.power = webpower.WebPowerClass()
         self.power.service_name = "powerswitchqb"
@@ -68,9 +75,7 @@ class InstrumentQB(Instrument):
 
         return
 
-    # ***************************************************************************
     # header
-    # ***************************************************************************
 
     def define_keywords(self):
         """
@@ -109,9 +114,26 @@ class InstrumentQB(Instrument):
 
         return [reply, self.header.comments[keyword], t]
 
-    # ************************************************************
+    # shutter
+
+    def set_shutter(self, state, shutter_id: int = 0):
+        """
+        Open or close shutter.
+        0 is mono shutter, 1 is arduino shutter command
+        """
+
+        shutter_id = int(shutter_id)
+
+        if shutter_id == 0:
+            self.mono.mono.query(f"!SHUTTER {state}").strip()
+            self.MonoShutterState = int(state)
+        elif shutter_id == 1:
+            self.arduino.set_shutter_state(state)
+
+        return
+
     # Monochrometer
-    # ************************************************************
+
     def set_wavelength(self, wavelength, wavelength_id=0):
         """
         Set monochomator wavelength (nm).
@@ -134,16 +156,6 @@ class InstrumentQB(Instrument):
         self.CurrentWavelength = w
 
         return wave
-
-    def set_shutter(self, state, shutter_id=0):
-        """
-        Open (1) or close (0) monochomator shutter.
-        """
-
-        self.mono.mono.query(f"!SHUTTER {state}").strip()
-        self.MonoShutterState = int(state)
-
-        return
 
     def get_filter(self, filter_id=0):
         """
@@ -214,9 +226,8 @@ class InstrumentQB(Instrument):
 
         return
 
-    # ******************************************************************************
     # Newport power meter
-    # ******************************************************************************
+
     def init_powermeter(self):
         """
         Initialize Newport power meter.
@@ -258,6 +269,13 @@ class InstrumentQB(Instrument):
 
         return power
 
+    def get_pressure(self, pressure_id=0):
+        """
+        Read an instrument pressure.
+        """
+
+        return self.pressure.read_pressure(pressure_id)
+
     def set_comps(self, comp_names=["shutter"]):
         """
         Set arduino state.
@@ -276,3 +294,21 @@ class InstrumentQB(Instrument):
         comps = ["Fe55"]
 
         return comps
+
+    def comps_on(self):
+        """
+        Turn active comparisons on.
+        """
+
+        self.arduino.comps_on()
+
+        return
+
+    def comps_off(self):
+        """
+        Turn active comparisons off.
+        """
+
+        self.arduino.comps_off()
+
+        return
