@@ -19,7 +19,8 @@ def qe_powermeter_calibrate(wavelengths=None):
     """
 
     if wavelengths is None:
-        wavelengths = [int(w) for w in range(300, 1110, 10)]
+        wavelengths = [int(w) for w in range(300, 1120, 20)]
+        # wavelengths = [int(w) for w in range(300, 1150, 50)]
 
     fluxes = []
     fluxes_close = []
@@ -29,26 +30,28 @@ def qe_powermeter_calibrate(wavelengths=None):
 
     server = azcam.db.tools["server"]
 
+    # print("Initialize instrument...")
+    # server.command(f"instrument.initialize")
+
     data_txt_hdr = "Wavelength" + "\t" + "Flux" + "\t\t" + "Light" + "\t\t" + "Dark"
     print(data_txt_hdr)
 
-    instrument.set_comps("S")
+    # instrument.set_comps("S")
 
     # Iterate through wavelengths and obtain readings
     for wave in wavelengths:
-        instrument.set_wavelength(wave)
-        time.sleep(2)
+        instrument.set_shutter(0, 1)  # shutter_id 1 is arduino
 
-        # instrument.comps_off()
-        instrument.set_shutter(0)
-        time.sleep(4)
-        flux_close = server.command(f"instrument.get_power {wave}")
+        instrument.set_wavelength(wave)
+        time.sleep(3)
+
+        flux_close = instrument.get_power(wave)
         flux_close = float(flux_close)
 
-        # instrument.comps_on()
-        instrument.set_shutter(1)
-        time.sleep(4)
-        flux_open = server.command(f"instrument.get_power {wave}")
+        instrument.set_shutter(1, 1)
+        time.sleep(2)
+
+        flux_open = instrument.get_power(wave)
         flux_open = float(flux_open)
 
         # convert to floats
