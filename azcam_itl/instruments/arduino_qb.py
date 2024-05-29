@@ -18,6 +18,7 @@ class ArduinoQB(object):
 
         self.arduino_host = "10.0.0.50"
         self.arduino_address = (self.arduino_host, 80)
+        self.client_socket = 0
 
     # ***************************************************************************
     # Arduino for LEDs and Fe55 control
@@ -28,9 +29,16 @@ class ArduinoQB(object):
         Initialze arduino for LED and shutter control.
         """
 
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect(self.arduino_address)
+
         # set Arduino pins for shutter mode at start
         self.send_command("S")
 
+        return
+
+    def close(self):
+        self.client_socket.close()
         return
 
     def get_comps(self):
@@ -62,12 +70,16 @@ class ArduinoQB(object):
         Turn active comparisons on.
         """
 
+        self.set_shutter_state(1)
+
         return
 
     def comps_off(self):
         """
         Turn active comparisons off.
         """
+
+        self.set_shutter_state(0)
 
         return
 
@@ -83,7 +95,21 @@ class ArduinoQB(object):
         Send a command to the Arduino.
         """
 
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect(self.arduino_address)
-        client_socket.send(cmd.encode())
-        client_socket.close()
+        # client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # client_socket.connect(self.arduino_address)
+        self.client_socket.send(cmd.encode())
+        # client_socket.close()
+
+    def set_shutter_state(self, state):
+        """
+        Open or close Oriel shutter.
+        """
+
+        state = int(state)
+
+        if state:
+            self.send_command("O")
+        else:
+            self.send_command("C")
+
+        return
