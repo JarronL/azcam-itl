@@ -21,7 +21,7 @@ byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEF
 };
 //IPAddress ip(10, 131, 0, 27);
-IPAddress ip(10, 0, 2, 50);
+IPAddress ip(10, 0, 0, 50);
 //IPAddress myDns(10, 0, 0, 10);
 //IPAddress gateway(10, 0, 0, 1);
 //IPAddress subnet(255, 255, 255, 128);

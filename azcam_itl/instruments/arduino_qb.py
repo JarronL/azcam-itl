@@ -16,7 +16,7 @@ class ArduinoQB(object):
 
     def __init__(self):
 
-        self.arduino_host = "10.0.2.50"
+        self.arduino_host = "10.0.0.50"
         self.arduino_address = (self.arduino_host, 80)
 
     # ***************************************************************************
