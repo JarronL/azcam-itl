@@ -2,10 +2,9 @@ import os
 
 import azcam
 from azcam.header import System
-from azcam.server.tools.archon.controller_archon import ControllerArchon
-from azcam.server.tools.archon.exposure_archon import ExposureArchon
-from azcam.server.tools.ds9display import Ds9Display
-from azcam.server.tools.focus import Focus
+from azcam.tools.archon.controller_archon import ControllerArchon
+from azcam.tools.archon.exposure_archon import ExposureArchon
+from azcam.tools.focus import Focus
 
 from azcam_itl.detectors import detector_sta4150_4amp, detector_sta4150_2amp_left
 
@@ -48,11 +47,6 @@ system.set_keyword("DEWAR", "ITL6", "Dewar name")
 # detector
 # ****************************************************************
 exposure.set_detpars(detector_sta4150_4amp)
-
-# ****************************************************************
-# define display
-# ****************************************************************
-display = Ds9Display()
 
 # ****************************************************************
 # focus

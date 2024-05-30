@@ -3,10 +3,9 @@ import os
 
 import azcam
 from azcam.header import System
-from azcam.server.tools.archon.controller_archon import ControllerArchon
-from azcam.server.tools.archon.exposure_archon import ExposureArchon
-from azcam.server.tools.archon.tempcon_archon import TempConArchon
-from azcam.server.tools.ds9display import Ds9Display
+from azcam.tools.archon.controller_archon import ControllerArchon
+from azcam.tools.archon.exposure_archon import ExposureArchon
+from azcam.tools.archon.tempcon_archon import TempConArchon
 
 from azcam_itl.detectors import detector_sta0500
 
@@ -43,8 +42,3 @@ exposure.set_detpars(detector_sta0500)
 # ****************************************************************
 template = os.path.join(azcam.db.datafolder, "templates", "fits_template_OSU4k.txt")
 system = System("OSU4k", template)
-
-# ****************************************************************
-# define display
-# ****************************************************************
-display = Ds9Display()

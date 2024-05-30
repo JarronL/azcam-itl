@@ -22,7 +22,7 @@ import azcam
 import azcam.utils
 import azcam.exceptions
 import azcam.image
-import azcam.console
+import azcam_console.console
 
 
 def cleanup_files(folder=None):
@@ -65,7 +65,7 @@ def archive(foldername="", filetype="tar"):
     """
 
     if foldername == "":
-        reply = azcam.console.utils.file_browser(
+        reply = azcam_console.utils.file_browser(
             "", "folder", "Select folder to archive"
         )
         if reply == []:

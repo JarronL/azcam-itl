@@ -1,16 +1,23 @@
 """
-Arduino instrument ITL.
+Instrument EBInstrumentServer for ITL Flex bench.
+
+Authors: Alanna Zubler & Michael Lesser
 """
 
+import shlex
 import socket
 import time
+
+import pyvisa  # for filter wheel
 
 import azcam
 import azcam.exceptions
 from azcam.tools.instrument import Instrument
+from azcam_itl.instruments import pressure_mks900
+from azcam_itl.instruments.pollux import PolluxCtrl  # SMC-Pollux stages
 
 
-class InstrumentArduino(Instrument):
+class InstrumentFlex(Instrument):
     """
     The instrument class for the ITL flex bench.
     """
@@ -18,20 +25,19 @@ class InstrumentArduino(Instrument):
     def __init__(self, tool_id="instrument", description="Flex instrument"):
         super().__init__(tool_id, description)
 
-        self.arduino_host = "10.0.0.39"
         self.shutter_strobe = 1
 
         self.define_keywords()
 
         self.wavelength = ""  # wavelengths are LED strings like "green"
-        self.valid_wavelengths = ["violet", "green", "orange", "red", "IR", "UV"]
+        self.valid_wavelengths = ["UV", "violet", "green", "orange", "red", "IR"]
         self.wavelengthLeds = {
+            "UV": 7,
             "violet": 2,
             "green": 3,
             "orange": 4,
             "red": 5,
             "IR": 6,
-            "UV": 7,
         }
 
         # current state
@@ -69,6 +75,17 @@ class InstrumentArduino(Instrument):
             "IR": 6,
             "UV": 7,
         }
+
+        # focus stage control
+        self.pollux = PolluxCtrl()
+
+        # filters server running on conserver5
+        self.filters = azcam.sockets.SocketInterface("conserver5", 2406)
+        # self.filters = azcam.sockets.SocketInterface("localhost", 2406)
+        self.filters.timeout = 10.0
+
+        self.pressure = pressure_mks900.PressureController("COM4")
+
         # initialization - may fail if turned off
         self.initialized = False
 
@@ -84,7 +101,12 @@ class InstrumentArduino(Instrument):
             azcam.exceptions.warning(f"{self.description} is not enabled")
             return
 
+        self.initialize_filters()
+
         self.initialize_arduino()
+
+        # init focus stages
+        self.pollux.initialize()
 
         self.initialized = True
 
@@ -103,6 +125,8 @@ class InstrumentArduino(Instrument):
         """
 
         self.set_keyword("WAVLNGTH", "", "Wavelength of LEDs", "str")
+        self.set_keyword("FOCUSVAL", "", "Focus position", "float")
+        self.set_keyword("FILTER", "", "Filter position", "str")
 
         return
 
@@ -114,6 +138,10 @@ class InstrumentArduino(Instrument):
 
         if keyword == "WAVLNGTH":
             reply = self.get_wavelength()
+        elif keyword == "FOCUSVAL":
+            reply = self.get_focus()
+        elif keyword == "FILTER":
+            reply = self.get_filter()
         else:
             raise azcam.exceptions.AzcamError("invalid keyword")
 
@@ -123,6 +151,111 @@ class InstrumentArduino(Instrument):
         reply, t = self.header.convert_type(reply, self.header.typestrings[keyword])
 
         return [reply, self.header.comments[keyword], t]
+
+    def command_parser(self, command_string):
+        """
+        Custom command parser for socket server.
+        Executes command_string and returns data component of response (only) to cmdserver.
+        Command and arguments are space delimited.
+        """
+
+        # self instance is cmdserver not ebserver
+        ebserver = azcam.db.ebserver
+
+        command_string = command_string.strip()
+        tokens = shlex.split(command_string)
+        command = tokens[0]
+        args = tokens[1:]
+
+        VERBOSE = 1
+
+        if VERBOSE:
+            print(f"Rec: {command_string}")
+
+        # parse incoming string commands
+        if command == "initialize":
+            reply = ebserver.initialize()
+        elif command == "help":
+            replylist = [
+                "Supported commands are:",
+                "initialize",
+                "get_all_comps",
+                "set_comps",
+                "set_led",
+                "set_leds",
+                "set_shutter_mode",
+                "set_fe55",
+                "set_wavelength",
+                "get_wavelength",
+                "home_focus",
+                "get_focus",
+                "set_focus",
+                "step_focus",
+                "get_filters",
+                "set_filter",
+                "",
+            ]
+            reply = "\r\n".join(replylist)
+
+        elif command == "get_all_comps":
+            replylist = ebserver.get_all_comps()
+            reply = " ".join(replylist)
+        elif command == "get_comps":
+            replylist = ebserver.get_comps()
+            reply = " ".join(replylist)
+        elif command == "set_comps":
+            if len(args) > 1:
+                comps = " ".join(args)
+            else:
+                comps = args[0]
+            reply = ebserver.set_comps(comps)
+        elif command == "comps_on":
+            reply = ebserver.comps_on()
+        elif command == "comps_off":
+            reply = ebserver.comps_off()
+
+        elif command == "set_led":
+            reply = ebserver.set_led(int(args[0]), int(args[1]))
+        elif command == "set_leds":
+            reply = ebserver.set_led(args[0])
+        elif command == "set_shutter_mode":
+            reply = ebserver.set_shutter_mode(args[0])
+        elif command == "set_fe55":
+            reply = ebserver.set_fe55(int(args[0]))
+        elif command == "set_wavelength":
+            reply = ebserver.set_wavelength(args[0])
+        elif command == "get_wavelength":
+            reply = ebserver.get_wavelength()
+
+        elif command == "home_focus":
+            reply = ebserver.home_focus(int(args[0]))
+        elif command == "get_focus":
+            reply = ebserver.get_focus(int(args[0]), int(args[1]))
+            reply = str(reply)
+        elif command == "set_focus":
+            reply = ebserver.set_focus(float(args[0]), int(args[1]))
+        elif command == "step_focus":
+            reply = ebserver.step_focus(float(args[0]), int(args[1]))
+
+        elif command == "get_filters":
+            replylist = ebserver.get_filters()
+            reply = " ".join(replylist)
+        elif command == "get_filter":
+            reply = ebserver.get_filter()
+        elif command == "set_filter":
+            reply = ebserver.set_filter(args[0])
+
+        else:
+            reply = "Command not yet supported remotely"
+
+        if VERBOSE:
+            if reply is None:
+                print(f"===> None")
+                reply = "OK"
+            else:
+                print(f"===> {reply}")
+
+        return reply
 
     # ***************************************************************************
     # Arduino for LEDs and Fe55 control
@@ -134,14 +267,11 @@ class InstrumentArduino(Instrument):
         """
 
         # set Arduino pins OFF for LED and Fe55 control
-        self.set_leds("FFFFFFF")
-
-        # enable Fe55 (STA LED)
-        self.set_comps("fe55")
+        self.set_leds("FFFFFFFF")
 
         return
 
-    def XXXget_all_comps(self):
+    def get_all_comps(self):
         """
         Return list of valid LED names.
         """
@@ -174,7 +304,7 @@ class InstrumentArduino(Instrument):
         else:
             ledstring = self.make_ledstring(lamps)
 
-        # self.set_pin_state(ledstring, "S")
+        self.set_pin_state(ledstring, "S")
         self.led_state = ledstring
 
         return
@@ -255,7 +385,7 @@ class InstrumentArduino(Instrument):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # Declare Arduino address and port
-        arduino_address = (self.arduino_host, 80)
+        arduino_address = ("10.0.0.37", 80)
 
         # send string over socket
         client_socket.connect(arduino_address)
@@ -358,23 +488,155 @@ class InstrumentArduino(Instrument):
 
         return
 
+    # ***************************************************************************
+    # Focus
+    # ***************************************************************************
+
+    # ***************************************************************************
+    # focus control with Pollux stages
+    # Axes are (1,2,3) not (0,1,2)
+    # Axis 1 is z-axis focus, negative away from dewar
+    # ***************************************************************************
+
+    def home_focus(self, Axis):
+        """
+        Home an axis.
+        """
+
+        self.pollux.home(Axis)
+
+        return
+
+    def get_focus(self, AxisID=1, wait=1):
+        reply = self.pollux.get_pos(AxisID, wait)
+
+        position = reply[1]
+        position = float(position)
+
+        return position
+
+    def set_focus(self, FocusPosition, focus_id=1, focus_type="absolute"):
+        FocusPosition = float(FocusPosition)
+        focus_id = int(focus_id)
+
+        if focus_type == "absolute":
+            self._set_focus(FocusPosition, focus_id)
+        elif focus_type == "step":
+            self._step_focus(FocusPosition, focus_id)
+        else:
+            raise azcam.exceptions.AzcamError("invalid focus_type")
+
+        return
+
+    def _set_focus(self, Position, AxisID=1):
+        Position = float(Position)
+        self.pollux.MoveAbsolute(AxisID, Position)
+
+        return
+
+    def _step_focus(self, PositionChange, AxisID=1):
+        PositionChange = float(PositionChange)
+        self.pollux.move_relative(AxisID, PositionChange)
+
+        return
+
+    def focus_command(self, Command, GetReply=0):
+        """
+        Send a command to focus device.
+        """
+
+        reply = self.pollux.send_cmd(Command, GetReply)
+
+        return reply
+
+    # ***************************************************************************
+    # filters
+    # ***************************************************************************
+    """
+    RST -> FILT
+    NEXT
+    PREV
+    FILT?
+    FILTx moves wheel
+    USB2 works to control, but pyvisa might be best
+    """
+
+    def initialize_filters(self):
+        """
+        Initialize filters.
+        """
+
+        reply = self.filters.command("filters.initialize")
+
+        return reply
+
+    def get_filters(self, filter_id=0):
+        """
+        Return list of valid filter names.
+        """
+
+        reply = self.filters.command("filters.get_filters")
+
+        return reply[1:]
+
+    def get_filter(self, filter_id=0):
+        """
+        Return the filter in the beam.
+        filter_id is the filter mechanism ID.
+        """
+
+        reply = self.filters.command(f"filters.get_filter {filter_id}")
+
+        return reply
+
+    def set_filter(self, filter_name, filter_id=0):
+        """
+        Set the filter in the beam.
+        filter_name is a string containing the filter name to set.
+        filter_id is the filter mechanism ID.
+        """
+
+        self.filters.command(f"filters.set_filter {filter_name} {filter_id}")
+
+        return
+
+    # ***************************************************************************
+    # pressure
+    # ***************************************************************************
+    def get_pressure(self, pressure_id=0):
+        """
+        Read an instrument pressure.
+        """
+
+        return self.pressure.read_pressure(pressure_id)
+
 
 # start
 if __name__ == "__main__":
-    arduino = InstrumentArduino()
+    ebserver = InstrumentEB()
 
     # debug here
     if 1:
-        for i in range(10):
-            print(f"Loop {i+1} of 10")
-            arduino.set_fe55(1)
-            time.sleep(1)
-            arduino.set_fe55(0)
-            time.sleep(0.5)
+        ebserver.pollux.calibrate(3)  # sets axis to zero at end limit
 
-        # arduino.set_led("red",1)
-        # arduino.set_leds('FFNNNNNN')
-        # arduino.set_leds('FFFFFFFF')
+        # ebserver.set_focus(50,1)
+        # ebserver.set_focus(50,2)
+        # ebserver.set_focus(50,3)
+
+        # ebserver.set_led("red",1)
+        # ebserver.set_fe55(0)
+        # ebserver.set_leds('FFNNNNNN')
+        # ebserver.set_leds('FFFFFFFF')
+
+        # reply = ebserver.get_filters()
+        # print(reply)
+        # reply = ebserver.get_filter()
+        # print(reply)
+        # ebserver.set_filter('dark')
+        # reply = ebserver.get_filter()
+        # print(reply)
+
+        pass
 
     # fun loop
     if 0:

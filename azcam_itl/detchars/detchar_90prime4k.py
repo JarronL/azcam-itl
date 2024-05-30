@@ -7,8 +7,8 @@ import time
 
 import azcam
 import azcam.utils
-import azcam.console
-from azcam.testers.detchar import DetChar
+import azcam_console.console
+from azcam_console.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
@@ -146,7 +146,7 @@ class PrimeFocus4kDetChar(DetChar):
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam.console.utils.make_file_folder(
+        currentfolder, reportfolder = azcam_console.utils.make_file_folder(
             "report", 1, 1
         )
         azcam.utils.curdir(reportfolder)
@@ -437,7 +437,7 @@ class PrimeFocus4kDetChar(DetChar):
 detchar = PrimeFocus4kDetChar()
 
 # detchar
-azcam.console.utils.set_image_roi([[1800, 1900, 1800, 1900], [2042, 2058, 1500, 1800]])
+azcam_console.utils.set_image_roi([[1800, 1900, 1800, 1900], [2042, 2058, 1500, 1800]])
 
 azcam.db.start_temperature = -115.0
 

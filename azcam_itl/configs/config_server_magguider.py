@@ -1,11 +1,11 @@
 import os
 
 import azcam
-from azcam.server.tools.instrument import Instrument
-from azcam.server.tools.mag.controller_mag import ControllerMag
-from azcam.server.tools.mag.exposure_mag import ExposureMag
-from azcam.server.tools.mag.tempcon_mag import TempConMag
-from azcam.server.tools.mag.udpinterface import UDPinterface
+from azcam.tools.instrument import Instrument
+from azcam.tools.mag.controller_mag import ControllerMag
+from azcam.tools.mag.exposure_mag import ExposureMag
+from azcam.tools.mag.tempcon_mag import TempConMag
+from azcam.tools.mag.udpinterface import UDPinterface
 
 from azcam_itl.detectors import detector_ccd57
 

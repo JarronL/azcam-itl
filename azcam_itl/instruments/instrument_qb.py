@@ -3,7 +3,7 @@ import time
 import azcam
 import azcam.exceptions
 import azcam.sockets
-from azcam.server.tools.instrument import Instrument
+from azcam.tools.instrument import Instrument
 from azcam_itl.instruments.ms257 import MS257
 from azcam_itl.instruments.newport_1936_R import NewPort_1936r
 from azcam_itl.instruments.arduino_qb import ArduinoQB
@@ -122,6 +122,11 @@ class InstrumentQB(Instrument):
         0 is mono shutter, 1 is arduino shutter command
         """
 
+<<<<<<< HEAD
+=======
+        shutter_id = int(shutter_id)
+
+>>>>>>> dev
         if shutter_id == 0:
             self.mono.mono.query(f"!SHUTTER {state}").strip()
             self.MonoShutterState = int(state)

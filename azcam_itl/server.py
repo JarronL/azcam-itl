@@ -15,27 +15,26 @@ from runpy import run_path
 import azcam
 import azcam.utils
 from azcam.logger import check_for_remote_logger
-from azcam.scripts import loadscripts
+from azcam.scripts.scripts import loadscripts
 
-import azcam.server.server
-import azcam.server.shortcuts
-from azcam.server.cmdserver import CommandServer
-from azcam.server.tools.queue import Queue
-from azcam.server.tools.tempcon_cryocon24 import TempConCryoCon24
-from azcam.server.tools.tempcon import TempCon
+import azcam.server
+import azcam.shortcuts
+from azcam.cmdserver import CommandServer
+from azcam.tools.queue import Queue
+from azcam.tools.tempcon_cryocon24 import TempConCryoCon24
+from azcam.tools.tempcon import TempCon
+from azcam.tools.ds9display import Ds9Display
 
-from azcam.server.webtools.webserver.fastapi_server import WebServer
-from azcam.server.webtools.status.status import Status
-from azcam.server.webtools.exptool.exptool import Exptool
+from azcam.webtools.webserver.fastapi_server import WebServer
+from azcam.webtools.status.status import Status
+from azcam.webtools.exptool.exptool import Exptool
 
-from azcam.scripts import loadscripts
-
-from azcam.server.tools.instrument import Instrument
+from azcam.tools.instrument import Instrument
 from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam_itl.instruments.instrument_eb import InstrumentEB
 from azcam_itl.instruments.instrument_arduino import InstrumentArduino
 
-from azcam.server.tools.ascom.tempcon_ascom import TempConASCOM
+from azcam.tools.ascom.tempcon_ascom import TempConASCOM
 import azcam_itl.shortcuts_itl
 
 
@@ -170,6 +169,10 @@ def setup():
     # load system-specific code
     if azcam.db.systemname != "NoSystem":
         importlib.import_module(f"azcam_itl.configs.config_server_{systemname}")
+
+    # display
+    display = Ds9Display()
+    display.initialize()
 
     # scripts
     azcam.log("Loading azcam_itl.scripts.server")

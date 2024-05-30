@@ -7,8 +7,8 @@ import shutil
 import azcam
 import azcam.utils
 import azcam.exceptions
-import azcam.console
-from azcam.testers.detchar import DetChar
+import azcam_console.console
+from azcam_console.testers.detchar import DetChar
 from azcam_itl import itlutils
 
 
@@ -126,7 +126,7 @@ class DesiDetCharClass(DetChar):
         # *************************************************************************
         # Create and move to a report folder
         # *************************************************************************
-        currentfolder, reportfolder = azcam.console.utils.make_file_folder(
+        currentfolder, reportfolder = azcam_console.utils.make_file_folder(
             "report", 1, 1
         )
         azcam.utils.curdir(reportfolder)
@@ -144,7 +144,7 @@ class DesiDetCharClass(DetChar):
             defects,
             dark,
             fe55,
-        ) = azcam.console.utils.get_tools(
+        ) = azcam_console.utils.get_tools(
             [
                 "gain",
                 "bias",
@@ -259,7 +259,7 @@ class DesiDetCharClass(DetChar):
             defects,
             dark,
             fe55,
-        ) = azcam.console.utils.get_tools(
+        ) = azcam_console.utils.get_tools(
             [
                 "gain",
                 "bias",
@@ -384,7 +384,7 @@ class DesiDetCharClass(DetChar):
 detchar = DesiDetCharClass()
 
 # ROI
-azcam.console.utils.set_image_roi([[1950, 2000, 400, 450], [2051, 2055, 400, 450]])
+azcam_console.utils.set_image_roi([[1950, 2000, 400, 450], [2051, 2055, 400, 450]])
 
 # define  tools
 (
@@ -400,7 +400,7 @@ azcam.console.utils.set_image_roi([[1950, 2000, 400, 450], [2051, 2055, 400, 450
     dark,
     fe55,
     prnu,
-) = azcam.console.utils.get_tools(
+) = azcam_console.utils.get_tools(
     [
         "gain",
         "bias",

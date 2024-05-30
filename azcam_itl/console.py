@@ -13,20 +13,20 @@ from runpy import run_path
 
 import azcam
 import azcam.utils
-import azcam.console.console
-import azcam.console.shortcuts
-import azcam.console.tools.console_tools
-import azcam.console.scripts
-from azcam.console.tools.ds9display import Ds9Display
-from azcam.console.tools.focus import FocusConsole
+import azcam_console.console
+import azcam_console.shortcuts
+import azcam_console.tools.console_tools
+import azcam_console.scripts
+from azcam.tools.ds9display import Ds9Display
+from azcam_console.tools.focus import FocusConsole
 
-from azcam.testers.testers import load_testers
-from azcam.scripts import loadscripts
+from azcam_console.testers.testers import load_testers
+from azcam.scripts.scripts import loadscripts
 
 from azcam_itl import itlutils
 import azcam_itl.shortcuts_itl
 
-from azcam.observe.observe_cli.observe_cli import ObserveCli
+from azcam_console.observe.observe_cli.observe_cli import ObserveCli
 
 
 def setup():
@@ -89,7 +89,7 @@ def setup():
     # dthread.start()  # thread just for speed
 
     # console tools
-    from azcam.console.tools import create_console_tools
+    from azcam_console.tools import create_console_tools
 
     create_console_tools()
     focus = FocusConsole()
@@ -101,8 +101,8 @@ def setup():
     observe = ObserveCli()
 
     # scripts
-    azcam.log("Loading scripts: azcam_itl.scripts, azcam.console.scripts")
-    loadscripts(["azcam_itl.scripts", "azcam.console.scripts"])
+    azcam.log("Loading scripts: azcam_itl.scripts, azcam_console.scripts")
+    loadscripts(["azcam_itl.scripts", "azcam_console.scripts"])
 
     # try to connect to azcamserver
     connected = azcam.db.tools["server"].connect(port=cmdport)  # default host and port
@@ -114,7 +114,7 @@ def setup():
     # system-specific
     if azcam.db.systemname == "DESI":
         from azcam_itl.detchars.detchar_DESI import detchar
-        import azcam.console.tools.console_arc
+        import azcam_console.tools.console_arc
 
     elif azcam.db.systemname == "LVM":
         if 0:  # azcam.db.LVM_itl4k:
@@ -122,11 +122,11 @@ def setup():
 
         else:
             from azcam_itl.detchars.detchar_LVM import detchar
-        import azcam.console.tools.console_archon
+        import azcam_console.tools.console_archon
 
     elif azcam.db.systemname == "90prime4k":
         from azcam_itl.detchars.detchar_90prime4k import detchar
-        import azcam.console.tools.console_archon
+        import azcam_console.tools.console_archon
 
     elif azcam.db.systemname == "ASI294":
         from azcam_itl.detchars.detchar_ASI294 import detchar
@@ -139,11 +139,11 @@ def setup():
 
     elif azcam.db.systemname == "OSU4k":
         from azcam_itl.detchars.detchar_OSU4k import detchar
-        import azcam.console.tools.console_archon
+        import azcam_console.tools.console_archon
 
     elif azcam.db.systemname == "ITL4k":
         from azcam_itl.detchars.detchar_ITL4k import detchar
-        import azcam.console.tools.console_archon
+        import azcam_console.tools.console_archon
 
     if azcam.db.wd is None:
         azcam.db.wd = azcam.db.datafolder
@@ -160,4 +160,4 @@ def setup():
 
 # start
 setup()
-from azcam.cli import *
+from azcam_console.cli import *

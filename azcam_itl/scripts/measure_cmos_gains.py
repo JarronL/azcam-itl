@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
 import azcam
-import azcam.console.plot
+import azcam_console.plot
 
 
 class MeasureCmosGains(object):
@@ -60,8 +60,8 @@ class MeasureCmosGains(object):
         self.datafile_noise = open(self.datafilename_noise, "a+")
         self.datafile_noise.write("# " + data_txt_hdr + "\n")
 
-        azcam.console.plot.move_window(1, 100, 100)
-        azcam.console.plot.update()
+        azcam_console.plot.move_window(1, 100, 100)
+        azcam_console.plot.update()
 
         return
 
@@ -127,14 +127,14 @@ class MeasureCmosGains(object):
             self.ax1.plot(self.x_plot, self.y1_plot, "b.")
             self.ax2.plot(self.x_plot, self.y2_plot, "r.")
 
-            azcam.console.plot.update()
+            azcam_console.plot.update()
 
         self.datafile_gain.close()
         self.datafile_noise.close()
 
-        azcam.console.plot.plt.show()
+        azcam_console.plot.plt.show()
         fignum = self.fig.number
-        azcam.console.plot.save_figure(fignum, "camera_gain_noise.png")
+        azcam_console.plot.save_figure(fignum, "camera_gain_noise.png")
 
         return
 

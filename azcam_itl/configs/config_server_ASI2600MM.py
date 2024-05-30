@@ -1,10 +1,9 @@
 import os
 
 import azcam
-from azcam.server.tools.ascom.controller_ascom import ControllerASCOM
-from azcam.server.tools.ascom.exposure_ascom import ExposureASCOM
+from azcam.tools.ascom.controller_ascom import ControllerASCOM
+from azcam.tools.ascom.exposure_ascom import ExposureASCOM
 from azcam.header import System
-from azcam.server.tools.ds9display import Ds9Display
 
 from azcam_itl.detectors import detectors_asi2600MM
 
@@ -65,8 +64,3 @@ try:
     exposure.set_detpars(detectors_asi2600MM)
 except Exception:
     pass
-
-# ****************************************************************
-# define display
-# ****************************************************************
-display = Ds9Display()

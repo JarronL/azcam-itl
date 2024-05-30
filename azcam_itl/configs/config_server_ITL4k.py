@@ -2,9 +2,8 @@ import os
 
 import azcam
 from azcam.header import System
-from azcam.server.tools.ds9display import Ds9Display
-from azcam.server.tools.archon.controller_archon import ControllerArchon
-from azcam.server.tools.archon.exposure_archon import ExposureArchon
+from azcam.tools.archon.controller_archon import ControllerArchon
+from azcam.tools.archon.exposure_archon import ExposureArchon
 
 from azcam_itl.detectors import (
     detector_sta4850,
@@ -74,14 +73,3 @@ else:
 # ****************************************************************
 template = os.path.join(azcam.db.datafolder, "templates", "fits_template_ITL4k.txt")
 system = System("ITL4k", template)
-
-# ****************************************************************
-# define display
-# ****************************************************************
-display = Ds9Display()
-
-# ****************************************************************
-# special
-# ****************************************************************
-# arduino = InstrumentArduino()
-# azcam.db.tools["arduino"] = arduino
