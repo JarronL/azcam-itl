@@ -122,11 +122,8 @@ class InstrumentQB(Instrument):
         0 is mono shutter, 1 is arduino shutter command
         """
 
-<<<<<<< HEAD
-=======
         shutter_id = int(shutter_id)
 
->>>>>>> dev
         if shutter_id == 0:
             self.mono.mono.query(f"!SHUTTER {state}").strip()
             self.MonoShutterState = int(state)
