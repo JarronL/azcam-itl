@@ -64,6 +64,7 @@ def setup():
         "QHY174 CMOS camera": "QHY174",
         # "OSU4k": "OSU4k",
         # "ITL4k": "ITL4k",
+        "90prime4k": "90prime4k",
         "None": "NoSystem",
     }
 

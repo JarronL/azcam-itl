@@ -12,7 +12,7 @@ from azcam_itl.detectors import detector_sta4850, detector_sta4850_2amps_top
 # ****************************************************************
 controller = ControllerArchon()
 controller.camserver.port = 4242
-controller.camserver.host = "10.0.2.12"  # ITL3
+controller.camserver.host = "10.0.0.12"  # ITL3
 
 # ****************************************************************
 # temperature controller
@@ -29,12 +29,10 @@ exposure.filetype = exposure.filetypes[filetype]
 exposure.image.filetype = exposure.filetypes[filetype]
 exposure.add_extensions = 0
 exposure.image.focalplane.gains = [
-    6.0,
-    6.0,
-    6.0,
-    6.0,
+    3.0,
+    3.0,
 ]
-exposure.image.focalplane.rdnoises = [0.0, 0.0, 0.0, 0.0]
+exposure.image.focalplane.rdnoises = [0.0, 0.0]
 
 
 # ****************************************************************
