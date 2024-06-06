@@ -429,17 +429,18 @@ azcam_console.utils.set_image_roi([[1950, 2000, 400, 450], [2051, 2055, 400, 450
 #     750: 4.0,
 #     800: 6,
 # }
+# blue, 06jun24
 detcal.exposures = {
-    350: 38,
-    400: 13,
-    450: 10,
-    500: 6,
-    550: 6,
-    600: 6,
-    650: 6,
-    700: 10,
-    750: 13,
-    800: 20,
+    350: 3.5,
+    400: 1.5,
+    450: 1.0,
+    500: 1.0,
+    550: 1.0,
+    600: 1.0,
+    650: 1.5,
+    700: 2.0,
+    750: 2.5,
+    800: 3.5,
 }
 
 detcal.data_file = f"{azcam.db.datafolder}/detcal_desi.txt"
@@ -469,8 +470,8 @@ dark.grade_sensor = 1
 
 # superflats
 superflat.exposure_time = 5.0
-# superflat.wavelength = 400  # blue - dark defects
-superflat.wavelength = 600  # red - dark defects
+superflat.wavelength = 400  # blue - dark defects
+# superflat.wavelength = 600  # red - dark defects
 superflat.number_images_acquire = 3  # number of images
 superflat.grade_sensor = 0
 
