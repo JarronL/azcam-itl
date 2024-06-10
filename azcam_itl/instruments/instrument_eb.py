@@ -84,17 +84,17 @@ class InstrumentEB(Instrument):
         # self.pressure = pressure_mks900.PressureController("COM4")
 
         # initialization - may fail if turned off
-        self.initialized = False
+        self.is_initialized = False
 
     def initialize(self):
         """
         Initialize the instrument interface.
         """
 
-        if self.initialized:
+        if self.is_initialized:
             return
 
-        if not self.enabled:
+        if not self.is_enabled:
             azcam.exceptions.warning(f"{self.description} is not enabled")
             return
 
@@ -107,11 +107,11 @@ class InstrumentEB(Instrument):
         # init filter wheel
         self.filters.initialize()
 
-        self.initialized = True
+        self.is_initialized = True
 
         azcam.log("Instrument initialized")
 
-        self.initialized = 1
+        self.is_initialized = 1
 
         return
 
@@ -593,7 +593,7 @@ class FilterWheelEB(object):
             self.rm = pyvisa.ResourceManager()
 
         # initialization - may fail if turned off
-        self.initialized = False
+        self.is_initialized = False
 
     def initialize(self):
         """
@@ -607,7 +607,7 @@ class FilterWheelEB(object):
 
         reply = self.fw.query("RST")
 
-        self.initialized = True
+        self.is_initialized = True
 
         azcam.log("Filter wheel initialized")
 

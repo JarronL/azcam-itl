@@ -26,7 +26,7 @@ class Switcher(VisaComm):
         reply = reply.strip()
         azcam.log("ISDN response: %s" % reply)
 
-        self.initialized = 1
+        self.is_initialized = 1
 
         return
 

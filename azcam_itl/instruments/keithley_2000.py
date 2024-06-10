@@ -30,7 +30,7 @@ class Multimeter(VisaComm):
         s = '*RST;:FORM:ELEM READ;:INIT:CONT OFF;:FUNC "CURR:DC";:CURR:DC:RANG:AUTO ON'
         reply = self.send(s)
 
-        self.initialized = 1
+        self.is_initialized = 1
 
         return
 

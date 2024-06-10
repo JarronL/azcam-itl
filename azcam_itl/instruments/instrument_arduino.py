@@ -70,27 +70,27 @@ class InstrumentArduino(Instrument):
             "UV": 7,
         }
         # initialization - may fail if turned off
-        self.initialized = False
+        self.is_initialized = False
 
     def initialize(self):
         """
         Initialize the instrument interface.
         """
 
-        if self.initialized:
+        if self.is_initialized:
             return
 
-        if not self.enabled:
+        if not self.is_enabled:
             azcam.exceptions.warning(f"{self.description} is not enabled")
             return
 
         self.initialize_arduino()
 
-        self.initialized = True
+        self.is_initialized = True
 
         azcam.log("Instrument initialized")
 
-        self.initialized = 1
+        self.is_initialized = 1
 
         return
 

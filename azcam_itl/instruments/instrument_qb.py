@@ -35,10 +35,10 @@ class InstrumentQB(Instrument):
         Initialize hardware.
         """
 
-        if self.initialized:
+        if self.is_initialized:
             return
 
-        if not self.enabled:
+        if not self.is_enabled:
             azcam.exceptions.warning(f"{self.description} is not enabled")
             return
 
@@ -71,7 +71,7 @@ class InstrumentQB(Instrument):
         self.power.username = "lab"
         self.power.hostname = "10.131.0.5"
 
-        self.initialized = 1
+        self.is_initialized = 1
 
         return
 

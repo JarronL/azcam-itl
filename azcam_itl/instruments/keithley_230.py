@@ -32,6 +32,6 @@ class VoltageSource(VisaComm):
         s = "R0P0F1T4X"
         reply = self.command(s)
 
-        self.initialized = 1
+        self.is_initialized = 1
 
         return

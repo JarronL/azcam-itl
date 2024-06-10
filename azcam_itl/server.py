@@ -25,7 +25,7 @@ from azcam.tools.tempcon_cryocon24 import TempConCryoCon24
 from azcam.tools.tempcon import TempCon
 from azcam.tools.ds9display import Ds9Display
 
-from azcam.webtools.webserver.fastapi_server import WebServer
+from azcam.webtools.webserver import WebServer
 from azcam.webtools.status.status import Status
 from azcam.webtools.exptool.exptool import Exptool
 
@@ -185,7 +185,8 @@ def setup():
     if 1:
         webserver = WebServer()
         webserver.port = 2403
-        webserver.logcommands = 0
+        webserver.logcommands = 1
+        webserver.logstatus = 0
         webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
         webserver.message = f"for host {azcam.db.hostname}"
         webserver.datafolder = azcam.db.datafolder
@@ -218,6 +219,8 @@ def setup():
     # start command server
     azcam.log(f"Starting cmdserver - listening on port {cmdserver.port}")
     cmdserver.start()
+
+    azcam.db.tools["api"].initialize_api()
 
 
 # start

@@ -18,7 +18,7 @@ import azcam.exceptions
 
 class PolluxCtrl(object):
     def __init__(self):
-        self.initialized = 0
+        self.is_initialized = 0
         self.isOpen = 0
         self.ComPort = "COM13"
         self.BaudRate = 19200
@@ -33,7 +33,7 @@ class PolluxCtrl(object):
         self.valid_axes = [1, 2, 3]
 
     def initialize(self):
-        if self.initialized:
+        if self.is_initialized:
             return
 
         # create serial object
@@ -58,7 +58,7 @@ class PolluxCtrl(object):
         if self.sPort != 0 and self.sPort.isOpen():
             self.identify()
 
-        self.initialized = 1
+        self.is_initialized = 1
 
         return
 
