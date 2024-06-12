@@ -482,7 +482,6 @@ qe.plot_title = "IMX411 Quantum Efficiency"
 qe.qeroi = []
 qe.overscan_correct = 0
 qe.zero_correct = 1
-qe.flush_before_exposure = 0
 qe.grade_sensor = 0
 qe.create_reports = 1
 qe.use_exposure_levels = 1

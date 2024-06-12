@@ -49,9 +49,9 @@ class MS257(object):
         if reset:
             cmd = "!GW  400"
             self.mono.query(cmd).strip()
-            cmd = "!FILT1 1"  # auto filter was 0
+            cmd = "!FILT1 0"  # auto filter was 0
             self.mono.query(cmd).strip()
-            cmd = "!FILT2 1"  # auto filter was 0
+            cmd = "!FILT2 0"  # auto filter was 0
             self.mono.query(cmd).strip()
 
         return

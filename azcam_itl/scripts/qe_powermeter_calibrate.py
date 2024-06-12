@@ -19,7 +19,7 @@ def qe_powermeter_calibrate(wavelengths=None):
     """
 
     if wavelengths is None:
-        wavelengths = [int(w) for w in range(300, 1120, 20)]
+        wavelengths = [int(w) for w in range(300, 1110, 10)]
         # wavelengths = [int(w) for w in range(300, 1150, 50)]
 
     fluxes = []

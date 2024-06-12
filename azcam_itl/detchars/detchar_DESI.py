@@ -63,8 +63,6 @@ class DesiDetCharClass(DetChar):
             id = 0
         self.itl_id = azcam.utils.prompt("Enter sensor ID", f"DIEID-{id}")
 
-        lot = azcam.db.parameters.get_par("lot", "detchar")
-
         # ****************************************************************
         # Identification
         # ****************************************************************
@@ -195,8 +193,11 @@ class DesiDetCharClass(DetChar):
             )  # uniform image sequence numbers
 
             # clear device after reset delay
-            print("Delaying start for %.0f seconds (to settle)..." % self.start_delay)
-            time.sleep(self.start_delay)
+            if self.start_delay > 0:
+                print(
+                    "Delaying start for %.0f seconds (to settle)..." % self.start_delay
+                )
+                time.sleep(self.start_delay)
             exposure.test(0)  # flush
 
             # bias images
@@ -479,7 +480,7 @@ superflat.grade_sensor = 0
 ptc.wavelength = 500
 ptc.gain_range = [0.0, 2.0]
 ptc.overscan_correct = 1
-ptc.flush_before_exposure = 1
+ptc.flush_before_exposure = 0
 ptc.use_exposure_levels = 1
 ptc.exposure_levels = [
     1000,
@@ -514,7 +515,7 @@ linearity.grade_sensor = 1
 # calibrated with dewar window and cal fixture
 qe.cal_scale = 1.0
 qe.global_scale = 0.88  # 27mar24
-qe.flush_before_exposure = 1
+qe.flush_before_exposure = 0
 qe.use_edge_mask = 1
 qe.pixel_area = 0.015 * 0.015
 qe.flux_cal_folder = "/data/DESI"
