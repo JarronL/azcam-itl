@@ -20,7 +20,6 @@ from azcam.scripts.scripts import loadscripts
 import azcam.server
 import azcam.shortcuts
 from azcam.cmdserver import CommandServer
-from azcam.tools.queue import Queue
 from azcam.tools.tempcon_cryocon24 import TempConCryoCon24
 from azcam.tools.tempcon import TempCon
 from azcam.tools.ds9display import Ds9Display
@@ -177,9 +176,6 @@ def setup():
     # scripts
     azcam.log("Loading azcam_itl.scripts.server")
     loadscripts(["azcam_itl.scripts.server"])
-
-    # observe
-    queue = Queue()
 
     # web server
     if 1:
