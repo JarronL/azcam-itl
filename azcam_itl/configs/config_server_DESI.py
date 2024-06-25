@@ -52,3 +52,4 @@ exposure.set_detpars(detector_sta4150_4amp)
 # focus
 # ****************************************************************
 focus = Focus()
+focus.initialize()

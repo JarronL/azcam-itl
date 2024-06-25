@@ -511,10 +511,8 @@ linearity.zero_correct = 0
 linearity.grade_sensor = 1
 
 # QE
-# qe.cal_scale = 0.955
-# calibrated with dewar window and cal fixture
-qe.cal_scale = 1.0
-qe.global_scale = 0.88  # 27mar24
+qe.cal_scale = 1.00
+qe.global_scale = 1.31  # 17Jun24 from dewar case
 qe.flush_before_exposure = 0
 qe.use_edge_mask = 1
 qe.pixel_area = 0.015 * 0.015
@@ -553,13 +551,9 @@ qe.exposure_levels = {
 }
 qe.exposure_times = {}
 qe.window_trans = {
-    300: 1.0,
-    1000: 1.0,
+    300: 0.92,
+    1000: 0.92,
 }
-# qe.window_trans = {
-#     300: 0.92,
-#     1000: 0.92,
-# }
 
 # prnu
 prnu.allowable_deviation_from_mean = 0.1
