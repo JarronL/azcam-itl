@@ -13,20 +13,20 @@ from runpy import run_path
 
 import azcam
 import azcam.utils
+from azcam.tools.ds9display import Ds9Display
+from azcam.scripts.scripts import loadscripts
+
 import azcam_console.console
 import azcam_console.shortcuts
 import azcam_console.tools.console_tools
 import azcam_console.scripts
-from azcam.tools.ds9display import Ds9Display
 from azcam_console.tools.focus import FocusConsole
-
 from azcam_console.testers.testers import load_testers
-from azcam.scripts.scripts import loadscripts
+from azcam_console.observe.observe_cli.observe_cli import ObserveCli
+from azcam_console.tools import create_console_tools
 
 from azcam_itl import itlutils
 import azcam_itl.shortcuts_itl
-
-from azcam_console.observe.observe_cli.observe_cli import ObserveCli
 
 
 def setup():
@@ -90,15 +90,9 @@ def setup():
     # dthread.start()  # thread just for speed
 
     # console tools
-    from azcam_console.tools import create_console_tools
-
     create_console_tools()
     focus = FocusConsole()
-
-    # testers
     load_testers()
-
-    # ObserveCli
     observe = ObserveCli()
 
     # scripts
@@ -115,7 +109,7 @@ def setup():
     # system-specific
     if azcam.db.systemname == "DESI":
         from azcam_itl.detchars.detchar_DESI import detchar
-        import azcam_console.tools.console_arc
+        import azcam_console.tools.console_archon
 
     elif azcam.db.systemname == "LVM":
         if 0:  # azcam.db.LVM_itl4k:
