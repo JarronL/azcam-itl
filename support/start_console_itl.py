@@ -4,8 +4,8 @@ Python process start file
 
 import subprocess
 
-OPTIONS = "-system DESI"
-CMD = f"ipython --profile azcamserver -i -m azcam_itl.server -- {OPTIONS}"
+OPTIONS = ""
+CMD = f"ipython --profile azcamconsole -i -m azcam_bcspec.console -- {OPTIONS}"
 
 p = subprocess.Popen(
     CMD,
