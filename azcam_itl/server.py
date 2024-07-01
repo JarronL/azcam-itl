@@ -85,7 +85,7 @@ def setup():
         "Moravian IMX411 CMOS camera": "IMX411",
         # "OSU4k": "OSU4k",
         # "ITL6k": "ITL6k",
-        # "90prime4k": "90prime4k",
+        "90prime4k": "90prime4k",
         # "Magellan Guider": "magguider",
         # "SO Guider": "soguider",
         "None": "NoSystem",
