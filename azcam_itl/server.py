@@ -38,6 +38,7 @@ import azcam_itl.shortcuts_itl
 
 
 def setup():
+
     # parse command line arguments
     try:
         i = sys.argv.index("-system")
@@ -185,11 +186,9 @@ def setup():
         webserver.logstatus = 0
         webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
         webserver.message = f"for host {azcam.db.hostname}"
-        webserver.datafolder = azcam.db.datafolder
         webserver.start()
 
         webstatus = Status(webserver)
-        webstatus.message = "Status for ITL systems"
         webstatus.initialize()
 
         exptool = Exptool(webserver)
@@ -198,9 +197,6 @@ def setup():
         azcam.log("Started webserver applications")
 
     # azcammonitor
-    azcam.db.monitor.proc_path = (
-        "/azcam/azcam-itl/support/windows/start_server_ASI294.bat"
-    )
     azcam.db.monitor.register()
 
     # parameter file

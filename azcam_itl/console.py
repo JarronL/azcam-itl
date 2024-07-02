@@ -30,7 +30,7 @@ import azcam_itl.shortcuts_itl
 
 
 def setup():
-    global azcam
+
     # parse command line arguments
     try:
         i = sys.argv.index("-system")
