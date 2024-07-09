@@ -31,23 +31,29 @@ class DesiDetCharClass(DetChar):
         # report parameters
         self.report_names = [
             "gain",
+            "bias",
+            "superflat",
             "prnu",
             "ptc",
             "linearity",
             "qe",
-            "dark",
+            "darksignal",
+            "brightdefects",
             "defects",
             "fe55",
         ]
         self.report_files = {
-            "dark": "dark/dark",
+            "darksignal": "dark/dark",
+            "brightdefects": "dark/brightdefects",
+            "superflat": "superflat/darkdefects",
             "defects": "defects/defects",
             "fe55": "fe55/fe55",
             "gain": "gain/gain",
             "linearity": "ptc/linearity",
             "ptc": "ptc/ptc",
-            "prnu": "prnu/prnu",
+            "prnu": "qe/prnu",
             "qe": "qe/qe",
+            "bias": "bias/bias",
         }
 
     def setup(self, itl_id=""):
@@ -316,24 +322,6 @@ class DesiDetCharClass(DetChar):
         azcam.utils.curdir(rootfolder)
         print("")
 
-        # defects
-        defects.dark_filename = dark.dark_filename
-        azcam.utils.curdir("dark")
-        defects.analyze_bright_defects()
-        defects.copy_data_files()
-        azcam.utils.curdir(rootfolder)
-
-        defects.flat_filename = azcam.db.tools["superflat"].superflat_filename
-        azcam.utils.curdir("superflat")
-        defects.analyze_dark_defects()
-        defects.copy_data_files()
-        azcam.utils.curdir(rootfolder)
-
-        azcam.utils.curdir("defects")
-        defects.analyze()
-        azcam.utils.curdir(rootfolder)
-        print("")
-
         # qe
         azcam.utils.curdir("qe")
         qe.analyze()
@@ -343,9 +331,20 @@ class DesiDetCharClass(DetChar):
         # prnu
         azcam.utils.curdir("qe")
         prnu.analyze()
-        prnu.copy_data_files()
         azcam.utils.curdir(rootfolder)
         print("")
+
+        # total defects
+        if 1:
+            fldr = os.path.abspath("./defects")
+            if os.path.exists(fldr):
+                pass
+            else:
+                os.mkdir(fldr)
+            azcam.utils.curdir("defects")
+            defects.analyze()
+            azcam.utils.curdir(rootfolder)
+            print("")
 
         # report
         self.make_summary_report()
@@ -358,7 +357,7 @@ class DesiDetCharClass(DetChar):
         Prepare a dataset for upload by creating a compressed tar file.
         """
 
-        idstring = f"{self.itl_id}"
+        idstring = azcam.utils.prompt("Enter dataset name")
 
         cd = azcam.utils.curdir()
         foldername = cd
@@ -419,6 +418,7 @@ azcam_console.utils.set_image_roi([[1950, 2000, 400, 450], [2051, 2055, 400, 450
 )
 
 # detcal
+detcal.data_file = f"{azcam.db.datafolder}/detcal_desi.txt"
 # detcal.exposures = {
 #     350: 4.5,
 #     400: 2.5,
@@ -444,7 +444,10 @@ detcal.exposures = {
     800: 3.5,
 }
 
-detcal.data_file = f"{azcam.db.datafolder}/detcal_desi.txt"
+# total defects
+defects.edge_size = 30  # 13 from Pat but serial clocking glow
+defects.allowable_bad_pixels = 0.0001 * 4096 * 4096  # allowed total bad pixels
+defects.grade_sensor = 1
 
 # bias
 bias.number_images_acquire = 3
@@ -459,12 +462,11 @@ gain.grade_sensor = 0
 # dark
 dark.number_images_acquire = 3
 dark.exposure_time = 500.0
-dark.dark_fraction = -1  # no spec on individual pixels
 dark.mean_dark_spec = 10.0 / 3600
-dark.use_edge_mask = 1  #
 dark.bright_pixel_reject = 0.05  # e/pix/sec clip
+dark.allowable_bright_pixels = 0.0001 * 4096 * 4096
 dark.overscan_correct = 1  # flag to overscan correct images
-dark.zero_correct = 0  # flag to correct with bias residuals
+dark.zero_correct = 1  # flag to correct with bias residuals
 dark.report_plots = ["darkimage"]  # plots to include in report
 dark.report_dark_per_hour = 1
 dark.grade_sensor = 1
@@ -474,7 +476,10 @@ superflat.exposure_time = 5.0
 superflat.wavelength = 400  # blue - dark defects
 # superflat.wavelength = 600  # red - dark defects
 superflat.number_images_acquire = 3  # number of images
-superflat.grade_sensor = 0
+superflat.grade_dark_defects = 1
+superflat.dark_pixel_reject = 0.50  # reject pixels below this value from mean
+superflat.allowable_dark_pixels = 0.0001 * 4096 * 4096
+superflat.grade_sensor = 1
 
 # ptc
 ptc.wavelength = 500
@@ -501,8 +506,9 @@ ptc.grade_sensor = 0
 # linearity
 linearity.wavelength = 500
 linearity.use_ptc_data = 1
-linearity.fit_min = 1000.0
-linearity.fit_max = 55000.0
+linearity.fit_min_percent = 0.20
+linearity.fit_max_percent = 0.90
+linearity.fit_all_data = 0
 linearity.max_allowed_linearity = 0.01  # max residual for linearity
 linearity.plot_specifications = 1
 linearity.plot_limits = [-3.0, +3.0]
@@ -514,24 +520,23 @@ linearity.grade_sensor = 1
 qe.cal_scale = 1.00
 qe.global_scale = 1.31  # 17Jun24 from dewar case
 qe.flush_before_exposure = 0
-qe.use_edge_mask = 1
 qe.pixel_area = 0.015 * 0.015
 qe.flux_cal_folder = "/data/DESI"
 qe.plot_title = "DESI Quantum Efficiency"
 qe.plot_limits = [[300.0, 900.0], [0.0, 100.0]]
 qe.qeroi = []
 qe.use_exposure_levels = 1
-qe.grade_sensor = 0
+qe.grade_sensor = 1
 qe.wavelengths = [350, 400, 450, 500, 550, 600, 650, 700, 750, 800]
 # spec for DESI Blue: 360-400 > 75%, 400-600 > 85%
 qe.qe_specs = {
     350: 0,
-    360: 0,
-    400: 0,
-    450: 0,
-    500: 0,
-    550: 0,
-    600: 0,
+    360: 0.75,
+    400: 0.75,
+    450: 0.85,
+    500: 0.85,
+    550: 0.85,
+    600: 0.85,
     650: 0,
     700: 0,
     750: 0,
@@ -558,10 +563,9 @@ qe.window_trans = {
 # prnu
 prnu.allowable_deviation_from_mean = 0.1
 prnu.root_name = "qe."
-prnu.use_edge_mask = 1
 prnu.overscan_correct = 1
 prnu.wavelengths = [350, 400, 500, 600, 700, 800]
-prnu.grade_sensor = 0
+prnu.grade_sensor = 1
 
 # fe55
 fe55.overscan_correct = 0
@@ -593,11 +597,3 @@ fe55.plot_titles = {
     "histogram": "X-Ray Histogram Plot.",
 }
 fe55.grade_sensor = 1
-
-# defects
-defects.use_edge_mask = 1
-defects.edge_size = 13  # from Pat
-defects.allowable_bad_fraction = 0.0001  # allowed bad pixels
-defects.bright_pixel_reject = 0.05  # e/pix/sec
-defects.dark_pixel_reject = 0.50  # reject pixels below this value from mean
-defects.grade_sensor = 1

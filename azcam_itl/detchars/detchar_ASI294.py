@@ -487,10 +487,6 @@ gainmap.wavelength = 500
 # dark
 dark.number_images_acquire = 5
 dark.exposure_time = 600.0
-dark.dark_fraction = -1  # no spec on individual pixels
-# dark.mean_dark_spec = 3.0 / 600.0  # blue e/pixel/sec
-# dark.mean_dark_spec = 6.0 / 600.0  # red
-dark.use_edge_mask = 0
 # dark.bright_pixel_reject = 0.05  # e/pix/sec clip
 dark.overscan_correct = 0  # flag to overscan correct images
 dark.zero_correct = 1  # flag to correct with bias residuals
@@ -507,8 +503,8 @@ ptc.wavelength = 500
 # ptc.gain_range = [0.1, 0.3]
 ptc.overscan_correct = 0
 ptc.fit_line = True
-ptc.fit_min = 1000
-ptc.fit_max = 60000
+ptc.fit_min_percent = 0.10
+ptc.fit_max_percent = 0.90
 ptc.exposure_times = []
 # ptc.max_exposures = 40
 # ptc.number_images_acquire = 40
@@ -546,8 +542,8 @@ ptc.exposure_levels = [
 # linearity
 linearity.wavelength = 500
 linearity.use_ptc_data = 1
-linearity.fit_min = 0.10
-linearity.fit_max = 0.90
+linearity.fit_min_percent = 0.10
+linearity.fit_max_percent = 0.90
 linearity.fullwell_estimate = 55000.0  # DN
 linearity.fit_all_data = 0
 linearity.max_allowed_linearity = -1
@@ -614,7 +610,6 @@ else:
 
 # prnu
 prnu.root_name = "prnu."
-prnu.use_edge_mask = 0
 prnu.overscan_correct = 0
 prnu.zero_correct = 1
 prnu.mean_count_goal = 3000  # DN

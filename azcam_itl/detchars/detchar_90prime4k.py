@@ -523,8 +523,8 @@ azcam.db.tools["ptc"].exposure_levels = []
 
 # linearity
 azcam.db.tools["linearity"].use_ptc_data = 1
-azcam.db.tools["linearity"].fit_min = 1000.0  # fit (e-) for linearity fit
-azcam.db.tools["linearity"].fit_max = 60000.0  # DN
+azcam.db.tools["linearity"].fit_min_percent = 0.10
+azcam.db.tools["linearity"].fit_max_percent = 0.90
 azcam.db.tools["linearity"].fit_all_data = 0
 azcam.db.tools["linearity"].max_allowed_linearity = 0.02  # max residual spec
 azcam.db.tools["linearity"].plot_specifications = 1
@@ -536,7 +536,6 @@ azcam.db.tools["linearity"].zero_correct = 0
 azcam.db.tools["dark"].number_images_acquire = 3
 azcam.db.tools["dark"].exposure_time = 600.0
 azcam.db.tools["dark"].resolution = 0.01  # resolution of histogram
-azcam.db.tools["dark"].use_edge_mask = True  # exclude edges in dark calcs
 azcam.db.tools["dark"].overscan_correct = 1  # correct with overscan region
 azcam.db.tools["dark"].zero_correct = 1  # correct including debiased residuals
 azcam.db.tools["dark"].fit_order = 3
@@ -544,12 +543,9 @@ azcam.db.tools["dark"].mean_dark_spec = 20.0 / 3600.0  # e/pix/sec
 azcam.db.tools["dark"].bright_pixel_reject = (
     10.0 * azcam.db.tools["dark"].mean_dark_spec
 )
-azcam.db.tools["dark"].dark_fraction = -1  # fraction of pixel less than dark_limit
-azcam.db.tools["dark"].dark_limit = -1  # e/pix/hr
 azcam.db.tools["dark"].report_dark_per_hour = True  # report DC per hour
 
 # defects
-azcam.db.tools["defects"].use_edge_mask = True
 azcam.db.tools["defects"].edge_size = 20
 azcam.db.tools["defects"].allowable_bad_fraction = 0.002  # % allowed bad pixels
 azcam.db.tools["defects"].report_include_plots = 1
@@ -562,7 +558,6 @@ azcam.db.tools["defects"].allowable_dark_pixels = -1
 azcam.db.tools["prnu"].root_name = "qe."
 azcam.db.tools["prnu"].wavelengths = [360, 400, 500, 550, 650, 750]
 azcam.db.tools["prnu"].allowable_deviation_from_mean = 0.10
-azcam.db.tools["prnu"].use_edge_mask = True  # use mask from defects tool
 azcam.db.tools["prnu"].overscan_correct = 1  # flag to overscan correct images
 azcam.db.tools["prnu"].zero_correct = 0  # flag to correct with bias residuals
 
@@ -571,7 +566,6 @@ qe = azcam.db.tools["qe"]
 qe.cal_scale = 1.00
 qe.global_scale = 1.24
 qe.flux_cal_folder = "/data/90prime4k"
-qe.use_edge_mask = False
 qe.pixel_area = 0.015 * 0.015
 qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]
 qe.overscan_correct = 1

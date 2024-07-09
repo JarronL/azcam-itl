@@ -521,8 +521,6 @@ gain.video_processor_gain = []
 # dark
 dark.number_images_acquire = 3
 dark.exposure_time = 600.0
-dark.dark_fraction = -1  # no spec on individual pixels
-dark.use_edge_mask = 0
 dark.bright_pixel_reject = 20.0 / 3600 * 10  # clip, 10x mean dark current [e/pix/sec]
 dark.overscan_correct = 0  # flag to overscan correct images
 dark.zero_correct = 0  # flag to correct with bias residuals
@@ -583,8 +581,8 @@ linearity.wavelength = 500
 linearity.use_ptc_data = 1
 linearity.fullwell_estimate = 54000 / 0.8  # counts
 linearity.fit_all_data = 0
-linearity.fit_min = 0.05
-linearity.fit_max = 0.90  # .95 too close to ADC limit
+linearity.fit_min_percent = 0.05
+linearity.fit_max_percent = 0.90  # .95 too close to ADC limit
 
 linearity.max_allowed_linearity = -1
 linearity.plot_specifications = 1
@@ -649,7 +647,6 @@ else:
 
 # prnu
 prnu.root_name = "prnu."
-prnu.use_edge_mask = 0
 prnu.overscan_correct = 0
 prnu.zero_correct = 1
 el = 5000.0
@@ -672,6 +669,5 @@ prnu.exposure_levels = {
 prnu.mean_count_goal = 5000.0
 
 # defects
-defects.use_edge_mask = 0
 defects.bright_pixel_reject = 20.0 / 3600 * 10  # 10x mean dark current [e/pix/sec]
 defects.dark_pixel_reject = 0.80  # below mean

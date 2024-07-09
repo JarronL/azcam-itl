@@ -140,6 +140,32 @@ class ITL4kDetChar(DetChar):
         Acquire detector characterization data.
         """
 
+        (
+            gain,
+            bias,
+            detcal,
+            superflat,
+            ptc,
+            qe,
+            dark,
+            defects,
+            dark,
+            tempcon
+        ) = azcam_console.utils.get_tools(
+            [
+                "gain",
+                "bias",
+                "detcal",
+                "superflat",
+                "ptc",
+                "qe",
+                "dark",
+                "defects",
+                "dark",
+                "tempcon"
+            ]
+        )
+
         print("LVM DetChar acquisition sequence")
         print("")
 
@@ -150,7 +176,7 @@ class ITL4kDetChar(DetChar):
         # *************************************************************************
         if self.start_temperature != -1000:
             while True:
-                t = azcam.db.tools["tempcon"].get_temperatures()[0]
+                t = tempcon.get_temperatures()[0]
                 print("Current temperature: %.1f" % t)
                 if t <= self.start_temperature + 0.5:
                     break
@@ -182,7 +208,7 @@ class ITL4kDetChar(DetChar):
 
         # bias sequenece
         try:
-            azcam.db.tools["bias"].acquire()
+            bias.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.db.parameters.restore_imagepars(impars)
@@ -190,7 +216,7 @@ class ITL4kDetChar(DetChar):
 
         # gain acquire and analyze
         try:
-            azcam.db.tools["gain"].find()
+            gain.find()
         except Exception as e:
             azcam.log(e)
             azcam.db.parameters.restore_imagepars(impars)
@@ -198,7 +224,7 @@ class ITL4kDetChar(DetChar):
 
         # superflat sequence
         try:
-            azcam.db.tools["superflat"].acquire()
+            superflat.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.db.parameters.restore_imagepars(impars)
@@ -206,7 +232,7 @@ class ITL4kDetChar(DetChar):
 
         # QE sequence
         try:
-            azcam.db.tools["qe"].acquire()
+            qe.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.db.parameters.restore_imagepars(impars)
@@ -214,7 +240,7 @@ class ITL4kDetChar(DetChar):
 
         # PTC sequence
         try:
-            azcam.db.tools["ptc"].acquire()
+            ptc.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.db.parameters.restore_imagepars(impars)
@@ -222,7 +248,7 @@ class ITL4kDetChar(DetChar):
 
         # Dark sequence
         try:
-            azcam.db.tools["dark"].acquire()
+            dark.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.db.parameters.restore_imagepars(impars)
@@ -230,7 +256,7 @@ class ITL4kDetChar(DetChar):
 
         # Fe55 sequence
         try:
-            azcam.db.tools["fe55"].acquire()
+            fe55.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.db.parameters.restore_imagepars(impars)
@@ -254,75 +280,103 @@ class ITL4kDetChar(DetChar):
         Analyze entire sequence of data for LVM.
         """
 
-        self.setup_analyze()
+        (
+            gain,
+            bias,
+            detcal,
+            superflat,
+            ptc,
+            qe,
+            dark,
+            defects,
+            dark,
+            linearity,
+            prnu,
+        ) = azcam_console.utils.get_tools(
+            [
+                "gain",
+                "bias",
+                "detcal",
+                "superflat",
+                "ptc",
+                "qe",
+                "dark",
+                "defects",
+                "dark",
+                "linearity",
+                "prnu",
+            ]
+        )
+
+        self.setup()
 
         rootfolder = azcam.utils.curdir()
 
         # raw bias
         azcam.utils.curdir("bias")
-        azcam.db.tools["bias"].analyze()
+        bias.analyze()
         azcam.utils.curdir(rootfolder)
 
         # gain (no masks)
         azcam.utils.curdir("gain")
-        azcam.db.tools["gain"].analyze()
+        gain.analyze()
         azcam.utils.curdir(rootfolder)
 
         # Fe-55 (used for gain below) (no masks)
         azcam.utils.curdir("fe55")
-        # azcam.db.tools["fe55"].gain_estimate = azcam.db.tools["gain"].system_gain
-        azcam.db.tools["fe55"].analyze()
+        # fe55.gain_estimate = gain.system_gain
+        fe55.analyze()
         azcam.utils.curdir(rootfolder)
 
         # use fe55 gain from now on
         if self.use_fe55_gain:
-            azcam.db.tools["gain"].fe55_gain()
+            gain.fe55_gain()
 
         # superflat (no masks)
         azcam.utils.curdir("superflat")
-        azcam.db.tools["superflat"].analyze()
+        superflat.analyze()
         azcam.utils.curdir(rootfolder)
 
         # PTC (no masks)
         azcam.utils.curdir("ptc")
-        azcam.db.tools["ptc"].analyze()
+        ptc.analyze()
         azcam.utils.curdir(rootfolder)
 
         # linearity from ptc data (no masks)
-        azcam.utils.curdir(azcam.db.tools["ptc"].analysis_folder)
-        azcam.db.tools["linearity"].analyze()
-        azcam.db.tools["linearity"].copy_data_files()
+        azcam.utils.curdir(ptc.analysis_folder)
+        linearity.analyze()
+        linearity.copy_data_files()
         azcam.utils.curdir(rootfolder)
 
         # darks (only edge mask used)
         azcam.utils.curdir("dark")
-        azcam.db.tools["dark"].analyze()
+        dark.analyze()
         azcam.utils.curdir(rootfolder)
 
         # defects, defect mask valid after this
         azcam.utils.curdir("dark")
-        azcam.db.tools["defects"].analyze_bright_defects()
-        azcam.db.tools["defects"].copy_data_files()
+        defects.analyze_bright_defects()
+        defects.copy_data_files()
         azcam.utils.curdir(rootfolder)
 
         azcam.utils.curdir("superflat")
-        azcam.db.tools["defects"].analyze_dark_defects()
-        azcam.db.tools["defects"].copy_data_files()
+        defects.analyze_dark_defects()
+        defects.copy_data_files()
         azcam.utils.curdir(rootfolder)
 
         azcam.utils.curdir("defects")
-        azcam.db.tools["defects"].analyze()
+        defects.analyze()
         azcam.utils.curdir(rootfolder)
 
         # prnu (full mask used)
         azcam.utils.curdir("qe")
-        azcam.db.tools["prnu"].analyze()
-        azcam.db.tools["prnu"].copy_data_files()
+        prnu.analyze()
+        prnu.copy_data_files()
         azcam.utils.curdir(rootfolder)
 
         # qe (full mask used)
         azcam.utils.curdir("qe")
-        azcam.db.tools["qe"].analyze()
+        qe.analyze()
         azcam.utils.curdir(rootfolder)
 
         # make report
@@ -424,69 +478,96 @@ azcam.db.start_temperature = -100.0
 test_waves = [360, 400, 500, 550, 650, 750, 850, 950, 980]
 system_noise_correction = 4 * [0.7]
 
+# define  tools
+(
+    gain,
+    bias,
+    detcal,
+    superflat,
+    ptc,
+    qe,
+    dark,
+    defects,
+    dark,
+    fe55,
+) = azcam_console.utils.get_tools(
+    [
+        "gain",
+        "bias",
+        "detcal",
+        "superflat",
+        "ptc",
+        "qe",
+        "dark",
+        "defects",
+        "dark",
+        "fe55",
+    ]
+)
+
 # bias
-azcam.db.tools["bias"].number_images_acquire = 3
-azcam.db.tools["bias"].fit_order = 3
+bias.number_images_acquire = 3
+bias.fit_order = 3
 
 # gain
-azcam.db.tools["gain"].number_pairs = 1
-azcam.db.tools["gain"].exposure_time = 1.0
+gain.number_pairs = 1
+gain.exposure_time = 1.0
 if detchar.LVM_nearir:
-    azcam.db.tools["gain"].wavelength = 750
+    gain.wavelength = 750
 else:
-    azcam.db.tools["gain"].wavelength = 450
-azcam.db.tools["gain"].video_processor_gain = 4 * [12.0]
-azcam.db.tools["gain"].readnoise_spec = 4.0
-azcam.db.tools["gain"].system_noise_correction = system_noise_correction
+    gain.wavelength = 450
+gain.video_processor_gain = 4 * [12.0]
+gain.readnoise_spec = 4.0
+gain.system_noise_correction = system_noise_correction
 
 # fe55
-azcam.db.tools["fe55"].number_images_acquire = 1
-azcam.db.tools["fe55"].system_noise_correction = system_noise_correction
-azcam.db.tools["fe55"].gain_estimate = 4 * [2.3]
-azcam.db.tools["fe55"].exposure_time = 30.0
-azcam.db.tools["fe55"].neighborhood_size = 3  # 5 for 644 silicon
-azcam.db.tools["fe55"].fit_psf = 0
-azcam.db.tools["fe55"].threshold = 500
-azcam.db.tools["fe55"].spec_sigma = -1
-# azcam.db.tools["fe55"].hcte_limit = 0.999_990
-# azcam.db.tools["fe55"].vcte_limit = 0.999_990
-azcam.db.tools["fe55"].spec_by_cte = 1
-azcam.db.tools["fe55"].overscan_correct = 1
-azcam.db.tools["fe55"].pause_each_channel = 0
-azcam.db.tools["fe55"].report_include_plots = 1
-azcam.db.tools["fe55"].make_plots = ["histogram", "cte"]
-azcam.db.tools["fe55"].plot_files = {
+fe55.number_images_acquire = 1
+fe55.system_noise_correction = system_noise_correction
+fe55.gain_estimate = 4 * [2.3]
+fe55.exposure_time = 30.0
+fe55.neighborhood_size = 3  # 5 for 644 silicon
+fe55.fit_psf = 0
+fe55.threshold = 500
+fe55.spec_sigma = -1
+# fe55.hcte_limit = 0.999_990
+# fe55.vcte_limit = 0.999_990
+fe55.spec_by_cte = 1
+fe55.overscan_correct = 1
+fe55.pause_each_channel = 0
+fe55.report_include_plots = 1
+fe55.make_plots = ["histogram", "cte
+fe55.plot_files = {
     "histogram": "histogram.png",
     "hcte": "hcte.png",
     "vcte": "vcte.png",
 }
-azcam.db.tools["fe55"].plot_titles = {
+fe55.plot_titles = {
     "histogram": "X-Ray Histogram Plot.",
     "hcte": "HCTE Plot.",
     "vcte": "VCTE Plot.",
 }
-azcam.db.tools["fe55"].plot_order = ["histogram", "hcte", "vcte"]
+fe55.plot_order = ["histogram", "hcte", "vcte
 
 # superflats
-azcam.db.tools["superflat"].exposure_levels = [10000]
-azcam.db.tools["superflat"].exposure_times = [
+superflat.exposure_levels = [10000]
+superflat.exposure_times = [
     5.0,
 ]
 if detchar.LVM_nearir:
-    azcam.db.tools["superflat"].wavelength = 750
+    superflat.wavelength = 750
 else:
-    azcam.db.tools["superflat"].wavelength = 550
-azcam.db.tools["superflat"].number_images_acquire = [
+    superflat.wavelength = 550
+superflat.number_images_acquire = [
     5,
 ]
-azcam.db.tools["superflat"].overscan_correct = 1  # correct with overscan region
-azcam.db.tools["superflat"].zero_correct = 1  # correct including debiased residuals
-azcam.db.tools["superflat"].fit_order = 3
+superflat.overscan_correct = 1  # correct with overscan region
+superflat.zero_correct = 1  # correct including debiased residuals
+superflat.fit_order = 3
 
 # ptc
 if detchar.LVM_nearir:
-    azcam.db.tools["ptc"].wavelength = 750
-    azcam.db.tools["ptc"].exposure_times = [
+    ptc.wavelength = 750
+    ptc.exposure_times = [
         1,
         3,
         10,
@@ -502,8 +583,8 @@ if detchar.LVM_nearir:
         110,
     ]
 else:
-    azcam.db.tools["ptc"].wavelength = 550
-    azcam.db.tools["ptc"].exposure_times = [
+    ptc.wavelength = 550
+    ptc.exposure_times = [
         1,
         2,
         3,
@@ -520,78 +601,72 @@ else:
         55,
         60,
     ]
-azcam.db.tools["ptc"].gain_range = [1.0, 4.0]
-azcam.db.tools["ptc"].fit_max = 60000
-azcam.db.tools["ptc"].fit_line = 1
-azcam.db.tools["ptc"].overscan_correct = 1
-azcam.db.tools["ptc"].exposure_levels = []
+ptc.gain_range = [1.0, 4.0]
+ptc.fit_max = 60000
+ptc.fit_line = 1
+ptc.overscan_correct = 1
+ptc.exposure_levels = []
 # linearity
-azcam.db.tools["linearity"].use_ptc_data = 1
-azcam.db.tools["linearity"].fit_min = 1000.0  # fit (e-) for linearity fit
-azcam.db.tools["linearity"].fit_max = 60000.0  # DN
-azcam.db.tools["linearity"].fit_all_data = 0
-# azcam.db.tools["linearity"].max_allowed_linearity = 0.02  # max residual spec
-# azcam.db.tools["linearity"].plot_specifications = 1
-azcam.db.tools["linearity"].plot_limits = [-3, 3]
-azcam.db.tools["linearity"].overscan_correct = 0  # normally 1, but ptc already analyzed
-azcam.db.tools["linearity"].zero_correct = 0
+linearity.use_ptc_data = 1
+linearity.fit_min_percent = .10
+linearity.fit_max_percent = 0.90
+linearity.fit_all_data = 0
+# linearity.max_allowed_linearity = 0.02  # max residual spec
+# linearity.plot_specifications = 1
+linearity.plot_limits = [-3, 3]
+linearity.overscan_correct = 0  # normally 1, but ptc already analyzed
+linearity.zero_correct = 0
 
 # dark
-azcam.db.tools["dark"].number_images_acquire = 3
-azcam.db.tools["dark"].exposure_time = 600.0
-azcam.db.tools["dark"].resolution = 0.01  # resolution of histogram
-azcam.db.tools["dark"].use_edge_mask = True  # exclude edges in dark calcs
-azcam.db.tools["dark"].overscan_correct = 1  # correct with overscan region
-azcam.db.tools["dark"].zero_correct = 1  # correct including debiased residuals
-azcam.db.tools["dark"].fit_order = 3
-# azcam.db.tools["dark"].mean_dark_spec = 20.0 / 3600.0  # e/pix/sec
-# azcam.db.tools["dark"].bright_pixel_reject = 10.0 * azcam.db.tools["dark"].mean_dark_spec
-azcam.db.tools["dark"].dark_fraction = -1  # fraction of pixel less than dark_limit
-azcam.db.tools["dark"].dark_limit = -1  # e/pix/hr
-azcam.db.tools["dark"].report_dark_per_hour = True  # report DC per hour
+dark.number_images_acquire = 3
+dark.exposure_time = 600.0
+dark.resolution = 0.01  # resolution of histogram
+dark.overscan_correct = 1  # correct with overscan region
+dark.zero_correct = 1  # correct including debiased residuals
+dark.fit_order = 3
+# dark.mean_dark_spec = 20.0 / 3600.0  # e/pix/sec
+# dark.bright_pixel_reject = 10.0 * dark.mean_dark_spec
+dark.report_dark_per_hour = True  # report DC per hour
 
 # defects
-azcam.db.tools["defects"].use_edge_mask = True
-azcam.db.tools["defects"].edge_size = 20
-azcam.db.tools["defects"].allowable_bad_fraction = 0.005  # % allowed bad pixels
-azcam.db.tools["defects"].report_include_plots = 1
-azcam.db.tools["defects"].bright_pixel_reject = 5.0  # e/pix/sec
-azcam.db.tools["defects"].allowable_bright_pixels = -1
-azcam.db.tools["defects"].dark_pixel_reject = 0.80  # from mean
-azcam.db.tools["defects"].allowable_dark_pixels = -1
+defects.edge_size = 20
+defects.allowable_bad_fraction = 0.005  # % allowed bad pixels
+defects.report_include_plots = 1
+defects.bright_pixel_reject = 5.0  # e/pix/sec
+defects.allowable_bright_pixels = -1
+defects.dark_pixel_reject = 0.80  # from mean
+defects.allowable_dark_pixels = -1
 
 # prnu
-azcam.db.tools["prnu"].root_name = "qe."
+prnu.root_name = "qe."
 if detchar.LVM_nearir:
-    azcam.db.tools["prnu"].wavelengths = [550, 650, 750, 850, 950]
+    prnu.wavelengths = [550, 650, 750, 850, 950]
 else:
-    azcam.db.tools["prnu"].wavelengths = [360, 400, 500, 550, 650, 750]
-# azcam.db.tools["prnu"].allowable_deviation_from_mean = 0.10
-azcam.db.tools["prnu"].use_edge_mask = True  # use mask from defects tool
-azcam.db.tools["prnu"].overscan_correct = 1  # flag to overscan correct images
-azcam.db.tools["prnu"].zero_correct = 0  # flag to correct with bias residuals
+    prnu.wavelengths = [360, 400, 500, 550, 650, 750]
+# prnu.allowable_deviation_from_mean = 0.10
+prnu.overscan_correct = 1  # flag to overscan correct images
+prnu.zero_correct = 0  # flag to correct with bias residuals
 
 # qe
 
-azcam.db.tools["qe"].grade_sensor = 0
+qe.grade_sensor = 0
 
 
 if detchar.LVM_nearir:
-    azcam.db.tools["qe"].cal_scale = 0.96  # 04feb22
+    qe.cal_scale = 0.96  # 04feb22
 else:
-    azcam.db.tools["qe"].cal_scale = 1.04
+    qe.cal_scale = 1.04
 
 # recalibrate in dewar 08Nov21
-azcam.db.tools["qe"].global_scale = 1.0
+qe.global_scale = 1.0
 
-azcam.db.tools["qe"].flux_cal_folder = "/data/LVM"
-azcam.db.tools["qe"].use_edge_mask = True  # use defects mask
-azcam.db.tools["qe"].pixel_area = 0.015 * 0.015
-azcam.db.tools["qe"].plot_limits = [[300.0, 1000.0], [0.0, 100.0]]
-azcam.db.tools["qe"].overscan_correct = 1
-azcam.db.tools["qe"].plot_title = "ITL4k Sensor QE"
-azcam.db.tools["qe"].qeroi = []  # about the area of reference diode
-azcam.db.tools["qe"].wavelengths = [
+qe.flux_cal_folder = "/data/LVM"
+qe.pixel_area = 0.015 * 0.015
+qe.plot_limits = [[300.0, 1000.0], [0.0, 100.0]]
+qe.overscan_correct = 1
+qe.plot_title = "ITL4k Sensor QE"
+qe.qeroi = []  # about the area of reference diode
+qe.wavelengths = [
     360,
     400,
     450,
@@ -611,13 +686,13 @@ azcam.db.tools["qe"].wavelengths = [
 
 # exposure times are for 20k electrons (req. is >10,000)
 # want high values for Prnu test
-azcam.db.tools["qe"].exposure_levels = {}
-azcam.db.tools["qe"].window_trans = {
+qe.exposure_levels = {}
+qe.window_trans = {
     300: 1.0,
     1000: 1.0,
 }
 # if no exposure_levels
-azcam.db.tools["qe"].exposure_times = {
+qe.exposure_times = {
     360: 10.0,
     400: 5.0,
     450: 5.0,
