@@ -187,7 +187,7 @@ class ITL4kDetChar(DetChar):
         # save current image parameters
         # *************************************************************************
         impars = {}
-        azcam.db.parameters.save_imagepars(impars)
+        azcam.utils.save_imagepars(impars)
 
         # *************************************************************************
         # Create and move to a report folder
@@ -211,7 +211,7 @@ class ITL4kDetChar(DetChar):
             bias.acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # gain acquire and analyze
@@ -219,7 +219,7 @@ class ITL4kDetChar(DetChar):
             gain.find()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # superflat sequence
@@ -227,7 +227,7 @@ class ITL4kDetChar(DetChar):
             superflat.acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # QE sequence
@@ -235,7 +235,7 @@ class ITL4kDetChar(DetChar):
             qe.acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # PTC sequence
@@ -243,7 +243,7 @@ class ITL4kDetChar(DetChar):
             ptc.acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # Dark sequence
@@ -251,7 +251,7 @@ class ITL4kDetChar(DetChar):
             dark.acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # Fe55 sequence
@@ -259,11 +259,11 @@ class ITL4kDetChar(DetChar):
             fe55.acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # finish
-        azcam.db.parameters.restore_imagepars(impars)
+        azcam.utils.restore_imagepars(impars)
         azcam.utils.curdir(currentfolder)
 
         # send email notice

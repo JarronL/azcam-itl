@@ -141,7 +141,7 @@ class PrimeFocus4kDetChar(DetChar):
         # save current image parameters
         # *************************************************************************
         impars = {}
-        azcam.db.parameters.save_imagepars(impars)
+        azcam.utils.save_imagepars(impars)
 
         # *************************************************************************
         # Create and move to a report folder
@@ -165,14 +165,14 @@ class PrimeFocus4kDetChar(DetChar):
             azcam.db.tools["bias"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
         # gain acquire and analyze
         try:
             azcam.db.tools["gain"].find()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # superflat sequence
@@ -180,7 +180,7 @@ class PrimeFocus4kDetChar(DetChar):
             azcam.db.tools["superflat"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # QE sequence
@@ -188,7 +188,7 @@ class PrimeFocus4kDetChar(DetChar):
             azcam.db.tools["qe"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # PTC sequence
@@ -196,7 +196,7 @@ class PrimeFocus4kDetChar(DetChar):
             azcam.db.tools["ptc"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # Dark sequence
@@ -204,7 +204,7 @@ class PrimeFocus4kDetChar(DetChar):
             azcam.db.tools["dark"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # Fe55 sequence
@@ -212,11 +212,11 @@ class PrimeFocus4kDetChar(DetChar):
             azcam.db.tools["fe55"].acquire()
         except Exception as e:
             azcam.log(e)
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         # finish
-        azcam.db.parameters.restore_imagepars(impars)
+        azcam.utils.restore_imagepars(impars)
         azcam.utils.curdir(currentfolder)
 
         # send email notice
@@ -239,7 +239,7 @@ class PrimeFocus4kDetChar(DetChar):
 
         # save pars to be changed
         impars = {}
-        azcam.db.parameters.save_imagepars(impars)
+        azcam.utils.save_imagepars(impars)
         currentfolder = azcam.utils.curdir()
 
         # uniform image sequence numbers
@@ -256,7 +256,7 @@ class PrimeFocus4kDetChar(DetChar):
             try:
                 azcam.db.tools["gain"].find()
             except Exception:
-                azcam.db.parameters.restore_imagepars(impars)
+                azcam.utils.restore_imagepars(impars)
                 azcam.utils.curdir(currentfolder)
                 return
 
@@ -265,7 +265,7 @@ class PrimeFocus4kDetChar(DetChar):
             try:
                 azcam.db.tools["detcal"].calibrate()
             except Exception:
-                azcam.db.parameters.restore_imagepars(impars)
+                azcam.utils.restore_imagepars(impars)
                 azcam.utils.curdir(currentfolder)
                 return
 

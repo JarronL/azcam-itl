@@ -142,7 +142,7 @@ class IMX411DetChar(DetChar):
         # *************************************************************************
         impars = {}
         print(detcal.data_file)
-        azcam.db.parameters.save_imagepars(impars)
+        azcam.utils.save_imagepars(impars)
         print(detcal.data_file)
 
         # *************************************************************************
@@ -205,7 +205,7 @@ class IMX411DetChar(DetChar):
                 print("Close shutter and run dark.acquire()")
 
         finally:
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         print("acquire sequence finished")

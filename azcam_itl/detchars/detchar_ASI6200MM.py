@@ -144,7 +144,7 @@ class ASI6200MMDetChar(DetChar):
         # save current image parameters
         # *************************************************************************
         impars = {}
-        azcam.db.parameters.save_imagepars(impars)
+        azcam.utils.save_imagepars(impars)
 
         # *************************************************************************
         # read most recent detcal info
@@ -206,7 +206,7 @@ class ASI6200MMDetChar(DetChar):
                 print("Close shutter and run dark.acquire()")
 
         finally:
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         print("acquire sequence finished")

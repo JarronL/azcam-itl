@@ -84,17 +84,15 @@ class DesiDetCharClass(DetChar):
         self.report_name = f"CharacterizationReport_{self.itl_id}"
 
         # fixed info
-        self.customer = "LBNL"
-        self.system = "ITL2"
         self.die = 1
 
         self.summary_lines = []
-        self.summary_lines.append("# DESI Sensor Characterization Report")
+        self.summary_lines.append("# ITL Sensor Characterization Report")
 
-        self.summary_lines.append("|||")
+        self.summary_lines.append(f"|Project        |DESI|")
         self.summary_lines.append("|:---|:---|")
         self.summary_lines.append(f"|Customer       |LBNL|")
-        self.summary_lines.append(f"|ITL System     |DESI|")
+        self.summary_lines.append(f"|ITL System     |ITL2|")
         self.summary_lines.append(f"|ITL Package    |{self.package_id}|")
         self.summary_lines.append(f"|ITL ID         |{self.itl_id}|")
         self.summary_lines.append(f"|Type           |STA4150|")
@@ -102,7 +100,6 @@ class DesiDetCharClass(DetChar):
         self.summary_lines.append(f"|Wafer          |{self.wafer}|")
         self.summary_lines.append(f"|Die            |{self.die}|")
         self.summary_lines.append(f"|Operator       |M. Lesser|")
-        self.summary_lines.append(f"|System         |ITL2|")
 
         self.summary_report_name = f"SummaryReport_{self.itl_id}"
 
@@ -125,7 +122,7 @@ class DesiDetCharClass(DetChar):
         # save current image parameters
         # *************************************************************************
         impars = {}
-        azcam.db.parameters.save_imagepars(impars)
+        azcam.utils.save_imagepars(impars)
 
         # *************************************************************************
         # Create and move to a report folder
@@ -226,12 +223,12 @@ class DesiDetCharClass(DetChar):
             fe55.acquire()
 
         except Exception:
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
             return
 
         # finish
-        azcam.db.parameters.restore_imagepars(impars)
+        azcam.utils.restore_imagepars(impars)
         azcam.utils.curdir(currentfolder)
 
         # send email notice
@@ -459,26 +456,28 @@ gain.exposure_time = 1
 gain.wavelength = 500
 gain.grade_sensor = 0
 
-# dark
+# dark signal and bright pixels
 dark.number_images_acquire = 3
 dark.exposure_time = 500.0
 dark.mean_dark_spec = 10.0 / 3600
 dark.bright_pixel_reject = 0.05  # e/pix/sec clip
-dark.allowable_bright_pixels = 0.0001 * 4096 * 4096
+dark.allowable_bright_pixels = 0.0001 * 4096 * 4096  # 1678
 dark.overscan_correct = 1  # flag to overscan correct images
 dark.zero_correct = 1  # flag to correct with bias residuals
 dark.report_plots = ["darkimage"]  # plots to include in report
 dark.report_dark_per_hour = 1
-dark.grade_sensor = 1
+dark.grade_dark_signal = 1
+dark.grade_bright_defects = 1
 
-# superflats
+
+# superflats and dark pixels
 superflat.exposure_time = 5.0
 superflat.wavelength = 400  # blue - dark defects
 # superflat.wavelength = 600  # red - dark defects
 superflat.number_images_acquire = 3  # number of images
 superflat.grade_dark_defects = 1
 superflat.dark_pixel_reject = 0.50  # reject pixels below this value from mean
-superflat.allowable_dark_pixels = 0.0001 * 4096 * 4096
+superflat.allowable_dark_pixels = 0.0001 * 4096 * 4096  # 1678
 superflat.grade_sensor = 1
 
 # ptc
@@ -517,7 +516,7 @@ linearity.zero_correct = 0
 linearity.grade_sensor = 1
 
 # QE
-qe.cal_scale = 1.00
+qe.cal_scale = 0.95  # ?
 qe.global_scale = 1.31  # 17Jun24 from dewar case
 qe.flush_before_exposure = 0
 qe.pixel_area = 0.015 * 0.015

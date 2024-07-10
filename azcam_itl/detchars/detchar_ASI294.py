@@ -139,7 +139,7 @@ class ASI294DetChar(DetChar):
         # save current image parameters
         # *************************************************************************
         impars = {}
-        azcam.db.parameters.save_imagepars(impars)
+        azcam.utils.save_imagepars(impars)
 
         # *************************************************************************
         # read most recent detcal info
@@ -195,7 +195,7 @@ class ASI294DetChar(DetChar):
             dark.acquire()
 
         finally:
-            azcam.db.parameters.restore_imagepars(impars)
+            azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
 
         print("acquire sequence finished")
