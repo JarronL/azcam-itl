@@ -28,7 +28,7 @@ class DesiDetCharClass(DetChar):
         self.start_delay = 0
         self.start_temperature = -1000
 
-        # report parameters
+        # reports
         self.report_names = [
             "gain",
             "bias",
@@ -56,7 +56,7 @@ class DesiDetCharClass(DetChar):
             "bias": "bias/bias",
         }
 
-    def setup(self, itl_id=""):
+    def setup(self, camera_id=""):
 
         s = azcam.utils.curdir()
         try:
@@ -67,21 +67,21 @@ class DesiDetCharClass(DetChar):
                 id = 0
         except ValueError:
             id = 0
-        self.itl_id = azcam.utils.prompt("Enter sensor ID", f"DIEID-{id}")
+        self.camera_id = azcam.utils.prompt("Enter sensor ID", f"DIEID-{id}")
 
         # ****************************************************************
         # Identification
         # ****************************************************************
-        if self.itl_id == "":
+        if self.camera_id == "":
             azcam.exceptions.warning("Unspecified sensor ID")
-            self.itl_id = ""
+            self.camera_id = ""
             self.package_id = ""
         else:
             self.wafer = azcam.utils.prompt("Enter wafer")
             self.lot = azcam.utils.prompt("Enter lot", "227599")
             self.device_type = "STA4150"
             self.package_id = azcam.utils.prompt("Enter package ID")
-        self.report_name = f"CharacterizationReport_{self.itl_id}"
+        self.report_name = f"CharacterizationReport_{self.camera_id}"
 
         # fixed info
         self.die = 1
@@ -94,14 +94,14 @@ class DesiDetCharClass(DetChar):
         self.summary_lines.append(f"|Customer       |LBNL|")
         self.summary_lines.append(f"|ITL System     |ITL2|")
         self.summary_lines.append(f"|ITL Package    |{self.package_id}|")
-        self.summary_lines.append(f"|ITL ID         |{self.itl_id}|")
+        self.summary_lines.append(f"|ITL ID         |{self.camera_id}|")
         self.summary_lines.append(f"|Type           |STA4150|")
         self.summary_lines.append(f"|Lot            |{self.lot}|")
         self.summary_lines.append(f"|Wafer          |{self.wafer}|")
         self.summary_lines.append(f"|Die            |{self.die}|")
         self.summary_lines.append(f"|Operator       |M. Lesser|")
 
-        self.summary_report_name = f"SummaryReport_{self.itl_id}"
+        self.summary_report_name = f"SummaryReport_{self.camera_id}"
 
         self.is_setup = 1
 
@@ -114,7 +114,7 @@ class DesiDetCharClass(DetChar):
 
         if not self.is_setup:
             self.setup()
-        id = self.itl_id
+        id = self.camera_id
 
         print(f"Testing device {id}")
 
@@ -468,7 +468,6 @@ dark.report_plots = ["darkimage"]  # plots to include in report
 dark.report_dark_per_hour = 1
 dark.grade_dark_signal = 1
 dark.grade_bright_defects = 1
-
 
 # superflats and dark pixels
 superflat.exposure_time = 5.0

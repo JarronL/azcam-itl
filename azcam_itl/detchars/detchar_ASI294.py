@@ -24,44 +24,48 @@ class ASI294DetChar(DetChar):
 
         self.start_delay = 0
 
-        # report parameters
+        # reports
         self.report_names = [
             "gain",
-            "gainmap",
+            "bias",
+            "superflat",
             "prnu",
             "ptc",
             "linearity",
             "qe",
-            "dark",
-            "bias",
+            "darksignal",
+            "brightdefects",
             "defects",
+            "fe55",
         ]
         self.report_files = {
-            "gain": "gain/gain",
-            "gainmap": "gainmap/gainmap",
-            "prnu": "prnu/prnu",
-            "ptc": "ptc/ptc",
-            "linearity": "ptc/linearity",
-            "qe": "qe/qe",
-            "dark": "dark/dark",
-            "bias": "bias/bias",
+            "darksignal": "dark/dark",
+            "brightdefects": "dark/brightdefects",
+            "superflat": "superflat/darkdefects",
             "defects": "defects/defects",
+            "fe55": "fe55/fe55",
+            "gain": "gain/gain",
+            "linearity": "ptc/linearity",
+            "ptc": "ptc/ptc",
+            "prnu": "qe/prnu",
+            "qe": "qe/qe",
+            "bias": "bias/bias",
         }
 
-    def setup(self, itl_id="2f348f01230009000"):
+    def setup(self, camera_id="2f348f01230009000"):
         """
         Setup
         """
 
-        # itl_id="1812911309020900"
+        # camera_id="1812911309020900"
 
-        self.itl_id = azcam.utils.prompt("Enter camera ID", itl_id)
+        self.camera_id = azcam.utils.prompt("Enter camera ID", camera_id)
 
         # sponsor/report info
         self.customer = "UASAL"
         self.system = "ASI294MM-P"
-        self.summary_report_name = f"SummaryReport_{self.itl_id}"
-        self.report_name = f"CharacterizationReport__ASI294_{self.itl_id}.pdf"
+        self.summary_report_name = f"SummaryReport_{self.camera_id}"
+        self.report_name = f"CharacterizationReport__ASI294_{self.camera_id}.pdf"
         self.operator = "Michael Lesser"
 
         self.summary_lines = []
@@ -71,7 +75,7 @@ class ASI294DetChar(DetChar):
         self.summary_lines.append("|:---|:---|")
         self.summary_lines.append(f"|Customer       |UASAL|")
         self.summary_lines.append(f"|System         |ZWO ASI294MM-P|")
-        self.summary_lines.append(f"|ID             |{self.itl_id}|")
+        self.summary_lines.append(f"|ID             |{self.camera_id}|")
         self.summary_lines.append(f"|Operator       |{self.operator}|")
 
         self.is_setup = 1
@@ -133,7 +137,7 @@ class ASI294DetChar(DetChar):
                 else:
                     time.sleep(10)
 
-        print(f"Testing device {self.itl_id}")
+        print(f"Testing device {self.camera_id}")
 
         # *************************************************************************
         # save current image parameters
@@ -293,27 +297,6 @@ class ASI294DetChar(DetChar):
         azcam.utils.curdir(rootfolder)
         print("")
 
-        # analyze defects
-        if defects.grade_dark_defects:
-            defects.dark_filename = dark.dark_filename
-            azcam.utils.curdir("dark")
-            defects.analyze_bright_defects()
-            defects.copy_data_files()
-            azcam.utils.curdir(rootfolder)
-
-        if defects.grade_bright_defects:
-            defects.flat_filename = superflat.superflat_filename
-            azcam.utils.curdir("superflat")
-            defects.analyze_dark_defects()
-            defects.copy_data_files()
-            azcam.utils.curdir(rootfolder)
-
-        if defects.grade_dark_defects or defects.grade_bright_defects:
-            azcam.utils.curdir("defects")
-            defects.analyze()
-            azcam.utils.curdir(rootfolder)
-            print("")
-
         # analyze qe
         azcam.utils.curdir("qe")
         azcam.db.tools["qe"].analyze()
@@ -325,6 +308,18 @@ class ASI294DetChar(DetChar):
         azcam.db.tools["prnu"].analyze()
         azcam.utils.curdir(rootfolder)
         print("")
+
+        # total defects
+        if 1:
+            fldr = os.path.abspath("./defects")
+            if os.path.exists(fldr):
+                pass
+            else:
+                os.mkdir(fldr)
+            azcam.utils.curdir("defects")
+            defects.analyze()
+            azcam.utils.curdir(rootfolder)
+            print("")
 
         # make report
         self.make_summary_report()
@@ -484,19 +479,27 @@ gainmap.number_flat_images = 20
 gainmap.exposure_time = 1
 gainmap.wavelength = 500
 
-# dark
+# dark signal and bright pixels
 dark.number_images_acquire = 5
 dark.exposure_time = 600.0
-# dark.bright_pixel_reject = 0.05  # e/pix/sec clip
+dark.mean_dark_spec = -1
+dark.bright_pixel_reject = 0.05  # e/pix/sec clip
+dark.allowable_bright_pixels = -1
 dark.overscan_correct = 0  # flag to overscan correct images
 dark.zero_correct = 1  # flag to correct with bias residuals
-dark.fit_order = 0
-dark.report_dark_per_hour = 0  # report per hour
+dark.report_plots = ["darkimage"]  # plots to include in report
+dark.report_dark_per_hour = 0
+dark.grade_dark_signal = 0
+dark.grade_bright_defects = 0
 
-# superflats
-superflat.exposure_level = 30000  # DN
+# superflats and dark pixels
+superflat.exposure_time = 5.0
 superflat.wavelength = 500
-superflat.number_images_acquire = 3
+superflat.number_images_acquire = 3  # number of images
+superflat.grade_dark_defects = 0
+superflat.dark_pixel_reject = 0.50  # reject pixels below this value from mean
+superflat.allowable_dark_pixels = -1
+superflat.grade_sensor = 0
 
 # ptc
 ptc.wavelength = 500
@@ -624,7 +627,3 @@ prnu.exposure_levels = {
     760: prnu.mean_count_goal,
     800: prnu.mean_count_goal,
 }
-
-# defects
-defects.grade_bright_defects = 0
-defects.grade_dark_defects = 0

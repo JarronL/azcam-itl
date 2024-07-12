@@ -25,7 +25,7 @@ class ASI6200MMDetChar(DetChar):
         self.start_temperature = -10.0
 
         self.operator = "Lesser"
-        self.itl_id = -1
+        self.camera_id = -1
 
         self.system = ""
         self.customer = ""
@@ -36,39 +36,45 @@ class ASI6200MMDetChar(DetChar):
 
         self.start_delay = 5
 
-        # report parameters
+        # reports
         self.report_names = [
-            "bias",
             "gain",
+            "bias",
+            "superflat",
             "prnu",
             "ptc",
             "linearity",
             "qe",
-            "dark",
+            "darksignal",
+            "brightdefects",
             "defects",
+            "fe55",
         ]
         self.report_files = {
-            "bias": "bias/bias",
-            "gain": "gain/gain",
-            "prnu": "prnu/prnu",
-            "ptc": "ptc/ptc",
-            "linearity": "ptc/linearity",
-            "qe": "qe/qe",
-            "dark": "dark/dark",
+            "darksignal": "dark/dark",
+            "brightdefects": "dark/brightdefects",
+            "superflat": "superflat/darkdefects",
             "defects": "defects/defects",
+            "fe55": "fe55/fe55",
+            "gain": "gain/gain",
+            "linearity": "ptc/linearity",
+            "ptc": "ptc/ptc",
+            "prnu": "qe/prnu",
+            "qe": "qe/qe",
+            "bias": "bias/bias",
         }
 
-    def setup(self, itl_id=None):
+    def setup(self, camera_id=None):
 
-        self.itl_id = azcam.utils.prompt("Enter camera ID", itl_sn)
+        self.camera_id = azcam.utils.prompt("Enter camera ID", itl_sn)
         self.operator = azcam.utils.prompt("Enter your initals", "mpl")
 
         # sponsor/report info
         self.customer = "UArizona"
         self.system = "ASI6200MM"
 
-        self.summary_report_name = f"SummaryReport_{self.itl_id}"
-        self.report_name = f"ASI6200MM_{self.itl_id}.pdf"
+        self.summary_report_name = f"SummaryReport_{self.camera_id}"
+        self.report_name = f"ASI6200MM_{self.camera_id}.pdf"
 
         self.summary_lines = []
         self.summary_lines.append("# ITL Camera Characterization Report")
@@ -78,14 +84,14 @@ class ASI6200MMDetChar(DetChar):
         self.summary_lines.append(f"|Customer       |{self.customer}|")
         self.summary_lines.append(f"|Project        |Oracle Search Sensor-1|")
         self.summary_lines.append(f"|System         |{self.system}|")
-        self.summary_lines.append(f"|Camera SN      |{self.itl_id}|")
+        self.summary_lines.append(f"|Camera SN      |{self.camera_id}|")
         self.summary_lines.append(f"|Author         |{self.operator}|")
 
         self.is_setup = 1
 
         return
 
-    def acquire(self, itl_id=""):
+    def acquire(self, camera_id=""):
         """
         Acquire sensor characterization data.
         """
@@ -94,7 +100,7 @@ class ASI6200MMDetChar(DetChar):
         print("")
 
         if not self.is_setup:
-            self.setup(itl_id)
+            self.setup(camera_id)
 
         (
             gain,
@@ -138,7 +144,7 @@ class ASI6200MMDetChar(DetChar):
                 else:
                     time.sleep(10)
 
-        print(f"Testing device {self.itl_id}")
+        print(f"Testing device {self.camera_id}")
 
         # *************************************************************************
         # save current image parameters
@@ -285,24 +291,6 @@ class ASI6200MMDetChar(DetChar):
         azcam.utils.curdir(rootfolder)
         print("")
 
-        # analyze defects
-        defects.dark_filename = dark.dark_filename
-        azcam.utils.curdir("dark")
-        defects.analyze_bright_defects()
-        defects.copy_data_files()
-        azcam.utils.curdir(rootfolder)
-
-        defects.flat_filename = superflat.superflat_filename
-        azcam.utils.curdir("superflat")
-        defects.analyze_dark_defects()
-        defects.copy_data_files()
-        azcam.utils.curdir(rootfolder)
-
-        azcam.utils.curdir("defects")
-        azcam.db.tools["defects"].analyze()
-        azcam.utils.curdir(rootfolder)
-        print("")
-
         # analyze qe
         azcam.utils.curdir("qe")
         azcam.db.tools["qe"].analyze()
@@ -314,6 +302,18 @@ class ASI6200MMDetChar(DetChar):
         azcam.db.tools["prnu"].analyze()
         azcam.utils.curdir(rootfolder)
         print("")
+
+        # total defects
+        if 1:
+            fldr = os.path.abspath("./defects")
+            if os.path.exists(fldr):
+                pass
+            else:
+                os.mkdir(fldr)
+            azcam.utils.curdir("defects")
+            defects.analyze()
+            azcam.utils.curdir(rootfolder)
+            print("")
 
         # make report
         self.make_summary_report()
@@ -518,21 +518,27 @@ gain.exposure_time = 5.0
 gain.wavelength = 500
 gain.video_processor_gain = []
 
-# dark
-dark.number_images_acquire = 3
+# dark signal and bright pixels
+dark.number_images_acquire = 5
 dark.exposure_time = 600.0
-dark.bright_pixel_reject = 20.0 / 3600 * 10  # clip, 10x mean dark current [e/pix/sec]
+dark.mean_dark_spec = -1
+dark.bright_pixel_reject = 0.05  # e/pix/sec clip
+dark.allowable_bright_pixels = -1
 dark.overscan_correct = 0  # flag to overscan correct images
-dark.zero_correct = 0  # flag to correct with bias residuals
-dark.fit_order = 0
-dark.report_dark_per_hour = 1  # report per hour
+dark.zero_correct = 1  # flag to correct with bias residuals
+dark.report_plots = ["darkimage"]  # plots to include in report
+dark.report_dark_per_hour = 0
+dark.grade_dark_signal = 0
+dark.grade_bright_defects = 0
 
-# superflats
-superflat.exposure_level = 20000  # electrons
+# superflats and dark pixels
+superflat.exposure_time = 5.0
 superflat.wavelength = 500
-superflat.number_images_acquire = 3
-superflat.zero_correct = 0
-superflat.overscan_correct = 0
+superflat.number_images_acquire = 3  # number of images
+superflat.grade_dark_defects = 0
+superflat.dark_pixel_reject = 0.50  # reject pixels below this value from mean
+superflat.allowable_dark_pixels = -1
+superflat.grade_sensor = 0
 
 # ptc
 ptc.wavelength = 500
