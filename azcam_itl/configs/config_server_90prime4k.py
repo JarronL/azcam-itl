@@ -21,7 +21,7 @@ exposure = ExposureArchon()
 exposure.filetype = exposure.filetypes[filetype]
 exposure.image.filetype = exposure.filetypes[filetype]
 exposure.add_extensions = 0
-if 1:
+if 0:
     exposure.set_detpars(detector_sta4850_2amps_top)
     exposure.fileconverter.set_detector_config(detector_sta4850_2amps_top)
     exposure.image.focalplane.gains = 2 * [3.0]
