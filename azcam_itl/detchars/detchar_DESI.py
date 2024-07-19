@@ -1,6 +1,5 @@
 import datetime
 import os
-import subprocess
 import time
 import shutil
 
@@ -145,6 +144,8 @@ class DesiDetCharClass(DetChar):
             defects,
             dark,
             fe55,
+            exposure,
+            tempcon,
         ) = azcam_console.utils.get_tools(
             [
                 "gain",
@@ -157,14 +158,15 @@ class DesiDetCharClass(DetChar):
                 "defects",
                 "dark",
                 "fe55",
+                "exposure",
+                "tempcon,",
             ]
         )
-        exposure = azcam.db.tools["exposure"]
 
         # wait for temperature
         if self.start_temperature != -1000:
             while True:
-                t = azcam.db.tools["tempcon"].get_temperatures()[0]
+                t = tempcon.get_temperatures()[0]
                 print("Current temperature: %.1f" % t)
                 if t <= self.start_temperature + 0.5:
                     break
@@ -245,7 +247,6 @@ class DesiDetCharClass(DetChar):
         Analyze data.
         """
 
-        print("Begin analysis of DESI dataset")
         rootfolder = azcam.utils.curdir()
 
         if not self.is_setup:
@@ -263,6 +264,7 @@ class DesiDetCharClass(DetChar):
             defects,
             dark,
             fe55,
+            prnu,
         ) = azcam_console.utils.get_tools(
             [
                 "gain",
@@ -275,6 +277,7 @@ class DesiDetCharClass(DetChar):
                 "defects",
                 "dark",
                 "fe55",
+                "prnu",
             ]
         )
 

@@ -6,6 +6,7 @@ import time
 
 import azcam
 import azcam.utils
+import azcam.exceptions
 import azcam_console.console
 from azcam_console.testers.detchar import DetChar
 from azcam_itl import itlutils
@@ -19,79 +20,72 @@ class PrimeFocus4kDetChar(DetChar):
     def __init__(self):
         super().__init__()
 
-        self.SummaryPdfFile = None
-
-        self.report_folder = ""  # top of report folder tree
-        self.start_delay = 5  # aquisition starting delay in seconds
+        self.start_delay = 0
+        self.start_temperature = -1000
 
         self.device_type = ""
-        self.backside_bias = 0.0
         self.lot = "UNKNOWN"
         self.wafer = "UNKNOWN"
         self.die = "UNKNOWN"
 
-        self.is_prepared = 0
-
-        self.upload_files = {
-            "qe.0003.fits": "qe_400nm.fits",
-            "qe.0005.fits": "qe_500nm.fits",
-            "qe.0007.fits": "qe_600nm.fits",
-            "qe.0009.fits": "qe_700nm.fits",
-            "qe.0011.fits": "qe_800nm.fits",
-            "qe.0013.fits": "qe_900nm.fits",
-            "qe.0015.fits": "qe_980nm.fits",
-            "fe55.0051.fits": "fe55.fits",
-            "bias.0001.fits": "bias.fits",
-            "superflat.fits": "superflat.fits",
-            "dark.0045.fits": "dark.fits",
-            "DefectsMask.fits": "defect_mask.fits",
-            "LVM_EO_Report*.pdf": "LVM_EO_Report.pdf",
-        }
-
-        self.use_fe55_gain = 1
-
-        self.start_temperature = -1000
-
-        self.report_comment = ""
-
-        # names in proper order
+        # reports
         self.report_names = [
-            "qe",
-            "fe55",
-            "linearity",
-            "ptc",
-            "prnu",
             "gain",
-            "defects",
-            "dark",
             "bias",
+            "superflat",
+            "prnu",
+            "ptc",
+            "linearity",
+            "qe",
+            "darksignal",
+            "brightdefects",
+            "defects",
+            "fe55",
         ]
-        # filenames, no extension
         self.report_files = {
-            "bias": "bias/bias",
-            "gain": "gain/gain",
-            "dark": "dark/dark",
+            "darksignal": "dark/dark",
             "brightdefects": "dark/brightdefects",
-            "darkdefects": "superflat/darkdefects",
+            "superflat": "superflat/darkdefects",
             "defects": "defects/defects",
             "fe55": "fe55/fe55",
-            "linearity": "linearity/linearity",
+            "gain": "gain/gain",
+            "linearity": "ptc/linearity",
             "ptc": "ptc/ptc",
-            "prnu": "prnu/prnu",
+            "prnu": "qe/prnu",
             "qe": "qe/qe",
+            "bias": "bias/bias",
         }
 
-    def setup(self, itl_id=""):
+    def setup(self, camera_id=""):
 
-        self.itl_id = azcam.utils.prompt("Enter cameras ID", itl_sn)
-        self.operator = azcam.utils.prompt("Enter you initals", "mpl")
+        s = azcam.utils.curdir()
+        try:
+            x = s.index("DIEID-")
+            if x > 0:
+                id = s[x + 6 : x + 9]
+            else:
+                id = 0
+        except ValueError:
+            id = 0
+        self.camera_id = azcam.utils.prompt("Enter sensor ID", f"DIEID-{id}")
+
+        # ****************************************************************
+        # Identification
+        # ****************************************************************
+        if self.camera_id == "":
+            azcam.exceptions.warning("Unspecified sensor ID")
+            self.camera_id = ""
+            self.package_id = ""
+        else:
+            self.wafer = azcam.utils.prompt("Enter wafer")
+            self.lot = azcam.utils.prompt("Enter lot")
+            self.device_type = "STA4850"
+            self.package_id = azcam.utils.prompt("Enter package ID")
+        self.report_name = f"CharacterizationReport_{self.camera_id}"
 
         # sponsor/report info
-        self.customer = "UArizona"
+        self.customer = "University of Arizona"
         self.system = "ITL3"
-
-        self.summary_report_name = f"SummaryReport_{self.itl_id}"
-        self.report_name = f"90prime4k_{self.itl_id}.pdf"
 
         if self.operator.lower() == "mpl":
             self.operator = "Michael Lesser"
@@ -105,10 +99,12 @@ class PrimeFocus4kDetChar(DetChar):
         self.summary_lines.append("|:---|:---|")
         self.summary_lines.append(f"|Customer       |{self.customer}|")
         self.summary_lines.append(f"|ITL Package    |{self.package_id}|")
-        self.summary_lines.append(f"|ITL ID         |{self.itl_id}|")
+        self.summary_lines.append(f"|ITL ID         |{self.camera_id}|")
         self.summary_lines.append(f"|Type           |STA4850|")
         self.summary_lines.append(f"|System         |{self.system}|")
         self.summary_lines.append(f"|Operator       |{self.operator}|")
+
+        self.summary_report_name = f"SummaryReport_{self.camera_id}"
 
         self.is_setup = True
 
@@ -119,17 +115,49 @@ class PrimeFocus4kDetChar(DetChar):
         Acquire detector characterization data.
         """
 
-        print("LVM DetChar acquisition sequence")
-        print("")
+        if not self.is_setup:
+            self.setup()
+        id = self.camera_id
 
-        self.setup_acquire()
+        # define  tools
+        (
+            gain,
+            bias,
+            detcal,
+            superflat,
+            ptc,
+            qe,
+            dark,
+            defects,
+            dark,
+            fe55,
+            exposure,
+            tempcon,
+        ) = azcam_console.utils.get_tools(
+            [
+                "gain",
+                "bias",
+                "detcal",
+                "superflat",
+                "ptc",
+                "qe",
+                "dark",
+                "defects",
+                "dark",
+                "fe55",
+                "exposure",
+                "tempcon",
+            ]
+        )
+
+        print(f"Testing device {id}")
 
         # *************************************************************************
         # wait for temperature
         # *************************************************************************
         if self.start_temperature != -1000:
             while True:
-                t = azcam.db.tools["tempcon"].get_temperatures()[0]
+                t = tempcon.get_temperatures()[0]
                 print("Current temperature: %.1f" % t)
                 if t <= self.start_temperature + 0.5:
                     break
@@ -151,24 +179,48 @@ class PrimeFocus4kDetChar(DetChar):
         azcam.utils.curdir(reportfolder)
         azcam.db.parameters.set_par("imagefolder", reportfolder)
 
+        # define  tools
+        (
+            gain,
+            bias,
+            detcal,
+            superflat,
+            ptc,
+            qe,
+            dark,
+            defects,
+            dark,
+            fe55,
+        ) = azcam_console.utils.get_tools(
+            [
+                "gain",
+                "bias",
+                "detcal",
+                "superflat",
+                "ptc",
+                "qe",
+                "dark",
+                "defects",
+                "dark",
+                "fe55",
+            ]
+        )
+        exposure = azcam.db.tools["exposure"]
+
         # *************************************************************************
         # Acquire
         # *************************************************************************
 
-        # prepare for data sequences
-        if not self.is_prepared:
-            self.prepare()
-
         # bias sequenece
         try:
-            azcam.db.tools["bias"].acquire()
+            bias.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.utils.restore_imagepars(impars)
             azcam.utils.curdir(currentfolder)
         # gain acquire and analyze
         try:
-            azcam.db.tools["gain"].find()
+            gain.find()
         except Exception as e:
             azcam.log(e)
             azcam.utils.restore_imagepars(impars)
@@ -176,7 +228,7 @@ class PrimeFocus4kDetChar(DetChar):
 
         # superflat sequence
         try:
-            azcam.db.tools["superflat"].acquire()
+            superflat.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.utils.restore_imagepars(impars)
@@ -184,7 +236,7 @@ class PrimeFocus4kDetChar(DetChar):
 
         # QE sequence
         try:
-            azcam.db.tools["qe"].acquire()
+            qe.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.utils.restore_imagepars(impars)
@@ -192,7 +244,7 @@ class PrimeFocus4kDetChar(DetChar):
 
         # PTC sequence
         try:
-            azcam.db.tools["ptc"].acquire()
+            ptc.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.utils.restore_imagepars(impars)
@@ -200,7 +252,7 @@ class PrimeFocus4kDetChar(DetChar):
 
         # Dark sequence
         try:
-            azcam.db.tools["dark"].acquire()
+            dark.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.utils.restore_imagepars(impars)
@@ -208,7 +260,7 @@ class PrimeFocus4kDetChar(DetChar):
 
         # Fe55 sequence
         try:
-            azcam.db.tools["fe55"].acquire()
+            fe55.acquire()
         except Exception as e:
             azcam.log(e)
             azcam.utils.restore_imagepars(impars)
@@ -248,12 +300,12 @@ class PrimeFocus4kDetChar(DetChar):
         print("Delaying start for %.0f seconds (to settle)..." % self.start_delay)
         time.sleep(self.start_delay)
         print("Flush detector")
-        azcam.db.tools["exposure"].test(0)
+        exposure.test(0)
 
         # gain sequence - do this before detcal
         if 0:
             try:
-                azcam.db.tools["gain"].find()
+                gain.find()
             except Exception:
                 azcam.utils.restore_imagepars(impars)
                 azcam.utils.curdir(currentfolder)
@@ -262,172 +314,121 @@ class PrimeFocus4kDetChar(DetChar):
         # detcal sequence - multiple NDs used
         if 0:
             try:
-                azcam.db.tools["detcal"].calibrate()
+                detcal.calibrate()
             except Exception:
                 azcam.utils.restore_imagepars(impars)
                 azcam.utils.curdir(currentfolder)
                 return
 
-        self.is_prepared = 1
-
         return
 
     def analyze(self):
         """
-        Analyze entire sequence of data for LVM.
+        Analyze data.
         """
-
-        self.setup_analyze()
 
         rootfolder = azcam.utils.curdir()
 
-        # raw bias
+        if not self.is_setup:
+            self.setup()
+
+        # define  tools
+        (
+            gain,
+            bias,
+            detcal,
+            superflat,
+            ptc,
+            qe,
+            dark,
+            defects,
+            dark,
+            fe55,
+            prnu,
+        ) = azcam_console.utils.get_tools(
+            [
+                "gain",
+                "bias",
+                "detcal",
+                "superflat",
+                "ptc",
+                "qe",
+                "dark",
+                "defects",
+                "dark",
+                "fe55",
+                "prnu",
+            ]
+        )
+
+        # bias
         azcam.utils.curdir("bias")
-        azcam.db.tools["bias"].analyze()
+        bias.analyze()
         azcam.utils.curdir(rootfolder)
+        print("")
 
-        # gain (no masks)
+        # gain
         azcam.utils.curdir("gain")
-        azcam.db.tools["gain"].analyze()
+        gain.analyze()
         azcam.utils.curdir(rootfolder)
+        print("")
 
-        # Fe-55 (used for gain below) (no masks)
-        azcam.utils.curdir("fe55")
-        # azcam.db.tools["fe55"].gain_estimate = azcam.db.tools["gain"].system_gain
-        azcam.db.tools["fe55"].analyze()
-        azcam.utils.curdir(rootfolder)
-
-        # use fe55 gain from now on
-        if self.use_fe55_gain:
-            azcam.db.tools["gain"].fe55_gain()
-
-        # superflat (no masks)
+        # superflats
         azcam.utils.curdir("superflat")
-        azcam.db.tools["superflat"].analyze()
+        superflat.analyze()
         azcam.utils.curdir(rootfolder)
 
-        # PTC (no masks)
+        # PTC
         azcam.utils.curdir("ptc")
-        azcam.db.tools["ptc"].analyze()
+        ptc.analyze()
         azcam.utils.curdir(rootfolder)
+        print("")
 
-        # linearity from ptc data (no masks)
-        azcam.utils.curdir(azcam.db.tools["ptc"].analysis_folder)
+        # linearity from PTC data
+        azcam.utils.curdir("ptc")
         azcam.db.tools["linearity"].analyze()
-        azcam.db.tools["linearity"].copy_data_files()
         azcam.utils.curdir(rootfolder)
+        print("")
 
-        # darks (only edge mask used)
+        # Fe-55
+        azcam.utils.curdir("fe55")
+        fe55.analyze()
+        azcam.utils.curdir(rootfolder)
+        print("")
+
+        # darks
         azcam.utils.curdir("dark")
-        azcam.db.tools["dark"].analyze()
+        dark.analyze()
         azcam.utils.curdir(rootfolder)
+        print("")
 
-        # defects, defect mask valid after this
-        azcam.utils.curdir("dark")
-        azcam.db.tools["defects"].analyze_bright_defects()
-        azcam.db.tools["defects"].copy_data_files()
-        azcam.utils.curdir(rootfolder)
-
-        azcam.utils.curdir("superflat")
-        azcam.db.tools["defects"].analyze_dark_defects()
-        azcam.db.tools["defects"].copy_data_files()
-        azcam.utils.curdir(rootfolder)
-
-        azcam.utils.curdir("defects")
-        azcam.db.tools["defects"].analyze()
-        azcam.utils.curdir(rootfolder)
-
-        # prnu (full mask used)
+        # qe
         azcam.utils.curdir("qe")
-        azcam.db.tools["prnu"].analyze()
-        azcam.db.tools["prnu"].copy_data_files()
+        qe.analyze()
         azcam.utils.curdir(rootfolder)
+        print("")
 
-        # qe (full mask used)
+        # prnu
         azcam.utils.curdir("qe")
-        azcam.db.tools["qe"].analyze()
+        prnu.analyze()
         azcam.utils.curdir(rootfolder)
+        print("")
 
-        # make report
+        # total defects
+        if 1:
+            fldr = os.path.abspath("./defects")
+            if os.path.exists(fldr):
+                pass
+            else:
+                os.mkdir(fldr)
+            azcam.utils.curdir("defects")
+            defects.analyze()
+            azcam.utils.curdir(rootfolder)
+            print("")
+
+        # report
         self.make_summary_report()
         self.make_report()
-
-        print("Analysis sequence finished")
-
-        return
-
-    def read_datafiles(self):
-        """
-        Read all data files.
-        """
-
-        # load tools and read their datafiles if not valid
-        for name in self.report_names:
-            try:
-                datafile = os.path.join(
-                    self.report_folder, self.report_files[name] + ".txt"
-                )
-                print("Reading datafile for tool %s: %s" % (name, datafile))
-                azcam.db.tools(name).read_datafile(datafile)
-            except Exception as message:
-                print("ERROR", name, message)
-                continue
-
-        return
-
-    def copy_files(self):
-        """
-        Find files from self.upload_files and copy them to
-        the upload folder with new name.
-        Start in report folder.
-        """
-
-        itlutils.cleanup_files()
-
-        report_folder = azcam.utils.curdir()
-        self.upload_folder = os.path.join(report_folder, "upload")
-        if not os.path.exists(self.upload_folder):
-            os.mkdir(self.upload_folder)
-        azcam.utils.curdir(self.upload_folder)
-
-        for fname in self.upload_files:
-            matches = []
-            for root, dirnames, filenames in os.walk(report_folder):
-                for filename in fnmatch.filter(filenames, fname):
-                    matches.append(os.path.join(root, filename))
-
-            for match in matches:
-                if match is not None:
-                    print("Found: ", match)
-                    shutil.copy(
-                        match,
-                        os.path.join(self.upload_folder, self.upload_files[fname]),
-                    )
-
-        azcam.utils.curdir(report_folder)
-
-        return
-
-    def make_upload(self):
-        """
-        Prepare a dataset for upload by creating a compressed tar file.
-        Start in report folder.
-        """
-
-        self.copy_files()
-
-        s = azcam.utils.curdir()
-        try:
-            x = s.index("/sn")
-            if x > 0:
-                sn = s[x + 3 : x + 8]
-            else:
-                sn = 0
-        except ValueError:
-            sn = 0
-
-        tarfile = itlutils.archive("upload", "zip")
-        os.rename(tarfile, f"sn{sn}.zip")
 
         return
 
@@ -442,62 +443,96 @@ azcam.db.start_temperature = -115.0
 
 system_noise_correction = 4 * [0.7]
 
+# define  tools
+(
+    gain,
+    bias,
+    detcal,
+    superflat,
+    ptc,
+    qe,
+    dark,
+    defects,
+    dark,
+    fe55,
+    exposure,
+    tempcon,
+    linearity,
+    prnu,
+) = azcam_console.utils.get_tools(
+    [
+        "gain",
+        "bias",
+        "detcal",
+        "superflat",
+        "ptc",
+        "qe",
+        "dark",
+        "defects",
+        "dark",
+        "fe55",
+        "exposure",
+        "tempcon",
+        "linearity",
+        "prnu",
+    ]
+)
+
+# total defects
+defects.edge_size = 10
+defects.allowable_bad_pixels = -1
+defects.grade_sensor = 0
+
 # bias
-azcam.db.tools["bias"].number_images_acquire = 3
-azcam.db.tools["bias"].fit_order = 3
+bias.number_images_acquire = 3
+bias.fit_order = 3
 
 # gain
-azcam.db.tools["gain"].number_pairs = 1
-azcam.db.tools["gain"].exposure_time = 1.0
-azcam.db.tools["gain"].wavelength = 450
-azcam.db.tools["gain"].video_processor_gain = 4 * [12.0]
-azcam.db.tools["gain"].readnoise_spec = 4.0
-azcam.db.tools["gain"].system_noise_correction = []
+gain.number_pairs = 1
+gain.exposure_time = 1.0
+gain.wavelength = 500
+gain.grade_sensor = 0
 
 # fe55
-azcam.db.tools["fe55"].number_images_acquire = 1
-azcam.db.tools["fe55"].system_noise_correction = []
-azcam.db.tools["fe55"].gain_estimate = 4 * [2.6]
-azcam.db.tools["fe55"].exposure_time = 30.0
-azcam.db.tools["fe55"].neighborhood_size = 5
-azcam.db.tools["fe55"].fit_psf = 0
-azcam.db.tools["fe55"].threshold = 500
-azcam.db.tools["fe55"].spec_sigma = -1
-azcam.db.tools["fe55"].hcte_limit = 0.999_990
-azcam.db.tools["fe55"].vcte_limit = 0.999_990
-azcam.db.tools["fe55"].spec_by_cte = 1
-azcam.db.tools["fe55"].overscan_correct = 1
-azcam.db.tools["fe55"].pause_each_channel = 0
-azcam.db.tools["fe55"].report_include_plots = 1
-azcam.db.tools["fe55"].make_plots = ["histogram", "cte"]
-azcam.db.tools["fe55"].plot_files = {
+fe55.number_images_acquire = 1
+fe55.system_noise_correction = []
+fe55.gain_estimate = 4 * [2.6]
+fe55.exposure_time = 30.0
+fe55.neighborhood_size = 5
+fe55.fit_psf = 0
+fe55.threshold = 500
+fe55.spec_sigma = -1
+fe55.hcte_limit = 0.999_990
+fe55.vcte_limit = 0.999_990
+fe55.spec_by_cte = 1
+fe55.overscan_correct = 1
+fe55.pause_each_channel = 0
+fe55.report_include_plots = 1
+fe55.make_plots = ["histogram", "cte"]
+fe55.plot_files = {
     "histogram": "histogram.png",
     "hcte": "hcte.png",
     "vcte": "vcte.png",
 }
-azcam.db.tools["fe55"].plot_titles = {
+fe55.plot_titles = {
     "histogram": "X-Ray Histogram Plot.",
     "hcte": "HCTE Plot.",
     "vcte": "VCTE Plot.",
 }
-azcam.db.tools["fe55"].plot_order = ["histogram", "hcte", "vcte"]
+fe55.plot_order = ["histogram", "hcte", "vcte"]
 
-# superflats
-azcam.db.tools["superflat"].exposure_levels = [10000]
-azcam.db.tools["superflat"].exposure_times = [
-    5.0,
-]
-azcam.db.tools["superflat"].wavelength = 550
-azcam.db.tools["superflat"].number_images_acquire = [
-    5,
-]
-azcam.db.tools["superflat"].overscan_correct = 1  # correct with overscan region
-azcam.db.tools["superflat"].zero_correct = 1  # correct including debiased residuals
-azcam.db.tools["superflat"].fit_order = 3
+# superflats and dark pixels
+superflat.exposure_time = 5.0
+superflat.wavelength = 500
+superflat.number_images_acquire = 3  # number of images
+superflat.grade_dark_defects = 1
+superflat.dark_pixel_reject = 0.50  # reject pixels below this value from mean
+superflat.allowable_dark_pixels = -1
+superflat.grade_sensor = 0
 
 # ptc
-azcam.db.tools["ptc"].wavelength = 550
-azcam.db.tools["ptc"].exposure_times = [
+ptc.wavelength = 550
+ptc.exposure_times = [
     1,
     2,
     3,
@@ -514,54 +549,45 @@ azcam.db.tools["ptc"].exposure_times = [
     55,
     60,
 ]
-azcam.db.tools["ptc"].gain_range = [1.0, 4.0]
-azcam.db.tools["ptc"].fit_max = 60000
-azcam.db.tools["ptc"].fit_line = 1
-azcam.db.tools["ptc"].overscan_correct = 1
-azcam.db.tools["ptc"].exposure_levels = []
+ptc.gain_range = [1.0, 4.0]
+ptc.fit_max = 60000
+ptc.fit_line = 1
+ptc.overscan_correct = 1
+ptc.exposure_levels = []
 
 # linearity
-azcam.db.tools["linearity"].use_ptc_data = 1
-azcam.db.tools["linearity"].fit_min_percent = 0.10
-azcam.db.tools["linearity"].fit_max_percent = 0.90
-azcam.db.tools["linearity"].fit_all_data = 0
-azcam.db.tools["linearity"].max_allowed_linearity = 0.02  # max residual spec
-azcam.db.tools["linearity"].plot_specifications = 1
-azcam.db.tools["linearity"].plot_limits = [-3, 3]
-azcam.db.tools["linearity"].overscan_correct = 0  # normally 1, but ptc already analyzed
-azcam.db.tools["linearity"].zero_correct = 0
+linearity.use_ptc_data = 1
+linearity.fit_min_percent = 0.10
+linearity.fit_max_percent = 0.90
+linearity.fit_all_data = 0
+linearity.max_allowed_linearity = 0.02  # max residual spec
+linearity.plot_specifications = 1
+linearity.plot_limits = [-3, 3]
+linearity.overscan_correct = 0  # normally 1, but ptc already analyzed
+linearity.zero_correct = 0
 
-# dark
-azcam.db.tools["dark"].number_images_acquire = 3
-azcam.db.tools["dark"].exposure_time = 600.0
-azcam.db.tools["dark"].resolution = 0.01  # resolution of histogram
-azcam.db.tools["dark"].overscan_correct = 1  # correct with overscan region
-azcam.db.tools["dark"].zero_correct = 1  # correct including debiased residuals
-azcam.db.tools["dark"].fit_order = 3
-azcam.db.tools["dark"].mean_dark_spec = 20.0 / 3600.0  # e/pix/sec
-azcam.db.tools["dark"].bright_pixel_reject = (
-    10.0 * azcam.db.tools["dark"].mean_dark_spec
-)
-azcam.db.tools["dark"].report_dark_per_hour = True  # report DC per hour
-
-# defects
-azcam.db.tools["defects"].edge_size = 20
-azcam.db.tools["defects"].allowable_bad_fraction = 0.002  # % allowed bad pixels
-azcam.db.tools["defects"].report_include_plots = 1
-azcam.db.tools["defects"].bright_pixel_reject = 5.0  # e/pix/sec
-azcam.db.tools["defects"].allowable_bright_pixels = -1
-azcam.db.tools["defects"].dark_pixel_reject = 0.80  # from mean
-azcam.db.tools["defects"].allowable_dark_pixels = -1
+# dark signal and bright pixels
+dark.number_images_acquire = 3
+dark.exposure_time = 500.0
+dark.mean_dark_spec = 10.0 / 3600
+dark.bright_pixel_reject = 0.05  # e/pix/sec clip
+dark.allowable_bright_pixels = 0.0001 * 4096 * 4096  # 1678
+dark.overscan_correct = 1  # flag to overscan correct images
+dark.zero_correct = 1  # flag to correct with bias residuals
+dark.report_plots = ["darkimage"]  # plots to include in report
+dark.report_dark_per_hour = 1
+dark.grade_dark_signal = 1
+dark.grade_bright_defects = 1
 
 # prnu
-azcam.db.tools["prnu"].root_name = "qe."
-azcam.db.tools["prnu"].wavelengths = [360, 400, 500, 550, 650, 750]
-azcam.db.tools["prnu"].allowable_deviation_from_mean = 0.10
-azcam.db.tools["prnu"].overscan_correct = 1  # flag to overscan correct images
-azcam.db.tools["prnu"].zero_correct = 0  # flag to correct with bias residuals
+prnu.allowable_deviation_from_mean = 0.1
+prnu.root_name = "qe."
+prnu.overscan_correct = 1
+prnu.wavelengths = [350, 400, 500, 600, 700, 800]
+prnu.grade_sensor = 0
 
 # qe
-qe = azcam.db.tools["qe"]
+qe = qe
 qe.cal_scale = 1.00
 qe.global_scale = 1.24
 qe.flux_cal_folder = "/data/90prime4k"
@@ -571,7 +597,6 @@ qe.overscan_correct = 1
 qe.plot_title = "90Prime QE"
 qe.qeroi = []
 qe.qe_specs = {}
-qe.exposure_levels = {}
 qe.window_trans = {
     300: 1.0,
     1000: 1.0,
