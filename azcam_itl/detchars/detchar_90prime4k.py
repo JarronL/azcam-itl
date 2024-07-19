@@ -21,7 +21,7 @@ class PrimeFocus4kDetChar(DetChar):
         super().__init__()
 
         self.start_delay = 0
-        self.start_temperature = -1000
+        self.start_temperature = -999.99
 
         self.device_type = ""
         self.lot = "UNKNOWN"
@@ -286,7 +286,7 @@ class PrimeFocus4kDetChar(DetChar):
 
         # setup for headers but should already be done by .acquire()
         if not self.is_setup:
-            self.setup_acquire()
+            self.setup()
 
         # save pars to be changed
         impars = {}
@@ -436,12 +436,8 @@ class PrimeFocus4kDetChar(DetChar):
 # create instance
 detchar = PrimeFocus4kDetChar()
 
-# detchar
 azcam_console.utils.set_image_roi([[1800, 1900, 1800, 1900], [2042, 2058, 1500, 1800]])
-
-azcam.db.start_temperature = -115.0
-
-system_noise_correction = 4 * [0.7]
+detchar.start_temperature = -115.0
 
 # define  tools
 (
