@@ -33,6 +33,8 @@ from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam_itl.instruments.instrument_eb import InstrumentEB
 from azcam_itl.instruments.instrument_arduino import InstrumentArduino
 
+from azcam_itl.local_web import LocalWebServer
+
 from azcam.tools.ascom.tempcon_ascom import TempConASCOM
 import azcam_itl.shortcuts_itl
 
@@ -179,7 +181,7 @@ def setup():
     loadscripts(["azcam_itl.scripts.server"])
 
     # web server
-    if 1:
+    if 0:
         webserver = WebServer()
         webserver.port = 2403
         webserver.logcommands = 1
@@ -194,7 +196,13 @@ def setup():
         exptool = Exptool(webserver)
         exptool.initialize()
 
-        azcam.log("Started webserver applications")
+    # plotly web server
+    if 1:
+        webserver = LocalWebServer()
+        webserver.port = 2403
+        webserver.logcommands = 1
+        webserver.logstatus = 0
+        webserver.start()
 
     # azcammonitor
     azcam.db.monitor.register()
