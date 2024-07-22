@@ -197,7 +197,7 @@ def setup():
         exptool.initialize()
 
     # plotly web server
-    if 1:
+    else:
         webserver = LocalWebServer()
         webserver.port = 2403
         webserver.logcommands = 1
