@@ -2,16 +2,12 @@
 DASH / Plotly web server for azcam
 """
 
-import datetime
 import threading
 import logging
 
 from dash import Dash, html, dcc, callback, Input, Output, State, dash_table
 import dash_bootstrap_components as dbc
 import dash_daq as daq
-
-import pandas as pd
-import numpy as np
 
 import azcam
 
@@ -26,28 +22,43 @@ class WebServerDash(object):
         self.port = 2403
         self.logcommands = 0
         self.logstatus = 0
+
+        self.button_group = None
+        self.exposure_card = None
+
         azcam.db.webserver = self
-        azcam.db._webdata = {"filename": "", "timestamp": "", "exposuretime": ""}
-        df = pd.DataFrame
+        azcam.db._command = {}  # command dict
+
+        self.create_app()
+
+        self.create_buttons()
+        self.create_exposure_card()
+        self.create_sequence_card()
+        self.create_control_card()
+        self.create_status_card()
+        self.create_filename_card()
+        self.create_detector_card()
+        self.create_options_card()
+
+        self.create_layout()
+
+    def create_app(self):
 
         self.app = Dash(
             __name__,
             external_stylesheets=[dbc.themes.BOOTSTRAP],
-            suppress_callback_exceptions=True,
+            suppress_callback_exceptions=False,
         )
         logging.getLogger("werkzeug").setLevel(logging.CRITICAL)  # stop messages
 
-        self.create_page()
+        return
 
-    def create_page(self):
+    def create_buttons(self):
         """
-        Create web page.
+        Create button group for exposure control.
         """
 
-        #############################################################
-        # buttons card
-        #############################################################
-        button_group = dbc.ButtonGroup(
+        self.button_group = dbc.ButtonGroup(
             [
                 dbc.Button("Expose", id="expose_btn", className="me-1", n_clicks=0),
                 dbc.Button("Sequence", id="sequence_btn", className="me-1", n_clicks=0),
@@ -59,63 +70,116 @@ class WebServerDash(object):
             ],
             vertical=True,
         )
-        buttons_card = dbc.Card(dbc.CardBody([button_group]))
 
         @callback(
-            Output("message", "children"),
+            Output("hidden_div", "children", allow_duplicate=True),
             Input("expose_btn", "n_clicks"),
+            prevent_initial_call=True,
         )
-        def on_button_click_exposose(n):
-            if n is None:
-                return "Not clicked."
-            else:
-                return f"Expose Clicked {n} times."
-
-        @callback(
-            Input("sequence_btn", "n_clicks"),
-        )
-        def on_button_click_sequence(n):
-            if n is None:
-                return "Not clicked."
-            else:
-                return f"Sequence Clicked {n} times."
-
+        def on_button_click_expose(n):
+            try:
+                azcam.db.tools["exposure"].expose()
+            except Exception as e:
+                print(e)
             return
 
-        #############################################################
-        # exposure card
-        #############################################################
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("sequence_btn", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_sequence(n):
+            try:
+                azcam.db.tools["exposure"].sequence()
+            except Exception as e:
+                print(e)
+            return
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("reset_btn", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_reset(n):
+            try:
+                azcam.db.tools["exposure"].reset()
+            except Exception as e:
+                print(e)
+            return
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("abort_btn", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_abort(n):
+            try:
+                azcam.db.tools["exposure"].abort()
+            except Exception as e:
+                print(e)
+            return
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("savepars_btn", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_savepars(n):
+            try:
+                azcam.db.parameters.save_pars()
+            except Exception as e:
+                print(e)
+            return
+
+        return
+
+    def create_exposure_card(self):
+        """
+        Create exposure card for exposure control.
+        """
+
+        options = [
+            {"label": x, "value": x.lower()}
+            for x in azcam.db.tools["exposure"].image_types
+        ]
 
         image_type_dropdown = html.Div(
             [
                 dbc.Label("Image Type"),
                 dcc.Dropdown(
-                    options=[
-                        {"label": "Zero", "value": "zero"},
-                        {"label": "Object", "value": "object"},
-                        {"label": "Flat", "value": "flat"},
-                        {"label": "Dark", "value": "dark"},
-                        {"label": "Comps", "value": "comps"},
-                    ],
+                    options,
                     id="image_type_dropdown",
                     value="zero",
                 ),
-                html.Div(id="hidden_image_type", hidden=True),
             ]
         )
 
         @callback(
-            Output("hidden_image_type", "children"),
-            [Input("image_type_dropdown", "value")],
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("image_type_dropdown", "value"),
+            prevent_initial_call=True,
         )
         def image_type_callback(value):
+            azcam.db._command["image_type"] = value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
             return ""
 
         exposure_time_input = html.Div(
             [
-                daq.NumericInput(id="et", value=0.0, label="Exposure time [sec]"),
+                dbc.Label("Exp. time [sec]"),
+                daq.NumericInput(id="et", value=0.0, size=100),
             ]
         )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("et", "value"),
+            prevent_initial_call=True,
+        )
+        def exposure_time_callback(value):
+            azcam.db._command["exposure_time"] = value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
+            return ""
 
         image_title_input = html.Div(
             [
@@ -124,26 +188,39 @@ class WebServerDash(object):
                     id="title_input",
                     placeholder="Enter image title...",
                     type="text",
-                    style={"display": "inline-block", "border": "1px solid black"},
+                    style={"display": "inline-block"},
                 ),
-                html.P(id="image_title"),
             ]
         )
 
-        @callback(Output("image_title", "children"), [Input("title_input", "value")])
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("title_input", "value"),
+            prevent_initial_call=True,
+        )
         def image_title_callback(value):
+            azcam.db._command["image_title"] = "" if value is None else value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
             return value
 
         test_image_input = html.Div(
             [
-                daq.BooleanSwitch(
-                    id="test_image", label="Test Image", on=True, color="#00AA00"
-                ),
-                html.Div(id="test-image_switch_output", hidden=True),
+                dbc.Label("Test Image"),
+                dbc.Checkbox(id="test_image", value=True),
             ]
         )
 
-        card_exposure_control = dbc.Card(
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("test_image", "value"),
+            prevent_initial_call=True,
+        )
+        def image_test_callback(value):
+            azcam.db._command["test_image"] = value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
+            return value
+
+        self.exposure_card = dbc.Card(
             dbc.CardBody(
                 [
                     html.H5("Exposure", className="card-title"),
@@ -163,20 +240,46 @@ class WebServerDash(object):
             )
         )
 
-        #############################################################
-        # sequence card
-        #############################################################
+        return
+
+    def create_sequence_card(self):
+        """
+        Create sequence control card.
+        """
+
         num_seq_images_input = html.Div(
             [
-                daq.NumericInput(id="seq_num", label="Number images"),
+                daq.NumericInput(id="seq_num", label="Number images", size=100),
             ]
         )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("seq_num", "value"),
+            prevent_initial_call=True,
+        )
+        def seq_total_callback(value):
+            azcam.db._command["seq_total"] = 0 if value is None else value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
+            return value
+
         sequence_delay_input = html.Div(
             [
-                daq.NumericInput(id="seq_delay", label="Seq. delay [sec]"),
+                daq.NumericInput(id="seq_delay", label="Seq. delay [sec]", size=100),
             ]
         )
-        card_sequence = dbc.Card(
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("seq_delay", "value"),
+            prevent_initial_call=True,
+        )
+        def seq_delay_callback(value):
+            azcam.db._command["seq_del"] = 0.0 if value is None else value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
+            return value
+
+        self.sequence_card = dbc.Card(
             dbc.CardBody(
                 [
                     html.H5("Sequence", className="card-title"),
@@ -190,87 +293,100 @@ class WebServerDash(object):
             )
         )
 
-        #############################################################
-        # exposure control card
-        #############################################################
-        card_exposure = dbc.Card(
+        return
+
+    def create_control_card(self):
+        """
+        Create control card for exposures.
+        """
+
+        self.control_card = dbc.Card(
             dbc.CardBody(
                 [
-                    html.H5("Exposure Control", className="card-title"),
+                    html.H5("Camera Control", className="card-title"),
                     dbc.Row(
                         [
-                            dbc.Col(buttons_card, width=2),
-                            dbc.Col(card_exposure_control, width=6),
-                            dbc.Col(card_sequence, width=4),
+                            dbc.Col(self.button_group, width=2),
+                            dbc.Col(self.exposure_card, width=6),
+                            dbc.Col(self.sequence_card, width=4),
                         ]
                     ),
                 ]
             )
         )
 
-        #############################################################
+        return
+
+    def create_status_card(self):
+        """
+        Create status card.
+        """
         # status card
-        #############################################################
-        # table_header = [
-        #     html.Thead(html.Tr([html.Th("First Name"), html.Th("Last Name")]))
-        # ]
+        style1 = {"font-style": "italic"}
 
         row1 = html.Tr(
             [
-                html.Td("Image Filename"),
+                html.Td("Image Filename", style=style1),
                 html.Td("filename here", id="filename_status", colSpan=3),
             ]
         )
         row2 = html.Tr(
             [
-                html.Td("Image Title"),
+                html.Td("Image Title", style=style1),
                 html.Td("title here", id="imagetitle_status", colSpan=3),
             ]
         )
         row3 = html.Tr(
             [
-                html.Td("Image Type"),
+                html.Td("Image Type", style=style1),
                 html.Td("type here", id="imagetype_status"),
-                html.Td("Exposure Time"),
+                html.Td("Exposure Time", style=style1),
                 html.Td("ET here", id="et_status"),
             ]
         )
         row4 = html.Tr(
             [
-                html.Td("Test Image"),
+                html.Td("Test Image", style=style1),
                 html.Td("test here", id="imagetest_status"),
-                html.Td("Mode"),
+                html.Td("Mode", style=style1),
                 html.Td("mode here", id="mode_status"),
             ]
         )
         row5 = html.Tr(
             [
-                html.Td("Temperatures"),
+                html.Td("Temperatures", style=style1),
                 html.Td("temps here", id="temps_status"),
-                html.Td("Binning"),
+                html.Td("Binning", style=style1),
                 html.Td("binning here", id="binning_status"),
             ]
         )
-        row6 = html.Tr(
+        row_messsage = html.Tr(
             [
-                html.Td("Messages"),
-                html.Td("messages here", id="messages_status", colSpan=3),
+                html.Td("Message", style=style1),
+                html.Td("messages here", id="message_status", colSpan=3),
             ]
         )
-        row7 = html.Tr(
+        row_ts = html.Tr(
             [
-                html.Td("Timestamp"),
+                html.Td("Timestamp", style=style1),
                 html.Td("timestamp here", id="timestamp_status", colSpan=3),
             ]
         )
-        row8 = html.Tr(
+        row_progress = html.Tr(
             [
-                html.Td("Progress"),
-                html.Td("progress here", id="progress_status", colSpan=3),
+                html.Td("Progress", style=style1),
+                html.Td(
+                    dbc.Progress(id="progress_status"),
+                    colSpan=3,
+                ),
             ]
         )
 
-        table_body = [html.Tbody([row1, row2, row3, row4, row5, row6, row7, row8])]
+        table_body = [
+            html.Tbody(
+                [row1, row2, row3, row4, row5, row_progress, row_ts, row_messsage]
+            )
+        ]
         table = dbc.Table(
             table_body,
             bordered=True,
@@ -280,10 +396,26 @@ class WebServerDash(object):
         )
         # table = dbc.Table(table_header + table_body, bordered=True)
 
-        card_status = dbc.Card(
+        self.status_card = dbc.Card(
             dbc.CardBody(
                 [
-                    html.H5("Status for Current Exposure", className="card-title"),
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                html.H4(
+                                    "Status for Current Exposure",
+                                    className="card-title",
+                                )
+                            ),
+                            dbc.Col(
+                                html.Div(
+                                    "",
+                                    id="estate_status",
+                                    style={"font-weight": "bold"},
+                                )
+                            ),
+                        ]
+                    ),
                     table,
                 ]
             )
@@ -292,91 +424,311 @@ class WebServerDash(object):
         # status table update
         @callback(
             Output("filename_status", "children"),
-            Input("update_status1", "n_intervals"),
-        )
-        def get_status1(n):
-            filename = azcam.db._webdata["filename"]
-            return filename
-
-        @callback(
+            Output("imagetitle_status", "children"),
+            Output("imagetype_status", "children"),
             Output("et_status", "children"),
-            Input("update_status2", "n_intervals"),
+            Output("imagetest_status", "children"),
+            Output("mode_status", "children"),
+            Output("temps_status", "children"),
+            Output("binning_status", "children"),
+            Output("timestamp_status", "children"),
+            Output("estate_status", "children"),
+            Output("progress_status", "value"),
+            Output("message_status", "children"),
+            Input("status_interval", "n_intervals"),
         )
-        def get_status2(n):
-            et = azcam.db._webdata["exposuretime"]
-            return et
+        def update_status(n):
+            """
+            Get exposure status and update fields.
+            """
+
+            webdata = azcam.db.tools["exposure"].get_status()
+
+            # the return order must match Output order
+            filename = webdata["filename"]
+            imagetitle = webdata["imagetitle"]
+            imagetype = webdata["imagetype"]
+            et = webdata["exposuretime"]
+            imagetest = webdata["imagetest"]
+            mode = webdata["mode"]
+
+            camtemp = float(webdata["camtemp"])
+            dewtemp = float(webdata["dewtemp"])
+            temps = f"Camera: {camtemp:.01f} C    Dewar: {dewtemp:.01f} C"
+
+            colbin = webdata["colbin"]
+            rowbin = webdata["rowbin"]
+            binning = f"RowBin: {rowbin}    ColBin: {colbin}"
+
+            ts = webdata["timestamp"]
+            estate = webdata["exposurestate"]
+            progress = float(webdata["progressbar"])
+            message = webdata["message"]
+
+            return [
+                filename,
+                imagetitle,
+                imagetype,
+                et,
+                imagetest,
+                mode,
+                temps,
+                binning,
+                ts,
+                estate,
+                progress,
+                message,
+            ]
+
+        return
+
+    def create_filename_card(self):
+        """
+        Create filename card.
+        """
+
+        """
+        Directory with browse
+        Rootname
+        Seq Num spinner
+        Image Format NO
+        
+        Auto inc
+        Overwrite
+        Inc. seq
+        Autoname
+        test image
+        """
+
+        curfolder = "/data"
+
+        folderselect = html.Div(
+            [
+                dbc.Label("Image folder"),
+                dbc.Input(
+                    id="folderselect",
+                    placeholder="Enter image file folder...",
+                    type="text",
+                    style={"display": "inline-block"},
+                ),
+            ]
+        )
+
+        rootselect = html.Div(
+            [
+                dbc.Label("Image root name"),
+                dbc.Input(
+                    id="rootselect",
+                    placeholder="Enter image root name...",
+                    type="text",
+                    style={"display": "inline-block"},
+                ),
+            ]
+        )
+
+        seqnumselect = html.Div(
+            [
+                dbc.Label("Image sequence number"),
+                dbc.Input(
+                    id="seqnumselect",
+                    placeholder="Enter image sequence number...",
+                    type="number",
+                    min=0,
+                    style={"display": "inline-block"},
+                ),
+            ]
+        )
+
+        filenamechecks_input = dcc.Checklist(
+            [
+                {
+                    "label": "Auto increment",
+                    "value": "autoinc",
+                    "title": "check to auto increment image sequence number",
+                },
+                {
+                    "label": "Overwrite existing image",
+                    "value": "overwrite",
+                },
+                {
+                    "label": "Include sequence number",
+                    "value": "includeseqnum",
+                },
+                {
+                    "label": "Auto name",
+                    "value": "autoname",
+                    "title": "check to inlcude Object Type in image filename",
+                },
+            ],
+            id="filename_checks",
+            value=["overwrite"],
+            inline=False,
+        )
+        checks_filename = html.Div(filenamechecks_input)
 
         @callback(
-            Output("timestamp_status", "children"),
-            Input("update_status3", "n_intervals"),
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("filename_checks", "value"),
+            prevent_initial_call=True,
         )
-        def get_status3(n):
-            ts = azcam.db._webdata["timestamp"]
-            return ts
+        def image_test_callback(value):
+            azcam.db.tools["exposure"].message = repr(value)
+            return value
 
-        #############################################################
-        # still undefined cards
-        #############################################################
-        card_test = dbc.Card(dbc.CardBody(["not yet..."]))
+        # apply button - all options on this page
+        apply_filename_btn = dbc.Button(
+            "Apply All",
+            id="apply_filename_btn",
+            style={"margin-top": "1em"},
+            n_clicks=0,
+        )
 
-        #############################################################
-        # tabs
-        #############################################################
+        @callback(
+            Output("fileselect_out", "children", allow_duplicate=True),
+            Input("apply_filename_btn", "n_clicks"),
+            State("seqnumselect", "value"),
+            State("rootselect", "value"),
+            State("folderselect", "value"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_apply_filename(n, seqnum, root, folder):
+            print(seqnum, root, folder)
+            try:
+                pass
+                # azcam.db.tools["exposure"].expose()
+            except Exception as e:
+                print(e)
+            return
+
+        self.filename_card = dbc.Card(
+            dbc.CardBody(
+                [
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    folderselect,
+                                    rootselect,
+                                    seqnumselect,
+                                ]
+                            ),
+                            dbc.Col(
+                                [
+                                    checks_filename,
+                                ]
+                            ),
+                        ]
+                    ),
+                    dbc.Row(
+                        [
+                            apply_filename_btn,
+                            html.Div(id="fileselect_out"),
+                        ]
+                    ),
+                ]
+            )
+        )
+
+        return
+
+    def create_detector_card(self):
+        """
+        Create detector card.
+        """
+
+        self.detector_card = dbc.Card(dbc.CardBody([html.Div("Detector not yet")]))
+
+        return
+
+    def create_options_card(self):
+        """
+        Create options card.
+        """
+
+        self.options_card = dbc.Card(dbc.CardBody([html.Div("Options not yet")]))
+
+        return
+
+    def create_layout(self):
+        """
+        Create layout for web server.
+        """
+
         exposure_tab = [
             dbc.CardBody(
                 [
-                    card_exposure,
-                    card_status,
-                    html.Div("", id="null1", hidden=True),
+                    self.control_card,
+                    self.status_card,
                 ]
             )
         ]
 
         filename_tab = [
-            card_test,
+            self.filename_card,
+            html.Div(id="filename_out"),
         ]
 
         detector_tab = [
-            card_test,
+            self.detector_card,
         ]
 
         options_tab = [
-            card_test,
+            self.options_card,
         ]
 
         tabs = dbc.Tabs(
             [
-                dbc.Tab(exposure_tab, label="Exposure"),
-                dbc.Tab(filename_tab, label="Filename"),
-                dbc.Tab(detector_tab, label="Detector"),
-                dbc.Tab(options_tab, label="Options"),
-            ]
-        )
-
-        #############################################################
-        # layout
-        #############################################################
-        self.app.layout = html.Div(
-            [
-                tabs,
-                dcc.Interval("update_status", interval=1_000, n_intervals=0),
-                dcc.Interval("update_status1", interval=1_000, n_intervals=0),
-                dcc.Interval("update_status2", interval=1_000, n_intervals=0),
-                dcc.Interval("update_status3", interval=1_000, n_intervals=0),
-            ]
+                dbc.Tab(exposure_tab, label="Exposure", tab_id="exposure_tab"),
+                dbc.Tab(filename_tab, label="Filename", tab_id="filename_tab"),
+                dbc.Tab(detector_tab, label="Detector", tab_id="detector_tab"),
+                dbc.Tab(options_tab, label="Options", tab_id="options_tab"),
+            ],
+            id="tabs",
+            active_tab="exposure_tab",
         )
 
         @callback(
-            Output("null1", "children"),
-            Input("update_status", "n_intervals"),
+            Output("folderselect", "value"),
+            Output("rootselect", "value"),
+            Output("seqnumselect", "value"),
+            Input("tabs", "active_tab"),
         )
-        def get_status(n):
-            azcam.db._webdata = azcam.db.tools["exposure"].get_status()
-            return
+        def switch_tab(at):
+            exposure = azcam.db.tools["exposure"]
+            print(at)
+            if at == "exposure_tab":
+                return ["", "", 99]
+            elif at == "filename_tab":
+                seq = exposure.sequence_number
+                folder = exposure.folder
+                root = exposure.root
+                return [folder, root, seq]
+            elif at == "detector_tab":
+                return ["", "", 99]
+            elif at == "options_tab":
+                return ["", "", 99]
+            else:
+                return ["", "", 99]
+
+        # app layout
+        self.app.layout = html.Div(
+            [
+                tabs,
+                html.Div(id="hidden_div", hidden=True),
+                dcc.Interval("status_interval", interval=1_000, n_intervals=0),
+            ]
+        )
+
+        return
 
     def start(self):
         # arglist = [self.app]
-        kwargs = {"debug": False, "port": "2403", "host": "", "use_reloader": False}
+        kwargs = {
+            "debug": True,
+            "port": "2403",
+            "host": "localhost",
+            "use_reloader": False,
+        }
         # kwargs = {}
 
         if 1:
@@ -393,6 +745,6 @@ class WebServerDash(object):
 
 if __name__ == "__main__":
     webserver = WebServerDash()
-    webserver.app.run(debug=True, port=2403, reload=True)
+    webserver.app.run(debug=True, port=2403)
     # webserver.start()
     input("waiting for web server here...")
