@@ -5,7 +5,7 @@ DASH / Plotly web server for azcam
 import threading
 import logging
 
-from dash import Dash, html, dcc, callback, Input, Output, State, dash_table
+from dash import Dash, html, dcc, callback, Input, Output, State, ctx
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 
@@ -654,6 +654,64 @@ class WebServerDash(object):
         Create layout for web server.
         """
 
+        select_buttons = dbc.ButtonGroup(
+            [
+                dbc.Button(
+                    "Exposure", id="exposure_tab_btn", className="me-1", n_clicks=0
+                ),
+                dbc.Button(
+                    "Filename", id="filename_tab_btn", className="me-1", n_clicks=0
+                ),
+                dbc.Button(
+                    "Detector", id="detector_tab_btn", className="me-1", n_clicks=0
+                ),
+                dbc.Button(
+                    "Options", id="options_tab_btn", className="me-1", n_clicks=0
+                ),
+            ],
+            vertical=False,
+        )
+
+        @callback(
+            Output("tabs", "active_tab", allow_duplicate=True),
+            Input("exposure_tab_btn", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_exposure_tab_btn(n):
+            return "exposure_tab"
+
+        @callback(
+            Output("tabs", "active_tab", allow_duplicate=True),
+            Output("folderselect", "value"),
+            Output("rootselect", "value"),
+            Output("seqnumselect", "value"),
+            Input("filename_tab_btn", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_filename_tab_btn(n):
+            exposure = azcam.db.tools["exposure"]
+            seq = exposure.sequence_number
+            folder = exposure.folder
+            root = exposure.root
+
+            return ["filename_tab", folder, root, seq]
+
+        @callback(
+            Output("tabs", "active_tab", allow_duplicate=True),
+            Input("detector_tab_btn", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_detector_tab_btn(n):
+            return "detctor_tab"
+
+        @callback(
+            Output("tabs", "active_tab", allow_duplicate=True),
+            Input("options_tab_btn", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_options_tab_btn(n):
+            return "options_tab"
+
         exposure_tab = [
             dbc.CardBody(
                 [
@@ -678,41 +736,42 @@ class WebServerDash(object):
 
         tabs = dbc.Tabs(
             [
-                dbc.Tab(exposure_tab, label="Exposure", tab_id="exposure_tab"),
-                dbc.Tab(filename_tab, label="Filename", tab_id="filename_tab"),
-                dbc.Tab(detector_tab, label="Detector", tab_id="detector_tab"),
-                dbc.Tab(options_tab, label="Options", tab_id="options_tab"),
+                dbc.Tab(exposure_tab, tab_id="exposure_tab"),
+                dbc.Tab(filename_tab, tab_id="filename_tab"),
+                dbc.Tab(detector_tab, tab_id="detector_tab"),
+                dbc.Tab(options_tab, tab_id="options_tab"),
             ],
             id="tabs",
             active_tab="exposure_tab",
         )
 
-        @callback(
-            Output("folderselect", "value"),
-            Output("rootselect", "value"),
-            Output("seqnumselect", "value"),
-            Input("tabs", "active_tab"),
-        )
-        def switch_tab(at):
-            exposure = azcam.db.tools["exposure"]
-            print(at)
-            if at == "exposure_tab":
-                return ["", "", 99]
-            elif at == "filename_tab":
-                seq = exposure.sequence_number
-                folder = exposure.folder
-                root = exposure.root
-                return [folder, root, seq]
-            elif at == "detector_tab":
-                return ["", "", 99]
-            elif at == "options_tab":
-                return ["", "", 99]
-            else:
-                return ["", "", 99]
+        # @callback(
+        #     Output("folderselect", "value"),
+        #     Output("rootselect", "value"),
+        #     Output("seqnumselect", "value"),
+        #     Input("tabs", "active_tab"),
+        # )
+        # def switch_tab(at):
+
+        #     exposure = azcam.db.tools["exposure"]
+        #     if at == "exposure_tab":
+        #         return ["", "", 99]
+        #     elif at == "filename_tab":
+        #         seq = exposure.sequence_number
+        #         folder = exposure.folder
+        #         root = exposure.root
+        #         return [folder, root, seq]
+        #     elif at == "detector_tab":
+        #         return ["", "", 99]
+        #     elif at == "options_tab":
+        #         return ["", "", 99]
+        #     else:
+        #         return ["", "", 99]
 
         # app layout
         self.app.layout = html.Div(
             [
+                select_buttons,
                 tabs,
                 html.Div(id="hidden_div", hidden=True),
                 dcc.Interval("status_interval", interval=1_000, n_intervals=0),
