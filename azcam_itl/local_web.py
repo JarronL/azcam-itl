@@ -31,10 +31,10 @@ class WebServerDash(object):
 
         self.create_app()
 
-        self.create_buttons()
+        self.create_button_group()
         self.create_exposure_card()
         self.create_sequence_card()
-        self.create_control_card()
+        self.create_camera_control_card()
         self.create_status_card()
         self.create_filename_card()
         self.create_detector_card()
@@ -53,20 +53,18 @@ class WebServerDash(object):
 
         return
 
-    def create_buttons(self):
+    def create_button_group(self):
         """
         Create button group for exposure control.
         """
 
         self.button_group = dbc.ButtonGroup(
             [
-                dbc.Button("Expose", id="expose_btn", className="me-1", n_clicks=0),
-                dbc.Button("Sequence", id="sequence_btn", className="me-1", n_clicks=0),
-                dbc.Button("Reset", id="reset_btn", className="me-1", n_clicks=0),
-                dbc.Button("Abort", id="abort_btn", className="me-1", n_clicks=0),
-                dbc.Button(
-                    "Save Pars", id="savepars_btn", className="me-1", n_clicks=0
-                ),
+                dbc.Button("Expose", id="expose_btn", className="m-1", n_clicks=0),
+                dbc.Button("Sequence", id="sequence_btn", className="m-1", n_clicks=0),
+                dbc.Button("Reset", id="reset_btn", className="m-1", n_clicks=0),
+                dbc.Button("Abort", id="abort_btn", className="m-1", n_clicks=0),
+                dbc.Button("Save Pars", id="savepars_btn", className="m-1", n_clicks=0),
             ],
             vertical=True,
         )
@@ -295,24 +293,26 @@ class WebServerDash(object):
 
         return
 
-    def create_control_card(self):
+    def create_camera_control_card(self):
         """
         Create control card for exposures.
         """
 
         self.control_card = dbc.Card(
-            dbc.CardBody(
-                [
-                    html.H5("Camera Control", className="card-title"),
-                    dbc.Row(
-                        [
-                            dbc.Col(self.button_group, width=2),
-                            dbc.Col(self.exposure_card, width=6),
-                            dbc.Col(self.sequence_card, width=4),
-                        ]
-                    ),
-                ]
-            )
+            [
+                dbc.CardHeader("Camera Control"),
+                dbc.CardBody(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Col(self.button_group, width=2),
+                                dbc.Col(self.exposure_card, width=6),
+                                dbc.Col(self.sequence_card, width=4),
+                            ]
+                        ),
+                    ]
+                ),
+            ]
         )
 
         return
@@ -397,28 +397,19 @@ class WebServerDash(object):
         # table = dbc.Table(table_header + table_body, bordered=True)
 
         self.status_card = dbc.Card(
-            dbc.CardBody(
-                [
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                html.H4(
-                                    "Status for Current Exposure",
-                                    className="card-title",
-                                )
-                            ),
-                            dbc.Col(
-                                html.Div(
-                                    "",
-                                    id="estate_status",
-                                    style={"font-weight": "bold"},
-                                )
-                            ),
-                        ]
-                    ),
-                    table,
-                ]
-            )
+            [
+                dbc.CardHeader("Status for Current Exposure"),
+                dbc.CardBody(
+                    [
+                        html.Div(
+                            "",
+                            id="estate_status",
+                            style={"font-weight": "bold"},
+                        ),
+                        table,
+                    ]
+                ),
+            ]
         )
 
         # status table update
@@ -601,32 +592,35 @@ class WebServerDash(object):
             return
 
         self.filename_card = dbc.Card(
-            dbc.CardBody(
-                [
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                [
-                                    folderselect,
-                                    rootselect,
-                                    seqnumselect,
-                                ]
-                            ),
-                            dbc.Col(
-                                [
-                                    checks_filename,
-                                ]
-                            ),
-                        ]
-                    ),
-                    dbc.Row(
-                        [
-                            apply_filename_btn,
-                            html.Div(id="fileselect_out"),
-                        ]
-                    ),
-                ]
-            )
+            [
+                dbc.CardHeader("Filename Parameters"),
+                dbc.CardBody(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        folderselect,
+                                        rootselect,
+                                        seqnumselect,
+                                    ]
+                                ),
+                                dbc.Col(
+                                    [
+                                        checks_filename,
+                                    ]
+                                ),
+                            ]
+                        ),
+                        dbc.Row(
+                            [
+                                apply_filename_btn,
+                                html.Div(id="fileselect_out"),
+                            ]
+                        ),
+                    ]
+                ),
+            ]
         )
 
         return
@@ -636,7 +630,178 @@ class WebServerDash(object):
         Create detector card.
         """
 
-        self.detector_card = dbc.Card(dbc.CardBody([html.Div("Detector not yet")]))
+        # First Column
+        first_col_input = html.Div(
+            [
+                daq.NumericInput(
+                    id="first_col", label="First column", size=100, value=1
+                ),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("first_col", "value"),
+            prevent_initial_call=True,
+        )
+        def first_col_callback(value):
+            azcam.db._command["first_col"] = 1 if value is None else value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
+            return value
+
+        # Last Column
+        last_col_input = html.Div(
+            [
+                daq.NumericInput(id="last_col", label="Last column", size=100, value=1),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("last_col", "value"),
+            prevent_initial_call=True,
+        )
+        def last_col_callback(value):
+            azcam.db._command["last_col"] = 1 if value is None else value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
+            return value
+
+        # Column binning
+        col_bin_input = html.Div(
+            [
+                daq.NumericInput(
+                    id="col_bin", label="Column binning", size=100, value=1
+                ),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("col_bin", "value"),
+            prevent_initial_call=True,
+        )
+        def col_bin_callback(value):
+            azcam.db._command["col_bin"] = 1 if value is None else value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
+            return value
+
+        # First Row
+        first_row_input = html.Div(
+            [
+                daq.NumericInput(id="first_row", label="First row", size=100, value=1),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("first_row", "value"),
+            prevent_initial_call=True,
+        )
+        def first_row_callback(value):
+            azcam.db._command["first_row"] = 1 if value is None else value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
+            return value
+
+        # Last Row
+        last_row_input = html.Div(
+            [
+                daq.NumericInput(id="last_row", label="Last row", size=100, value=1),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("last_row", "value"),
+            prevent_initial_call=True,
+        )
+        def last_row_callback(value):
+            azcam.db._command["last_row"] = 1 if value is None else value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
+            return value
+
+        # Row binning
+        row_bin_input = html.Div(
+            [
+                daq.NumericInput(id="row_bin", label="Row binning", size=100, value=1),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("row_bin", "value"),
+            prevent_initial_call=True,
+        )
+        def row_bin_callback(value):
+            azcam.db._command["row_bin"] = 1 if value is None else value
+            azcam.db.tools["exposure"].message = repr(azcam.db._command)
+            return value
+
+        detector_button_group = dbc.ButtonGroup(
+            [
+                dbc.Button(
+                    "Set Full Frame", id="fullframe_btn", className="m-1", n_clicks=0
+                ),
+                dbc.Button("Apply All", id="detpars_btn", className="m-1", n_clicks=0),
+            ],
+            vertical=False,
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("fullframe_btn", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_fullframe(n):
+            try:
+                pass
+                # azcam.db.tools["exposure"].expose()
+            except Exception as e:
+                print(e)
+            return
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("detpars_btn", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_button_click_detpars(n):
+            try:
+                pass
+                # azcam.db.tools["exposure"].sequence()
+            except Exception as e:
+                print(e)
+            return
+
+        self.detector_card = dbc.Card(
+            [
+                dbc.CardHeader("Detector Parameters"),
+                dbc.CardBody(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Col(first_col_input, width=2),
+                                dbc.Col(last_col_input, width=2),
+                                dbc.Col(col_bin_input, width=2),
+                            ]
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Col(first_row_input, width=2),
+                                dbc.Col(last_row_input, width=2),
+                                dbc.Col(row_bin_input, width=2),
+                            ]
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Col(detector_button_group),
+                            ]
+                        ),
+                    ]
+                ),
+            ]
+        )
+
+        # self.detector_card = dbc.Card(dbc.CardBody([html.Div("Detector not yet")]))
 
         return
 
@@ -645,7 +810,115 @@ class WebServerDash(object):
         Create options card.
         """
 
-        self.options_card = dbc.Card(dbc.CardBody([html.Div("Options not yet")]))
+        # flush sensor
+        flush_input = html.Div(
+            [
+                dbc.Checkbox(
+                    id="flush_sensor",
+                    label="Clear sensor before each exposure",
+                    value=True,
+                ),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("flush_sensor", "value"),
+            prevent_initial_call=True,
+        )
+        def flush_sensor_callback(value):
+            return value
+
+        # display image
+        display_image_input = html.Div(
+            [
+                dbc.Checkbox(
+                    id="display_image",
+                    label="Display image from server",
+                    value=True,
+                ),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("display_image", "value"),
+            prevent_initial_call=True,
+        )
+        def display_image_callback(value):
+            return value
+
+        # enable instrument
+        enable_instrument_input = html.Div(
+            [
+                dbc.Checkbox(
+                    id="enable_instrument",
+                    label="Enable instrument",
+                    value=True,
+                ),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("enable_instrument", "value"),
+            prevent_initial_call=True,
+        )
+        def enable_instrument_callback(value):
+            return value
+
+        # enable telescope
+        enable_telescope_input = html.Div(
+            [
+                dbc.Checkbox(
+                    id="enable_telescope",
+                    label="Enable telescope",
+                    value=True,
+                ),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("enable_telescope", "value"),
+            prevent_initial_call=True,
+        )
+        def enable_telescope_callback(value):
+            return value
+
+        # auto title images
+        auto_title_input = html.Div(
+            [
+                dbc.Checkbox(
+                    id="auto_title",
+                    label="Auto title images",
+                    value=True,
+                ),
+            ]
+        )
+
+        @callback(
+            Output("hidden_div", "children", allow_duplicate=True),
+            Input("auto_title", "value"),
+            prevent_initial_call=True,
+        )
+        def auto_title_callback(value):
+            return value
+
+        self.options_card = dbc.Card(
+            [
+                dbc.CardHeader("Options"),
+                dbc.CardBody(
+                    [
+                        flush_input,
+                        display_image_input,
+                        enable_instrument_input,
+                        enable_telescope_input,
+                        auto_title_input,
+                    ]
+                ),
+            ]
+        )
 
         return
 
@@ -702,7 +975,7 @@ class WebServerDash(object):
             prevent_initial_call=True,
         )
         def on_button_click_detector_tab_btn(n):
-            return "detctor_tab"
+            return "detector_tab"
 
         @callback(
             Output("tabs", "active_tab", allow_duplicate=True),
@@ -742,7 +1015,7 @@ class WebServerDash(object):
                 dbc.Tab(options_tab, tab_id="options_tab"),
             ],
             id="tabs",
-            active_tab="exposure_tab",
+            active_tab="options_tab",
         )
 
         # @callback(
