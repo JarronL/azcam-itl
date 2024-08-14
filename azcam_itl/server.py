@@ -24,16 +24,12 @@ from azcam.tools.tempcon_cryocon24 import TempConCryoCon24
 from azcam.tools.tempcon import TempCon
 from azcam.tools.ds9display import Ds9Display
 
-from azcam.webtools.webserver import WebServer
-from azcam.webtools.status.status import Status
-from azcam.webtools.exptool.exptool import Exptool
-
 from azcam.tools.instrument import Instrument
 from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam_itl.instruments.instrument_eb import InstrumentEB
 from azcam_itl.instruments.instrument_arduino import InstrumentArduino
 
-from azcam_itl.local_web import WebServerDash
+from azcam.web.webserver_dash import WebServer
 
 from azcam.tools.ascom.tempcon_ascom import TempConASCOM
 import azcam_itl.shortcuts_itl
@@ -198,7 +194,7 @@ def setup():
 
     # DASH web server
     else:
-        webserver = WebServerDash()
+        webserver = WebServer()
         webserver.port = 2403
         webserver.logcommands = 1
         webserver.logstatus = 0
