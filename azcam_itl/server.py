@@ -177,28 +177,11 @@ def setup():
     loadscripts(["azcam_itl.scripts.server"])
 
     # web server
-    if 1:
-        webserver = WebServer()
-        webserver.port = 2403
-        webserver.logcommands = 1
-        webserver.logstatus = 0
-        webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
-        webserver.message = f"for host {azcam.db.hostname}"
-        webserver.start()
-
-        webstatus = Status(webserver)
-        webstatus.initialize()
-
-        exptool = Exptool(webserver)
-        exptool.initialize()
-
-    # DASH web server
-    else:
-        webserver = WebServer()
-        webserver.port = 2403
-        webserver.logcommands = 1
-        webserver.logstatus = 0
-        webserver.start()
+    webserver = WebServer()
+    webserver.port = 2403
+    webserver.logcommands = 1
+    webserver.logstatus = 0
+    webserver.start()
 
     # azcammonitor
     azcam.db.monitor.register()
