@@ -29,7 +29,8 @@ from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam_itl.instruments.instrument_eb import InstrumentEB
 from azcam_itl.instruments.instrument_arduino import InstrumentArduino
 
-from azcam.web.webserver_dash import WebServer
+from azcam.web.webserver_main import WebServer
+from azcam.web.webserver_queue import QueueServer
 
 from azcam.tools.ascom.tempcon_ascom import TempConASCOM
 import azcam_itl.shortcuts_itl
@@ -176,12 +177,28 @@ def setup():
     azcam.log("Loading azcam_itl.scripts.server")
     loadscripts(["azcam_itl.scripts.server"])
 
+    # messages
+    import logging
+
+    # server messages
+    log = logging.getLogger("werkzeug")
+    log.disabled = True
+    cli = sys.modules["flask.cli"]
+    cli.show_server_banner = lambda *x: None
+
     # web server
     webserver = WebServer()
     webserver.port = 2403
     webserver.logcommands = 1
     webserver.logstatus = 0
     webserver.start()
+
+    # queue server
+    queueserver = QueueServer()
+    queueserver.port = 2406
+    queueserver.logcommands = 1
+    queueserver.logstatus = 0
+    queueserver.start()
 
     # azcammonitor
     azcam.db.monitor.register()
@@ -203,4 +220,5 @@ def setup():
 
 # start
 setup()
+del setup
 from azcam.cli import *
