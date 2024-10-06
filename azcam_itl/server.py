@@ -187,18 +187,20 @@ def setup():
     cli.show_server_banner = lambda *x: None
 
     # web server
-    webserver = WebServer()
-    webserver.port = 2403
-    webserver.logcommands = 1
-    webserver.logstatus = 0
-    webserver.start()
+    if 0:
+        webserver = WebServer()
+        webserver.port = 2403
+        webserver.logcommands = 1
+        webserver.logstatus = 0
+        webserver.start()
 
     # queue server
-    queueserver = QueueServer()
-    queueserver.port = 2406
-    queueserver.logcommands = 1
-    queueserver.logstatus = 0
-    queueserver.start()
+    if 1:
+        queueserver = QueueServer()
+        queueserver.port = 2406
+        queueserver.logcommands = 1
+        queueserver.logstatus = 0
+        queueserver.start()
 
     # azcammonitor
     azcam.db.monitor.register()
