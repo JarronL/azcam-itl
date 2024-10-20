@@ -17,13 +17,13 @@ from azcam.tools.ds9display import Ds9Display
 from azcam.scripts.scripts import loadscripts
 
 import azcam_console.console
+from azcam_console.tools import create_console_tools
 import azcam_console.shortcuts
 import azcam_console.tools.console_tools
 import azcam_console.scripts
 from azcam_console.tools.focus import FocusConsole
 from azcam_console.testers.testers import load_testers
 from azcam_console.observe.observe_cli.observe_cli import ObserveCli
-from azcam_console.tools import create_console_tools
 
 from azcam_itl import itlutils
 import azcam_itl.shortcuts_itl
@@ -156,3 +156,5 @@ def setup():
 # start
 setup()
 from azcam_console.cli import *
+
+del setup
