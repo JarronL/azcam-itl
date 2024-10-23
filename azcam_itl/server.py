@@ -29,8 +29,10 @@ from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam_itl.instruments.instrument_eb import InstrumentEB
 from azcam_itl.instruments.instrument_arduino import InstrumentArduino
 
-from azcam.web.webserver_main import WebServer
-from azcam.web.webserver_queue import QueueServer
+from azcam.web.webserver.fastapi_server import WebServer
+from azcam.web.exposure.webserver_main import WebServerDash
+from azcam.web.queue.webserver_queue import QueueServer
+from azcam.web.webserver.status.status import Status
 
 from azcam.tools.ascom.tempcon_ascom import TempConASCOM
 import azcam_itl.shortcuts_itl
@@ -187,9 +189,21 @@ def setup():
     cli.show_server_banner = lambda *x: None
 
     # web server
-    if 0:
+    if 1:
         webserver = WebServer()
-        webserver.port = 2403
+        webserver.port = 2403  # +1
+        webserver.logcommands = 1
+        webserver.logstatus = 0
+        webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
+        webserver.start()
+
+    if 1:
+        webstatus = Status()
+        webstatus.initialize()
+
+    if 1:
+        webserver = WebServerDash()
+        webserver.port = 2406  # +4
         webserver.logcommands = 1
         webserver.logstatus = 0
         webserver.start()
@@ -197,7 +211,7 @@ def setup():
     # queue server
     if 1:
         queueserver = QueueServer()
-        queueserver.port = 2406
+        queueserver.port = 2407  # +5
         queueserver.logcommands = 1
         queueserver.logstatus = 0
         queueserver.start()
