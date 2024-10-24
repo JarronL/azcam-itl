@@ -177,7 +177,6 @@ def setup():
         webserver = WebServer()
         webserver.port = cmdport + 1  # 2403
         webserver.logcommands = 1
-        webserver.logstatus = 0
         webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
         webserver.start()
 
