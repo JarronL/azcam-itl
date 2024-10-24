@@ -23,18 +23,13 @@ from azcam.cmdserver import CommandServer
 from azcam.tools.tempcon_cryocon24 import TempConCryoCon24
 from azcam.tools.tempcon import TempCon
 from azcam.tools.ds9display import Ds9Display
-
+from azcam.tools.ascom.tempcon_ascom import TempConASCOM
 from azcam.tools.instrument import Instrument
+from azcam.web.fastapi_server import WebServer
+
 from azcam_itl.instruments.instrument_qb import InstrumentQB
 from azcam_itl.instruments.instrument_eb import InstrumentEB
 from azcam_itl.instruments.instrument_arduino import InstrumentArduino
-
-from azcam.web.webserver.fastapi_server import WebServer
-from azcam.web.exposure.webserver_main import WebServerDash
-from azcam.web.queue.webserver_queue import QueueServer
-from azcam.web.webserver.status.status import Status
-
-from azcam.tools.ascom.tempcon_ascom import TempConASCOM
 import azcam_itl.shortcuts_itl
 
 
@@ -52,11 +47,6 @@ def setup():
     except ValueError:
         datafolder = None
     try:
-        i = sys.argv.index("-configure")
-        configuration = sys.argv[i + 1]
-    except ValueError:
-        configuration = None
-    try:
         i = sys.argv.index("-cmdport")
         cmdport = int(sys.argv[i + 1])
     except ValueError:
@@ -72,11 +62,6 @@ def setup():
     except ValueError:
         tempflag = None
 
-    # optional config script
-    if configuration is not None:
-        run_path(configuration)
-        systemname = azcam.db.systemname  # may overwrite systemname
-
     # optionally select system with menu
     menu_options = {
         "DESI": "DESI",
@@ -86,7 +71,6 @@ def setup():
         "ZWO ASI294MM CMOS camera": "ASI294MM",
         "Moravian IMX411 CMOS camera": "IMX411",
         # "OSU4k": "OSU4k",
-        # "ITL6k": "ITL6k",
         "90prime4k": "90prime4k",
         # "Magellan Guider": "magguider",
         # "SO Guider": "soguider",
@@ -191,30 +175,11 @@ def setup():
     # web server
     if 1:
         webserver = WebServer()
-        webserver.port = 2403  # +1
+        webserver.port = cmdport + 1  # 2403
         webserver.logcommands = 1
         webserver.logstatus = 0
         webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
         webserver.start()
-
-    if 1:
-        webstatus = Status()
-        webstatus.initialize()
-
-    if 1:
-        webserver = WebServerDash()
-        webserver.port = 2406  # +4
-        webserver.logcommands = 1
-        webserver.logstatus = 0
-        webserver.start()
-
-    # queue server
-    if 1:
-        queueserver = QueueServer()
-        queueserver.port = 2407  # +5
-        queueserver.logcommands = 1
-        queueserver.logstatus = 0
-        queueserver.start()
 
     # azcammonitor
     azcam.db.monitor.register()
