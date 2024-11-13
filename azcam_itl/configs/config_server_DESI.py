@@ -24,13 +24,8 @@ filetype = "MEF"
 exposure.filetype = exposure.filetypes[filetype]
 exposure.image.filetype = exposure.filetypes[filetype]
 exposure.add_extensions = 0
-exposure.image.focalplane.gains = [
-    2.0,
-    2.0,
-    2.0,
-    2.0,
-]
-exposure.image.focalplane.rdnoises = [0.0, 0.0, 0.0, 0.0]
+exposure.image.focalplane.gains = 4 * [2.8]
+exposure.image.focalplane.rdnoises = 4 * [5.0]
 
 tempcon = azcam.db.tools["tempcon"]
 tempcon.control_temperature = -110.0

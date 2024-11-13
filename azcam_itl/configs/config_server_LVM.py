@@ -22,6 +22,9 @@ LVM_webserver = azcam.db.get("LVM_webserver")
 if LVM_webserver is None:
     LVM_webserver = 1
 
+# ARB test
+LVM_science = 1
+
 # ****************************************************************
 # instrument
 # ****************************************************************
@@ -34,7 +37,8 @@ if LVM_science:
 controller = ControllerArchon()
 controller.camserver.port = 4242
 if LVM_science:
-    controller.camserver.host = "10.0.0.2"  # LVM cryostat
+    # controller.camserver.host = "10.0.0.2"  # LVM cryostat
+    controller.camserver.host = "10.7.45.36"  # LVM cryostat
 else:
     controller.camserver.host = "10.0.2.11"  # ITL2 for characterization
 
@@ -73,6 +77,17 @@ else:
 # ****************************************************************
 template = os.path.join(azcam.db.datafolder, "templates", "fits_template_LVM.txt")
 system = System("LVM", template)
+
+# ****************************************************************
+# header data
+# ****************************************************************
+exposure.image.focalplane.gains = [
+    2.0,
+    2.0,
+    2.0,
+    2.0,
+]
+exposure.image.focalplane.rdnoises = [0.0, 0.0, 0.0, 0.0]
 
 # ****************************************************************
 # special
