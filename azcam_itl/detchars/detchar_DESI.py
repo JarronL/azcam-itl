@@ -159,7 +159,7 @@ class DesiDetCharClass(DetChar):
                 "dark",
                 "fe55",
                 "exposure",
-                "tempcon,",
+                "tempcon",
             ]
         )
 
