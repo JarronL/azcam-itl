@@ -1,3 +1,10 @@
+"""
+Server config file for DESI.
+
+Usage example:
+C:\Python311\Scripts\ipython.exe ipython --ipython-dir=/data/ipython --profile azcamserver -i -m azcam_itl.server -- -system DESI -tempcon QB -instrument QB
+"""
+
 import os
 
 import azcam
@@ -36,7 +43,7 @@ tempcon.temperature_ids = [3, 1]  # ITL2
 # ****************************************************************
 template = os.path.join(azcam.db.datafolder, "templates", "fits_template_DESI.txt")
 system = System("DESI", template)
-system.set_keyword("DEWAR", "ITL6", "Dewar name")
+system.set_keyword("DEWAR", "ITL2", "Dewar name")
 
 # ****************************************************************
 # detector

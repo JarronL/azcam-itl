@@ -479,7 +479,7 @@ superflat.wavelength = 400  # blue - dark defects
 superflat.number_images_acquire = 3  # number of images
 superflat.grade_dark_defects = 1
 superflat.dark_pixel_reject = 0.50  # reject pixels below this value from mean
-superflat.allowable_dark_pixels = 0.0001 * 4096 * 4096  # 1678
+superflat.allowable_dark_pixels = 0.0001 * 4096 * 4096
 superflat.grade_sensor = 1
 
 # ptc

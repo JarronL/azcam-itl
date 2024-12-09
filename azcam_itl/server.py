@@ -2,7 +2,7 @@
 Setup method for ITL azcamserver.
 
 Usage example:
-  python -i -m azcam_itl.server -- -system LVM -instrument QB -tempcon EB
+  python -i -m azcam_itl.server -- -system LVM -instrument QB -tempcon QB
     or -- -configure /data/LVM/config_LVM.py
     or -- -datafolder path_to_datafolder
 """

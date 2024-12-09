@@ -2,9 +2,7 @@
 Setup method for ITL azcamconsole.
 
 Usage example:
-  python -i -m azcam_itl.console -- -system LVM
-    or -- -configure /data/LVM/config_LVM.py
-    or -- -datafolder path_to_datafolder
+ipython.exe ipython --ipython-dir=/data/ipython --profile azcamconsole -i -m azcam_itl.console -- -system DESI
 """
 
 import os
@@ -62,7 +60,6 @@ def setup():
         "ZWO ASI6200MM CMOS camera": "ASI6200MM",
         "ZWO ASI294 CMOS camera": "ASI294",
         "QHY174 CMOS camera": "QHY174",
-        # "OSU4k": "OSU4k",
         # "ITL4k": "ITL4k",
         "90prime4k": "90prime4k",
         "None": "NoSystem",
