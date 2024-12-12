@@ -15,9 +15,8 @@ from azcam.tools.ds9display import Ds9Display
 from azcam.scripts.scripts import loadscripts
 
 import azcam_console.console
-from azcam_console.tools import create_console_tools
+from azcam_console.tools.console_tools import create_console_tools
 import azcam_console.shortcuts
-import azcam_console.tools.console_tools
 import azcam_console.scripts
 from azcam_console.tools.focus import FocusConsole
 from azcam_console.testers.testers import load_testers
@@ -97,7 +96,7 @@ def setup():
     loadscripts(["azcam_itl.scripts", "azcam_console.scripts"])
 
     # try to connect to azcamserver
-    connected = azcam.db.tools["server"].connect(port=cmdport)  # default host and port
+    connected = azcam.db.server.connect(port=cmdport)  # default host and port
     if connected:
         azcam.log("Connected to azcamserver")
     else:

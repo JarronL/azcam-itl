@@ -72,13 +72,12 @@ class MeasureLvmPressures(object):
         """
 
         instrument = azcam.db.tools["instrument"]
-        server = azcam.db.tools["server"]
 
         # outlet 1 is Agilent on lid
         # outlet 2 is MKS on elbow
         # instrument.power2.turn_on(1)
-        server.command("instrument.power2.turn_on 1")
-        server.command("instrument.power2.turn_on 2")
+        azcam.db.server.command("instrument.power2.turn_on 1")
+        azcam.db.server.command("instrument.power2.turn_on 2")
         time.sleep(self.warmup_delay)
 
         if 1:
@@ -88,8 +87,8 @@ class MeasureLvmPressures(object):
         self.numplots = len(pressures)
 
         # instrument.power2.turn_off(1)
-        server.command("instrument.power2.turn_off 1")
-        server.command("instrument.power2.turn_off 2")
+        azcam.db.server.command("instrument.power2.turn_off 1")
+        azcam.db.server.command("instrument.power2.turn_off 2")
 
         return pressures
 

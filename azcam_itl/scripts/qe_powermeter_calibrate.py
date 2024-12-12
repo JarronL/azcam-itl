@@ -27,8 +27,6 @@ def qe_powermeter_calibrate(wavelengths=None):
 
     instrument = azcam.db.tools["instrument"]
 
-    server = azcam.db.tools["server"]
-
     # print("Initialize instrument...")
     # server.command(f"instrument.initialize")
 
