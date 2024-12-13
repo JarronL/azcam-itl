@@ -105,7 +105,6 @@ def setup():
     # system-specific
     if azcam.db.systemname == "DESI":
         from azcam_itl.detchars.detchar_DESI import detchar
-        import azcam_console.tools.console_archon
 
     elif azcam.db.systemname == "LVM":
         if 0:  # azcam.db.LVM_itl4k:
@@ -113,11 +112,9 @@ def setup():
 
         else:
             from azcam_itl.detchars.detchar_LVM import detchar
-        import azcam_console.tools.console_archon
 
     elif azcam.db.systemname == "90prime4k":
         from azcam_itl.detchars.detchar_90prime4k import detchar
-        import azcam_console.tools.console_archon
 
     elif azcam.db.systemname == "ASI294":
         from azcam_itl.detchars.detchar_ASI294 import detchar
@@ -130,11 +127,9 @@ def setup():
 
     elif azcam.db.systemname == "OSU4k":
         from azcam_itl.detchars.detchar_OSU4k import detchar
-        import azcam_console.tools.console_archon
 
     elif azcam.db.systemname == "ITL4k":
         from azcam_itl.detchars.detchar_ITL4k import detchar
-        import azcam_console.tools.console_archon
 
     if azcam.db.wd is None:
         azcam.db.wd = azcam.db.datafolder
