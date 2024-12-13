@@ -42,12 +42,16 @@ def cleanup_files(folder=None):
         azcam.log(f"Deleting folder {t}")
         shutil.rmtree(t)
 
-    # remove test and temp FITS files
+    # remove test and temp .FITS files and server/console .log files
     matches = []
     for root, dirnames, filenames in os.walk(folder):
         for filename in fnmatch.filter(filenames, "test.fits"):
             matches.append(os.path.join(root, filename))
         for filename in fnmatch.filter(filenames, "TempDisplayFile.fits"):
+            matches.append(os.path.join(root, filename))
+        for filename in fnmatch.filter(filenames, "console_*.log"):
+            matches.append(os.path.join(root, filename))
+        for filename in fnmatch.filter(filenames, "server_*.log"):
             matches.append(os.path.join(root, filename))
 
     for t in matches:
