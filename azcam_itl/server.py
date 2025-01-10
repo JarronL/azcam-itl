@@ -17,7 +17,7 @@ import azcam.utils
 from azcam.logger import check_for_remote_logger
 from azcam.scripts.scripts import loadscripts
 
-import azcam.server
+from azcam.server import setup_server
 import azcam.shortcuts
 from azcam.cmdserver import CommandServer
 from azcam.tools.tempcon_cryocon24 import TempConCryoCon24
@@ -61,6 +61,8 @@ def setup():
         tempflag = sys.argv[i + 1]
     except ValueError:
         tempflag = None
+
+    setup_server()
 
     # optionally select system with menu
     menu_options = {
@@ -176,7 +178,7 @@ def setup():
     if 1:
         webserver = WebServer()
         webserver.port = cmdport + 1  # 2403
-        webserver.logcommands = 1
+        webserver.logcommands = 0
         webserver.index = os.path.join(azcam.db.systemfolder, "index_ITL.html")
         webserver.start()
 
