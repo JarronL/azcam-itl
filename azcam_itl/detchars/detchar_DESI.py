@@ -23,7 +23,7 @@ class DesiDetCharClass(DetChar):
         self.lot = "UNKNOWN"
         self.wafer = "UNKNOWN"
         self.die = "UNKNOWN"
-        self.color = "UNKNOWN"
+        self.coating = "UNKNOWN"
 
         self.start_delay = 0
         self.start_temperature = -1000
@@ -81,7 +81,7 @@ class DesiDetCharClass(DetChar):
             self.lot = azcam.utils.prompt("Enter lot", "227599")
             self.device_type = "STA4150"
             self.package_id = azcam.utils.prompt("Enter package ID")
-        self.color = azcam.utils.prompt("Enter color (RED or BLUE)", "UNKNOWN")
+        self.coating = azcam.utils.prompt("Enter AR coating (RED or BLUE)", "UNKNOWN").upper()
         self.report_name = f"CharacterizationReport_{self.camera_id}"
 
         self.operator = azcam.utils.prompt("Enter operator", "lab user")
@@ -102,7 +102,7 @@ class DesiDetCharClass(DetChar):
         self.summary_lines.append(f"|Lot            |{self.lot}|")
         self.summary_lines.append(f"|Wafer          |{self.wafer}|")
         self.summary_lines.append(f"|Die            |{self.die}|")
-        self.summary_lines.append(f"|Color          |{self.color}|")
+        self.summary_lines.append(f"|AR Coating     |{self.coating}|")
         self.summary_lines.append(f"|Operator       |{self.operator}|")
 
         self.summary_report_name = f"SummaryReport_{self.camera_id}"
@@ -331,7 +331,7 @@ class DesiDetCharClass(DetChar):
         azcam.utils.curdir("qe")
         # spec for DESI Blue: 360-400 > 75%, 400-600 > 85%
         # spec for DESI Red: 600-750 > 85%
-        if self.color.upper() == "BLUE":
+        if self.coating.upper() == "BLUE":
             for key in qe.qe_specs.keys():
                 if key>=360 and key<=400:
                     qe.qe_specs[key] = 0.75
@@ -339,14 +339,14 @@ class DesiDetCharClass(DetChar):
                     qe.qe_specs[key] = 0.85
                 else:
                     qe.qe_specs[key] = 0
-        elif self.color.upper() == "RED":
+        elif self.coating.upper() == "RED":
             for key in qe.qe_specs.keys():
                 if key>=600 and key<=750:
                     qe.qe_specs[key] = 0.85
                 else:
                     qe.qe_specs[key] = 0
         else:
-            azcam.log("Unknown color, QE specs set to 0")
+            azcam.log("Unknown AR coating, QE specs set to 0")
             qe.qe_specs = {w:0 for w in qe.wavelengths}
         qe.analyze()
         azcam.utils.curdir(rootfolder)
