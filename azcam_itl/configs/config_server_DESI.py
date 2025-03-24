@@ -21,6 +21,8 @@ from azcam_itl.detectors import detector_sta4150_4amp, detector_sta4150_2amp_lef
 controller = ControllerArchon()
 controller.camserver.port = 4242
 controller.camserver.host = "10.0.0.11"  # ITL2
+# timing_file = os.path.join(azcam.db.datafolder, "archon", "DESI_ITL_final.ncf")
+# controller.timing_file = timing_file
 
 # ****************************************************************
 # exposure
