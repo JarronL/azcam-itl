@@ -136,7 +136,7 @@ class InstrumentQB(Instrument):
 
     def set_wavelength(self, wavelength, wavelength_id=0):
         """
-        Set monochomator wavelength (nm).
+        Set monochromator wavelength (nm).
         """
 
         self.mono.mono.query(f"!GW {wavelength}").strip()
@@ -147,7 +147,7 @@ class InstrumentQB(Instrument):
 
     def get_wavelength(self, wavelength_id=0):
         """
-        Get monochomator wavelength (nm).
+        Get monochromator wavelength (nm).
         """
 
         reply = self.mono.mono.query("?PW").strip()
