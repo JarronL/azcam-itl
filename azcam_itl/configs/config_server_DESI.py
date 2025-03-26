@@ -8,6 +8,7 @@ C:\Python311\Scripts\ipython.exe ipython --ipython-dir=/data/ipython --profile a
 import os
 
 import azcam
+import azcam.exceptions
 from azcam.header import System
 from azcam.tools.archon.controller_archon import ControllerArchon
 from azcam.tools.archon.exposure_archon import ExposureArchon
@@ -40,6 +41,19 @@ tempcon = azcam.db.tools["tempcon"]
 tempcon.control_temperature = -110.0
 tempcon.control_temperature_id = 3
 tempcon.temperature_ids = [3, 1]  # ITL2
+# Try to initialize the temperature controller
+tempcon.initialize()
+if tempcon.is_initialized:
+    cid = tempcon.control_temperature_id
+    ctemp_set = tempcon.control_temperature
+    ctemp_sensor = tempcon.get_temperature(cid)
+    channel_vals = ['A', 'B', 'C', 'D']
+    print('')
+    print(f"Control sensor temp on Ch {channel_vals[cid]}: {ctemp_sensor} C")
+    print(f"Control sensor setpoint: {ctemp_set} C")
+    print('')
+else:
+    azcam.exceptions.warning("WARNING: Temperature controller could not initialize!")
 
 # ****************************************************************
 # system header

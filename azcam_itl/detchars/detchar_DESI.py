@@ -7,6 +7,7 @@ import azcam
 import azcam.utils
 import azcam.exceptions
 import azcam_console.console
+import azcam_console.plot
 from azcam_console.testers.detchar import DetChar
 from azcam_itl import itlutils
 
@@ -370,6 +371,10 @@ class DesiDetCharClass(DetChar):
             azcam.utils.curdir(rootfolder)
             print("")
 
+        # Close plot windows
+        print("Finished analysis. Closing all plot windows.")
+        azcam_console.plot.close_figure("all")
+
         # report
         self.make_summary_report()
         self.make_report()
@@ -403,6 +408,17 @@ class DesiDetCharClass(DetChar):
 
         return tarfile
 
+
+# Try to initialize the temperature controller
+tcon = azcam_console.utils.get_tools(["tempcon"])[0]
+tcon.initialize()
+try:
+    ctemp_set = tcon.get_control_temperature()
+    ctemp_sensor = tcon.get_temperatures()[0]
+    print(f"Control sensor temperature: {ctemp_sensor:.2f} C")
+    print(f"Control sensor setpoint: {ctemp_set:.1f} C")
+except:
+    azcam.exceptions.warning("WARNING: Temperature controller could not initialize!")
 
 # create instance
 detchar = DesiDetCharClass()
