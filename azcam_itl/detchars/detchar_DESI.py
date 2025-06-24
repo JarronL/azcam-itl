@@ -188,7 +188,7 @@ class DesiDetCharClass(DetChar):
 
         try:
             # *************************************************************************
-            # gain images
+            # gain images (acquire and analyze gain)
             # *************************************************************************
             gain.find()
 

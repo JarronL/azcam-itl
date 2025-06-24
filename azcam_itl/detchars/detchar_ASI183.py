@@ -177,9 +177,8 @@ class ASI183DetChar(DetChar):
             bias.acquire()
             itlutils.imsnap(self.imsnap_scale, "last")
 
-            # gain images
+            # gain, acquire and analyze gain
             gain.find()
-            gain.acquire()
 
             # gainmap
             gainmap.acquire()
@@ -451,28 +450,28 @@ azcam_console.utils.set_image_roi([[500, 600, 500, 600], [500, 600, 500, 600]])
 # mult all by 3x
 detcal.exposures = {
     400: 2.0,
-    420: 1.4,
+    420: 1.5,
     440: 1.2,
-    460: 1.5,
-    480: 1.5,
-    500: 1.5,
-    520: 1.6,
-    540: 2.0,
-    560: 2.0,
+    460: 1.1,
+    480: 1.0,
+    500: 1.1,
+    520: 1.3,
+    540: 1.5,
+    560: 1.5,
     580: 2.0,
     600: 2.0,
-    620: 3.0,
-    640: 3.0,
-    660: 4.0,
-    680: 5.0,
-    700: 6.0,
-    720: 8.0,
-    740: 10.0,
-    760: 12.0,
-    780: 14.0,
-    800: 20.0,
+    620: 2.0,
+    640: 2.5,
+    660: 3.0,
+    680: 3.5,
+    700: 4.0,
+    720: 6.0,
+    740: 7.0,
+    760: 8.0,
+    780: 12.0,
+    800: 14.0,
 }
-detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi183.txt")
+detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi183_bin2.txt")
 detcal.mean_count_goal = 4500
 detcal.range_factor = 1.3
 

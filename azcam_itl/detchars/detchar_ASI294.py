@@ -178,9 +178,8 @@ class ASI294DetChar(DetChar):
             bias.acquire()
             itlutils.imsnap(self.imsnap_scale, "last")
 
-            # gain images
+            # gain, acquire and analyze gain
             gain.find()
-            gain.acquire()
 
             # gainmap
             gainmap.acquire()

@@ -189,8 +189,7 @@ class IMX411DetChar(DetChar):
             itlutils.imsnap(self.imsnap_scale, "last")
 
             # gain images
-            # gain.find()
-            gain.acquire()
+            gain.find()
 
             # Prnu images
             azcam.db.tools["prnu"].acquire()
