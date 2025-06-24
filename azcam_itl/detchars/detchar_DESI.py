@@ -29,6 +29,8 @@ class DesiDetCharClass(DetChar):
         self.start_delay = 0
         self.start_temperature = -1000
 
+        self.use_fe55_gain = 1
+
         # reports
         self.report_names = [
             "gain",
@@ -75,12 +77,12 @@ class DesiDetCharClass(DetChar):
         # ****************************************************************
         if self.camera_id == "":
             azcam.exceptions.warning("Unspecified sensor ID")
-            self.camera_id = ""
-            self.package_id = ""
+            self.camera_id = "UNKNOWN"
+            self.package_id = "UNKNOWN"
         else:
-            self.wafer = azcam.utils.prompt("Enter wafer")
-            self.lot = azcam.utils.prompt("Enter lot", "227599")
             self.device_type = "STA4150"
+            self.lot = azcam.utils.prompt("Enter lot", "232139")
+            self.wafer = azcam.utils.prompt("Enter wafer")
             self.package_id = azcam.utils.prompt("Enter package ID")
         self.coating = azcam.utils.prompt("Enter AR coating (RED or BLUE)", "UNKNOWN").upper()
         self.report_name = f"CharacterizationReport_{self.camera_id}"
@@ -215,6 +217,12 @@ class DesiDetCharClass(DetChar):
             bias.acquire()
 
             # superflat sequence
+            if self.coating.upper() == "BLUE":
+                superflat.wavelength = 400  # blue - dark defects
+            elif self.coating.upper() == "RED":
+                superflat.wavelength = 650  # red - dark defects
+            else:
+                superflat.wavelength = 500
             superflat.acquire()
 
             # PTC and linearity
@@ -299,6 +307,22 @@ class DesiDetCharClass(DetChar):
         azcam.utils.curdir(rootfolder)
         print("")
 
+        # Fe-55
+        azcam.utils.curdir("fe55")
+        fe55.analyze()
+        azcam.utils.curdir(rootfolder)
+        print("")
+
+        # use fe55 gain from now on
+        if self.use_fe55_gain:
+            gain.fe55_gain()
+
+        # darks
+        azcam.utils.curdir("dark")
+        dark.analyze()
+        azcam.utils.curdir(rootfolder)
+        print("")
+
         # superflats
         azcam.utils.curdir("superflat")
         superflat.analyze()
@@ -312,19 +336,7 @@ class DesiDetCharClass(DetChar):
 
         # linearity from PTC data
         azcam.utils.curdir("ptc")
-        azcam.db.tools["linearity"].analyze()
-        azcam.utils.curdir(rootfolder)
-        print("")
-
-        # Fe-55
-        azcam.utils.curdir("fe55")
-        fe55.analyze()
-        azcam.utils.curdir(rootfolder)
-        print("")
-
-        # darks
-        azcam.utils.curdir("dark")
-        dark.analyze()
+        linearity.analyze()
         azcam.utils.curdir(rootfolder)
         print("")
 
@@ -372,7 +384,7 @@ class DesiDetCharClass(DetChar):
             print("")
 
         # Close plot windows
-        print("Finished analysis. Closing all plot windows.")
+        print("Finished analysis. Closing all plot windows.\n")
         azcam_console.plot.close_figure("all")
 
         # report
@@ -386,36 +398,51 @@ class DesiDetCharClass(DetChar):
         Prepare a dataset for upload by creating a compressed tar file.
         """
 
-        idstring = azcam.utils.prompt("Enter dataset name")
-
         cd = azcam.utils.curdir()
-        foldername = cd
+        pathname = cd
+        foldername = os.path.basename(pathname)
+
+        try:
+            x = pathname.index("DIEID-")
+            if x > 0:
+                id = pathname[x + 6 : x + 9]
+            else:
+                raise ValueError
+
+            idstring = f"DIEID{id}_{foldername}"
+        except ValueError:
+            id = 0
+            idstring = azcam.utils.prompt("Enter desired archive name")
 
         # cleanup folder
         azcam.log("cleaning dataset folder")
-        itlutils.cleanup_files(foldername)
+        itlutils.cleanup_files(pathname)
 
         # copy folder to new name
         azcam.log(f"copying dataset to {idstring}")
-        # shutil.copytree(os.path.basename(foldername), idstring)
-        shutil.copytree(foldername, idstring)
+        # shutil.copytree(os.path.basename(pathname), idstring)
+        shutil.copytree(pathname, idstring)
 
         # make tar file
-        azcam.log("making tar file")
-        tarfile = itlutils.archive(idstring, "tar.gz")
+        azcam.log(f"making tar file: {idstring}.tar")
+        tarfile = itlutils.archive(idstring, "tar")
 
         azcam.utils.curdir(cd)
+
+        # Remove the copied folder
+        azcam.log(f"Removing copied folder {idstring}")
+        shutil.rmtree(idstring)
 
         return tarfile
 
 
 # Try to initialize the temperature controller
-tcon = azcam_console.utils.get_tools(["tempcon"])[0]
-tcon.initialize()
+tempcon = azcam.db.tools['tempcon']
 try:
-    ctemp_set = tcon.get_control_temperature()
-    ctemp_sensor = tcon.get_temperatures()[0]
+    tempcon.initialize()
+    ctemp_sensor = tempcon.get_temperatures()[0]
     print(f"Control sensor temperature: {ctemp_sensor:.2f} C")
+    ctemp_set = tempcon.get_control_temperature()
     print(f"Control sensor setpoint: {ctemp_set:.1f} C")
 except:
     azcam.exceptions.warning("WARNING: Temperature controller could not initialize!")
@@ -514,7 +541,8 @@ dark.grade_bright_defects = 1
 
 # superflats and dark pixels
 superflat.exposure_time = 5.0
-superflat.wavelength = 400  # blue - dark defects
+# Correct wavelength is selected during acquisition
+# superflat.wavelength = 400  # blue - dark defects
 # superflat.wavelength = 600  # red - dark defects
 superflat.number_images_acquire = 3  # number of images
 superflat.grade_dark_defects = 1
@@ -594,13 +622,15 @@ qe.window_trans = {
 prnu.allowable_deviation_from_mean = 0.1
 prnu.root_name = "qe."
 prnu.overscan_correct = 1
+prnu.zero_correct = 0
 prnu.wavelengths = [350, 400, 500, 600, 700, 800]
 prnu.grade_sensor = 1
 
 # fe55
 fe55.overscan_correct = 0
 fe55.zero_correct = 0
-fe55.dark_correct = 0
+# fe55.dark_correct = 0 # NOTE: Appears to not be implemented (JML 2025-05-13)
+# fe55.first_col_fit = 200
 
 fe55.number_images_acquire = 1
 fe55.exposure_time = 60.0
