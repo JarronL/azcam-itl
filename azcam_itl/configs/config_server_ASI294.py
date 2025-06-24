@@ -52,8 +52,27 @@ azcam.db.par_table["cmos_gain"] = "controller.camera.Gain"
 # ****************************************************************
 # temperature controller
 # ****************************************************************
-azcam.db.tools["tempcon"].control_temperature = +20.0
-azcam.db.tools["tempcon"].initialize()
+tempcon = azcam.db.tools["tempcon"]
+tempcon.control_temperature = +20.0
+# Try to initialize the temperature controller
+try:
+    tempcon.initialize()
+    cid = tempcon.control_temperature_id
+    ctemp_set = tempcon.control_temperature
+    ctemp_sensor = tempcon.get_temperature(cid)
+    channel_vals = [0, 1]
+    print('')
+    print(f"Control sensor temp on Ch {channel_vals[cid]}: {ctemp_sensor} C")
+    print(f"Control sensor setpoint: {ctemp_set} C")
+    print('')
+except:
+    azcam.exceptions.warning("WARNING: Temperature controller could not initialize!")
+
+# ****************************************************************
+# instrument
+# ****************************************************************
+# Turn off shutter strobe
+azcam.db.tools["instrument"].shutter_strobe = 0
 
 # ****************************************************************
 # exposure
@@ -86,4 +105,10 @@ system = System("ASI294", template)
 # ****************************************************************
 # detector
 # ****************************************************************
-exposure.set_detpars(detector_asi294)
+if controller.is_initialized:
+    exposure.set_detpars(detector_asi294)
+else:
+    azcam.exceptions.warning(
+        "ASI294 controller is not initialized, cannot set detector parameters."
+    )
+
