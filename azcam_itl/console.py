@@ -58,6 +58,7 @@ def setup():
         # "LVM": "LVM",
         "ZWO ASI6200MM CMOS camera": "ASI6200MM",
         "ZWO ASI294 CMOS camera": "ASI294",
+        "ZWO ASI183 CMOS camera": "ASI183",
         "QHY174 CMOS camera": "QHY174",
         # "ITL4k": "ITL4k",
         "90prime4k": "90prime4k",
@@ -116,6 +117,9 @@ def setup():
     elif azcam.db.systemname == "90prime4k":
         from azcam_itl.detchars.detchar_90prime4k import detchar
 
+    elif azcam.db.systemname == "ASI183":
+        from azcam_itl.detchars.detchar_ASI183 import detchar
+
     elif azcam.db.systemname == "ASI294":
         from azcam_itl.detchars.detchar_ASI294 import detchar
 
@@ -125,11 +129,11 @@ def setup():
     elif azcam.db.systemname == "IMX411":
         from azcam_itl.detchars.detchar_IMX411 import detchar
 
-    elif azcam.db.systemname == "OSU4k":
-        from azcam_itl.detchars.detchar_OSU4k import detchar
+    # elif azcam.db.systemname == "OSU4k":
+    #     from azcam_itl.detchars.detchar_OSU4k import detchar
 
-    elif azcam.db.systemname == "ITL4k":
-        from azcam_itl.detchars.detchar_ITL4k import detchar
+    # elif azcam.db.systemname == "ITL4k":
+    #     from azcam_itl.detchars.detchar_ITL4k import detchar
 
     if azcam.db.wd is None:
         azcam.db.wd = azcam.db.datafolder
