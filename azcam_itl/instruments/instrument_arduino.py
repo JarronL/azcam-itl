@@ -384,7 +384,7 @@ if __name__ == "__main__":
         while 1:
             for i in range(2, 8):
                 state = random.randint(0, 1)
-                ebserver.set_led(ebserver.led_pins[i], state)
+                arduino.set_led(arduino.led_pins[i], state)
                 time.sleep(random.random() * 0.1)
 
 
