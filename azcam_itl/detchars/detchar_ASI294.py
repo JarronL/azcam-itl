@@ -405,9 +405,9 @@ class ASI294DetChar(DetChar):
 tempcon = azcam.db.tools["tempcon"]
 try:
     tempcon.initialize()
-    ctemp_set = tempcon.get_control_temperature()
     ctemp_sensor = tempcon.get_temperatures()[0]
     print(f"Control sensor temperature: {ctemp_sensor:.2f} C")
+    ctemp_set = tempcon.get_control_temperature()
     print(f"Control sensor setpoint: {ctemp_set:.1f} C")
 except:
     azcam.exceptions.warning("WARNING: Temperature controller could not initialize!")
