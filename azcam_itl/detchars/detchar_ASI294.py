@@ -20,7 +20,7 @@ class ASI294DetChar(DetChar):
         super().__init__()
 
         self.imsnap_scale = 1.0
-        self.start_temperature = -15.0
+        self.start_temperature = None #-15.0
 
         self.start_delay = 0
 
@@ -66,12 +66,12 @@ class ASI294DetChar(DetChar):
         self.system = "ASI294MM-P"
         self.summary_report_name = f"SummaryReport_{self.camera_id}"
         self.report_name = f"CharacterizationReport__ASI294_{self.camera_id}.pdf"
-        self.operator = "Michael Lesser"
+        self.operator = azcam.utils.prompt("Enter operator", "lab user")
 
         self.summary_lines = []
         self.summary_lines.append("# ITL Camera Characterization Report")
 
-        self.summary_lines.append("|||")
+        self.summary_lines.append(f"|Project        |STP|")
         self.summary_lines.append("|:---|:---|")
         self.summary_lines.append(f"|Customer       |UASAL|")
         self.summary_lines.append(f"|System         |ZWO ASI294MM-P|")
@@ -128,10 +128,11 @@ class ASI294DetChar(DetChar):
         # *************************************************************************
         # wait for temperature
         # *************************************************************************
-        if self.start_temperature != -1000:
+        if self.start_temperature is not None:
+            print(f"Waiting for temperature to get below {self.start_temperature:.1f} C")
             while True:
                 t = tempcon.get_temperatures()[0]
-                print("Current temperature: %.1f" % t)
+                print(f"  Current temperature: {t:.1f}")
                 if t <= self.start_temperature + 0.5:
                     break
                 else:
@@ -157,6 +158,7 @@ class ASI294DetChar(DetChar):
             "report", 1, 1
         )  # start with report1
         azcam.utils.curdir(reportfolder)
+        azcam.db.parameters.set_par("imagefolder", reportfolder)
 
         # *************************************************************************
         # Acquire data
@@ -177,7 +179,7 @@ class ASI294DetChar(DetChar):
             itlutils.imsnap(self.imsnap_scale, "last")
 
             # gain images
-            # gain.find()
+            gain.find()
             gain.acquire()
 
             # gainmap
@@ -211,8 +213,10 @@ class ASI294DetChar(DetChar):
         Analyze data.
         """
 
-        print("Begin analysis of ASI294 dataset")
         rootfolder = azcam.utils.curdir()
+
+        if not self.is_setup:
+            self.setup()
 
         (
             exposure,
@@ -240,15 +244,11 @@ class ASI294DetChar(DetChar):
             ]
         )
 
-        if not self.is_setup:
-            self.setup()
-
         # analyze bias
-        if 0:
-            azcam.utils.curdir("bias")
-            bias.analyze()
-            azcam.utils.curdir(rootfolder)
-            print("")
+        azcam.utils.curdir("bias")
+        bias.analyze()
+        azcam.utils.curdir(rootfolder)
+        print("")
 
         # analyze gain
         azcam.utils.curdir("gain")
@@ -262,6 +262,12 @@ class ASI294DetChar(DetChar):
             gainmap.analyze()
             azcam.utils.curdir(rootfolder)
             print("")
+
+        # analyze darks
+        azcam.utils.curdir("dark")
+        dark.analyze()
+        azcam.utils.curdir(rootfolder)
+        print("")
 
         # analyze superflats
         azcam.utils.curdir("superflat1")
@@ -291,12 +297,6 @@ class ASI294DetChar(DetChar):
         azcam.utils.curdir(rootfolder)
         print("")
 
-        # analyze darks
-        azcam.utils.curdir("dark")
-        dark.analyze()
-        azcam.utils.curdir(rootfolder)
-        print("")
-
         # analyze qe
         azcam.utils.curdir("qe")
         azcam.db.tools["qe"].analyze()
@@ -320,6 +320,10 @@ class ASI294DetChar(DetChar):
             defects.analyze()
             azcam.utils.curdir(rootfolder)
             print("")
+
+        # Close plot windows
+        print("Finished analysis. Closing all plot windows.\n")
+        azcam_console.plot.close_figure("all")
 
         # make report
         self.make_summary_report()
@@ -394,7 +398,19 @@ class ASI294DetChar(DetChar):
                 print("File not copied")
 
         return
+    
+# ****************************************************************
 
+# Try to initialize the temperature controller
+tempcon = azcam.db.tools["tempcon"]
+try:
+    tempcon.initialize()
+    ctemp_set = tempcon.get_control_temperature()
+    ctemp_sensor = tempcon.get_temperatures()[0]
+    print(f"Control sensor temperature: {ctemp_sensor:.2f} C")
+    print(f"Control sensor setpoint: {ctemp_set:.1f} C")
+except:
+    azcam.exceptions.warning("WARNING: Temperature controller could not initialize!")
 
 # create instance
 detchar = ASI294DetChar()
@@ -429,7 +445,7 @@ detchar = ASI294DetChar()
     ]
 )
 
-detchar.start_temperature = 20.0
+# detchar.start_temperature = 20.0
 # ***********************************************************************************
 # parameters
 # ***********************************************************************************
@@ -441,26 +457,27 @@ detcal.exposures = {
     400: 2.0,
     420: 1.4,
     440: 1.2,
-    460: 1.5,
-    480: 1.5,
-    500: 1.5,
-    520: 1.6,
-    540: 2.0,
-    560: 2.0,
-    580: 2.0,
-    600: 2.0,
-    620: 3.0,
-    640: 3.0,
-    660: 4.0,
-    680: 5.0,
-    700: 6.0,
-    720: 8.0,
-    740: 10.0,
-    760: 12.0,
-    780: 14.0,
-    800: 20.0,
+    460: 1.1,
+    480: 1.0,
+    500: 1.3,
+    520: 1.4,
+    540: 1.5,
+    560: 1.5,
+    580: 1.8,
+    600: 1.8,
+    620: 2.0,
+    640: 2.5,
+    660: 3.0,
+    680: 3.5,
+    700: 4.5,
+    720: 5.0,
+    740: 6.0,
+    760: 8.0,
+    780: 12.0,
+    800: 12.0,
 }
-detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi294.txt")
+detcal.data_file = os.path.join(azcam.db.datafolder, "detcal_asi294_bin2.txt")
+# detcal.read_datafile(detcal.data_file)
 detcal.mean_count_goal = 4500
 detcal.range_factor = 1.3
 
@@ -469,25 +486,25 @@ bias.number_images_acquire = 50
 
 # gain
 gain.number_pairs = 1
-gain.exposure_time = 1.0
+gain.exposure_time = 3.0
 gain.wavelength = 400
 gain.video_processor_gain = []
 
 # gainmap
 gainmap.number_bias_images = 20
 gainmap.number_flat_images = 20
-gainmap.exposure_time = 1
+gainmap.exposure_time = 3.0
 gainmap.wavelength = 500
 
 # dark signal and bright pixels
 dark.number_images_acquire = 5
 dark.exposure_time = 600.0
 dark.mean_dark_spec = -1
-dark.bright_pixel_reject = 0.05  # e/pix/sec clip
+dark.bright_pixel_reject = -1  # e/pix/sec clip; -1 for auto clipping
 dark.allowable_bright_pixels = -1
 dark.overscan_correct = 0  # flag to overscan correct images
 dark.zero_correct = 1  # flag to correct with bias residuals
-dark.report_plots = ["darkimage"]  # plots to include in report
+dark.report_plots = ["total_hist", "darkimage"]  # plots to include in report
 dark.report_dark_per_hour = 0
 dark.grade_dark_signal = 0
 dark.grade_bright_defects = 0
@@ -500,6 +517,8 @@ superflat.grade_dark_defects = 0
 superflat.dark_pixel_reject = 0.50  # reject pixels below this value from mean
 superflat.allowable_dark_pixels = -1
 superflat.grade_sensor = 0
+superflat.overscan_correct = 0  # flag to overscan correct images
+superflat.zero_correct = 1  # flag to correct with bias residuals
 
 # ptc
 ptc.wavelength = 500
@@ -558,7 +577,7 @@ linearity.use_weights = 0
 
 # QE
 qe.cal_scale = 1.011  # 01May24 measured physically ARB
-qe.global_scale = 1.0  # correction
+qe.global_scale = 1.135  # correction
 qe.pixel_area = 0.002315**2
 qe.flux_cal_folder = "/data/asi294"
 qe.plot_limits = [[400.0, 800.0], [0.0, 100.0]]
@@ -627,3 +646,13 @@ prnu.exposure_levels = {
     760: prnu.mean_count_goal,
     800: prnu.mean_count_goal,
 }
+
+
+# # Initialize QB instrument (monochrometer, shutter, etc.)
+# azcam.log("Initializing instrument")
+# instrument =  azcam_console.utils.get_tools(["instrument"])[0]
+# instrument.initialize()
+
+# azcam.log("Using monochrometer shutter for exposures")
+# time.sleep(1)
+# instrument.use_mono_shutter(1)  # use monochrometer shutter
