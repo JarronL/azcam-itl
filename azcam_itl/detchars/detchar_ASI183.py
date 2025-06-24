@@ -53,12 +53,10 @@ class ASI183DetChar(DetChar):
             "bias": "bias/bias",
         }
 
-    def setup(self, camera_id="2f348f01230009000"):
+    def setup(self, camera_id="05280e0a17020900"):
         """
         Setup
         """
-
-        # camera_id="1812911309020900"
 
         self.camera_id = azcam.utils.prompt("Enter camera ID", camera_id)
 
@@ -72,10 +70,10 @@ class ASI183DetChar(DetChar):
         self.summary_lines = []
         self.summary_lines.append("# ITL Camera Characterization Report")
 
-        self.summary_lines.append(f"|Project        |STP|")
+        self.summary_lines.append(f"|Project        |TOLIMAN|")
         self.summary_lines.append("|:---|:---|")
-        self.summary_lines.append(f"|Customer       |UASAL|")
-        self.summary_lines.append(f"|System         |ZWO ASI183MM-P|")
+        self.summary_lines.append(f"|Customer       |USYD|")
+        self.summary_lines.append(f"|System         |ZWO {self.system}|")
         self.summary_lines.append(f"|ID             |{self.camera_id}|")
         self.summary_lines.append(f"|Operator       |{self.operator}|")
 
@@ -180,7 +178,7 @@ class ASI183DetChar(DetChar):
             itlutils.imsnap(self.imsnap_scale, "last")
 
             # gain images
-            # gain.find()
+            gain.find()
             gain.acquire()
 
             # gainmap
@@ -247,11 +245,10 @@ class ASI183DetChar(DetChar):
             self.setup()
 
         # analyze bias
-        if 0:
-            azcam.utils.curdir("bias")
-            bias.analyze()
-            azcam.utils.curdir(rootfolder)
-            print("")
+        azcam.utils.curdir("bias")
+        bias.analyze()
+        azcam.utils.curdir(rootfolder)
+        print("")
 
         # analyze gain
         azcam.utils.curdir("gain")
@@ -265,6 +262,12 @@ class ASI183DetChar(DetChar):
             gainmap.analyze()
             azcam.utils.curdir(rootfolder)
             print("")
+
+        # analyze darks
+        azcam.utils.curdir("dark")
+        dark.analyze()
+        azcam.utils.curdir(rootfolder)
+        print("")
 
         # analyze superflats
         azcam.utils.curdir("superflat1")
@@ -291,12 +294,6 @@ class ASI183DetChar(DetChar):
             azcam.utils.curdir(rootfolder)
             azcam.utils.curdir("ptc")
             azcam.db.tools["linearity"].analyze()
-        azcam.utils.curdir(rootfolder)
-        print("")
-
-        # analyze darks
-        azcam.utils.curdir("dark")
-        dark.analyze()
         azcam.utils.curdir(rootfolder)
         print("")
 
@@ -398,6 +395,8 @@ class ASI183DetChar(DetChar):
 
         return
 
+# ****************************************************************
+
 # Try to initialize the temperature controller
 tempcon = azcam.db.tools["tempcon"]
 try:
@@ -482,25 +481,25 @@ bias.number_images_acquire = 50
 
 # gain
 gain.number_pairs = 1
-gain.exposure_time = 1.0
+gain.exposure_time = 3.0
 gain.wavelength = 400
 gain.video_processor_gain = []
 
 # gainmap
 gainmap.number_bias_images = 20
 gainmap.number_flat_images = 20
-gainmap.exposure_time = 1
+gainmap.exposure_time = 3.0
 gainmap.wavelength = 500
 
 # dark signal and bright pixels
 dark.number_images_acquire = 5
 dark.exposure_time = 600.0
 dark.mean_dark_spec = -1
-dark.bright_pixel_reject = 0.05  # e/pix/sec clip
+dark.bright_pixel_reject = -1  # e/pix/sec clip; -1 for auto clipping
 dark.allowable_bright_pixels = -1
 dark.overscan_correct = 0  # flag to overscan correct images
 dark.zero_correct = 1  # flag to correct with bias residuals
-dark.report_plots = ["darkimage"]  # plots to include in report
+dark.report_plots = ["total_hist", "darkimage"]  # plots to include in report
 dark.report_dark_per_hour = 0
 dark.grade_dark_signal = 0
 dark.grade_bright_defects = 0
@@ -513,6 +512,8 @@ superflat.grade_dark_defects = 0
 superflat.dark_pixel_reject = 0.50  # reject pixels below this value from mean
 superflat.allowable_dark_pixels = -1
 superflat.grade_sensor = 0
+superflat.overscan_correct = 0  # flag to overscan correct images
+superflat.zero_correct = 1  # flag to correct with bias residuals
 
 # ptc
 ptc.wavelength = 500
@@ -571,8 +572,8 @@ linearity.use_weights = 0
 
 # QE
 qe.cal_scale = 1.011  # 01May24 measured physically ARB
-qe.global_scale = 1.0  # correction
-qe.pixel_area = 0.002315**2
+qe.global_scale = 1.135  # correction
+qe.pixel_area = 0.0024**2
 qe.flux_cal_folder = "/data/asi183"
 qe.plot_limits = [[400.0, 800.0], [0.0, 100.0]]
 qe.plot_title = "ZWO ASI183 Quantum Efficiency"
