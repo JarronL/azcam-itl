@@ -317,14 +317,14 @@ class InstrumentProber(Instrument):
 
         return ledstring
 
-    def get_wavelengths(self, wavelength_id=0):
+    def get_wavelengths(self, *args, **kwargs):#, wavelength_id=0):
         """
         Returns a list of valid led colors.
         """
 
         return list(self.led_codes.keys())[1:]
 
-    def get_wavelength(self, wavelength_id=0):
+    def get_wavelength(self, *args, **kwargs):#, wavelength_id=0):
         """
         Return current LED wavelength.
         """
@@ -336,7 +336,7 @@ class InstrumentProber(Instrument):
 
         return leds[0]
 
-    def set_wavelength(self, wavelength, wavelength_id=0):
+    def set_wavelength(self, wavelength, *args, **kwargs):#, wavelength_id=0):
         """
         Set current LED wavelength.
         """
@@ -380,7 +380,7 @@ class InstrumentProber(Instrument):
 
         return reply
 
-    def get_filters(self, filter_id=0):
+    def get_filters(self, *args, **kwargs):#, filter_id=0):
         """
         Return list of valid filter names.
         """
@@ -389,7 +389,7 @@ class InstrumentProber(Instrument):
 
         return reply
 
-    def get_filter(self, filter_id=0):
+    def get_filter(self, *args, **kwargs):#, filter_id=0):
         """
         Return the filter in the beam.
         filter_id is the filter mechanism ID.
@@ -399,7 +399,7 @@ class InstrumentProber(Instrument):
 
         return reply
 
-    def set_filter(self, filter_name, filter_id=0):
+    def set_filter(self, filter_name, *args, **kwargs):#, filter_id=0):
         """
         Set the filter in the beam.
         filter_name is a string containing the filter name to set.
@@ -471,7 +471,7 @@ class FilterWheelProber(object):
 
         return
 
-    def get_filter(self, filter_id=0):
+    def get_filter(self):#, filter_id=0):
         """
         Return the filter in the beam.
         FilterID is the filter mechanism ID.
@@ -482,7 +482,7 @@ class FilterWheelProber(object):
 
         return filter_name
 
-    def set_filter(self, filter_name, filter_id=0):
+    def set_filter(self, filter_name):#, filter_id=0):
         """
         Set the filter in the beam.
         FilterID is the filter mechanism ID.
