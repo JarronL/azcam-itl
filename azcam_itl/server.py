@@ -71,6 +71,7 @@ def setup():
         # "LVM": "LVM",
         "ZWO ASI6200MM CMOS camera": "ASI6200MM",
         "ZWO ASI294MM CMOS camera": "ASI294MM",
+        "ZWO ASI183MM CMOS camera": "ASI183MM",
         "Moravian IMX411 CMOS camera": "IMX411",
         # "OSU4k": "OSU4k",
         "90prime4k": "90prime4k",
