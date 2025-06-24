@@ -61,9 +61,10 @@ class IMX411DetChar(DetChar):
             "bias": "bias/bias",
         }
 
-    def setup(self, camera_id=""None""):
+    def setup(self, camera_id=""):
 
-        self.camera_id = azcam.utils.prompt("Enter report ID", camera_id)
+        if camera_id == "":
+            self.camera_id = azcam.utils.prompt("Enter camera ID", camera_id)
 
         # sponsor/report info
         self.customer = "UArizona"
@@ -79,7 +80,7 @@ class IMX411DetChar(DetChar):
         self.summary_lines.append("|:---|:---|")
         self.summary_lines.append(f"|Customer       |UArizona|")
         self.summary_lines.append(f"|Project        |Oracle Search Sensor-2|")
-        self.summary_lines.append(f"|System         |Sony IMX455|")
+        self.summary_lines.append(f"|System         |Sony IMX411|")
         self.summary_lines.append(f"|Camera SN      |{self.camera_id}|")
         self.summary_lines.append(f"|Author         |{self.operator}|")
 
