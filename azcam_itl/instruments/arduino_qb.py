@@ -34,6 +34,7 @@ class ArduinoQB(object):
 
         # set Arduino pins for shutter mode at start
         self.send_command("S")
+        self.arduino_state = "shutter"
 
         return
 
@@ -51,17 +52,18 @@ class ArduinoQB(object):
         return complist
 
     def set_comps(self, comp_names=["shutter"]):
-        if type(comp_names) == list:
-            lamps = " ".join(comp_names)
-        else:
-            lamps = comp_names.lower()
 
-        if lamps == "shutter":
+        if "shutter" in comp_names:
             self.send_command("S")
-        elif lamps == "fe55":
+            self.arduino_state = "shutter"
+        elif "fe55" in comp_names:
             self.send_command("F")
+            self.arduino_state = "fe55"
         else:
-            self.send_command("S")
+            azcam.exceptions.warning(
+                f"arduino_qb: Unknown comparison '{comp_names}' specified. "
+                "Valid comparisons are 'shutter' and 'fe55'."
+            )
 
         return
 
@@ -103,6 +105,12 @@ class ArduinoQB(object):
     def set_shutter_state(self, state):
         """
         Open or close Oriel shutter.
+        This is also called for Fe55 control from comps_on() and comps_off().
+        
+        For shutter control:
+            state: 1 to open shutter, 0 to close shutter.
+        For Fe55 control:
+            state: 1 "opens" Fe55 (deactivates), 0 to "close" or deploy Fe55.
         """
 
         state = int(state)
@@ -110,6 +118,14 @@ class ArduinoQB(object):
         if state:
             self.send_command("O")
         else:
-            self.send_command("C")
+            if self.arduino_state == "shutter":
+                self.send_command("S")
+            elif self.arduino_state == "fe55":
+                self.send_command("C")
+            else:
+                azcam.exceptions.warning(
+                    f"arduino_qb: Unknown arduino state '{self.arduino_state}'. "
+                    "Valid states are 'shutter' and 'fe55'."
+                )
 
         return
