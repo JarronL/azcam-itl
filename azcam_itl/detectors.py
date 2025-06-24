@@ -381,6 +381,19 @@ detector_qhy600 = {
     "jpg_order": [1],
 }
 
+x = 5496
+y = 3672
+detector_asi183 = {
+    "name": "ASI183",
+    "description": "ZWO ASI183MM Pro CMOS camera",
+    "ref_pixel": [x / 2, y / 2],
+    "format": [x, 0, 0, 0, y, 0, 0, 0, 0],
+    "focalplane": [1, 1, 1, 1, [0]],
+    "roi": [1, x, 1, y, 1, 1],
+    "ext_position": [[1, 1]],
+    "jpg_order": [1],
+}
+
 x = 8288
 y = 5644
 detector_asi294 = {
