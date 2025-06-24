@@ -37,6 +37,9 @@ exposure.add_extensions = 0
 exposure.image.focalplane.gains = 4 * [2.8]
 exposure.image.focalplane.rdnoises = 4 * [5.0]
 
+# ****************************************************************
+# temperature controller
+# ****************************************************************
 tempcon = azcam.db.tools["tempcon"]
 tempcon.control_temperature = -110.0
 tempcon.control_temperature_id = 3
