@@ -383,10 +383,6 @@ class DesiDetCharClass(DetChar):
             azcam.utils.curdir(rootfolder)
             print("")
 
-        # Close plot windows
-        print("Finished analysis. Closing all plot windows.\n")
-        azcam_console.plot.close_figure("all")
-
         # report
         self.make_summary_report()
         self.make_report()
@@ -452,6 +448,7 @@ detchar = DesiDetCharClass()
 
 # ROI
 azcam_console.utils.set_image_roi([[1950, 2000, 400, 450], [2051, 2055, 400, 450]])
+# azcam_console.utils.set_image_roi([[400, 450, 400, 450], [2051, 2055, 400, 450]])
 
 # define  tools
 (

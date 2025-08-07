@@ -320,10 +320,6 @@ class ASI183DetChar(DetChar):
             azcam.utils.curdir(rootfolder)
             print("")
 
-        # Close plot windows
-        print("Finished analysis. Closing all plot windows.\n")
-        azcam_console.plot.close_figure("all")
-
         # make report
         self.make_summary_report()
         self.make_report()
